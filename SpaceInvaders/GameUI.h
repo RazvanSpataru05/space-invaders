@@ -8,6 +8,7 @@
 #include "IGameEventObserver.h"
 #include "IGameService.h"
 #include "ScreenType.h"
+#include "StarField.h"
 
 class GameUI final : public GameLogic::IGameEventObserver
 {
@@ -50,6 +51,7 @@ private:
     GameLogic::GameSnapshot m_gameSnapshot{};
 
     // UI-only state (not in the diagram)
+    StarField m_starField;
     int m_selectedMenuItem = 0;
     bool m_shouldExit = false;
     bool m_isInitialized = false;

@@ -11,6 +11,7 @@ namespace
     constexpr int kScreenHeight = 720;
     constexpr int kTargetFps = 60;
     constexpr const char* kWindowTitle = "Space Invaders";
+    constexpr int kStarCount = 140;
 
     // Theme: black background, terminal green
     constexpr Color kBackgroundColor{ 0, 0, 0, 255 };
@@ -20,6 +21,7 @@ namespace
     constexpr int kTitleFontSize = 60;
     constexpr int kMenuFontSize = 30;
     constexpr int kHintFontSize = 20;
+    // raylib's default font is a 10 px bitmap: multiples of 10 keep it pixel-sharp.
 
     // Main menu
     enum class MainMenuItem
@@ -53,10 +55,22 @@ namespace
     }
 
     // Drawing helpers
-    void DrawTextCentered(const char* text, int y, int fontSize, Color color)
+    void DrawTextCentered(const char* text, int y, int fontSize, Color color, int xOffset = 0)
     {
         const int textWidth = MeasureText(text, fontSize);
-        DrawText(text, (GetScreenWidth() - textWidth) / 2, y, fontSize, color);
+        DrawText(text, (GetScreenWidth() - textWidth) / 2 + xOffset, y, fontSize, color);
+    }
+
+    // Width of the widest main menu label, so the selection bar never changes size.
+    int WidestMainMenuLabel()
+    {
+        int widest = 0;
+        for (const char* label : kMainMenuLabels)
+        {
+            const int width = MeasureText(label, kMenuFontSize);
+            widest = width > widest ? width : widest;
+        }
+        return widest;
     }
 
     // Temporary screen for everything that is not implemented yet.
@@ -96,6 +110,7 @@ void GameUI::Initialize()
     SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
     SetTargetFPS(kTargetFps);
 
+    m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
     m_currentScreen = ScreenType::MAIN_MENU;
     m_selectedMenuItem = 0;
     m_shouldExit = false;
@@ -108,11 +123,14 @@ void GameUI::Run()
 
     while (!m_shouldExit && !WindowShouldClose())
     {
+        const float deltaTime = GetFrameTime();
+
         HandleInput();
+        m_starField.Update(deltaTime);
 
         if (m_currentScreen == ScreenType::GAMEPLAY)
         {
-            m_gameService.Update(GetFrameTime());
+            m_gameService.Update(deltaTime);
             m_gameSnapshot = m_gameService.GetGameSnapshot();
         }
 
@@ -201,6 +219,7 @@ void GameUI::Render()
 {
     BeginDrawing();
     ClearBackground(kBackgroundColor);
+    m_starField.Draw(); // shared background for every screen
 
     switch (m_currentScreen)
     {
@@ -229,13 +248,26 @@ void GameUI::Render()
 
 void GameUI::RenderMainMenu()
 {
-    // Basic layout; the star field and final styling come in stage 3.
-    DrawTextCentered("SPACE INVADERS", 140, kTitleFontSize, kPrimaryGreen);
+    const int screenWidth = GetScreenWidth();
+    const int screenHeight = GetScreenHeight();
 
-    constexpr int firstItemY = 360;
-    constexpr int itemSpacing = 60;
-    constexpr int barPaddingX = 24;
-    constexpr int barPaddingY = 8;
+    // Title with a dim "drop shadow" and an underline
+    constexpr const char* title = "SPACE INVADERS";
+    constexpr int titleY = 150;
+    constexpr int shadowOffset = 4;
+    DrawTextCentered(title, titleY + shadowOffset, kTitleFontSize, kDimGreen, shadowOffset);
+    DrawTextCentered(title, titleY, kTitleFontSize, kPrimaryGreen);
+
+    const int titleWidth = MeasureText(title, kTitleFontSize);
+    DrawRectangle((screenWidth - titleWidth) / 2, titleY + kTitleFontSize + 20, titleWidth, 4, kDimGreen);
+
+    // Menu items: the selected one sits on a solid green bar with black text
+    constexpr int firstItemY = 380;
+    constexpr int itemSpacing = 64;
+    constexpr int barPaddingX = 48;
+    constexpr int barPaddingY = 10;
+    const int barWidth = WidestMainMenuLabel() + 2 * barPaddingX;
+    const int barHeight = kMenuFontSize + 2 * barPaddingY;
 
     for (int i = 0; i < kMainMenuItemCount; ++i)
     {
@@ -244,10 +276,7 @@ void GameUI::RenderMainMenu()
 
         if (i == m_selectedMenuItem)
         {
-            const int textWidth = MeasureText(label, kMenuFontSize);
-            const int barWidth = textWidth + 2 * barPaddingX;
-            DrawRectangle((GetScreenWidth() - barWidth) / 2, y - barPaddingY,
-                          barWidth, kMenuFontSize + 2 * barPaddingY, kPrimaryGreen);
+            DrawRectangle((screenWidth - barWidth) / 2, y - barPaddingY, barWidth, barHeight, kPrimaryGreen);
             DrawTextCentered(label, y, kMenuFontSize, kBackgroundColor);
         }
         else
@@ -255,6 +284,10 @@ void GameUI::RenderMainMenu()
             DrawTextCentered(label, y, kMenuFontSize, kPrimaryGreen);
         }
     }
+
+    // Controls hint
+    DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  QUIT",
+                     screenHeight - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderLevelSelection()

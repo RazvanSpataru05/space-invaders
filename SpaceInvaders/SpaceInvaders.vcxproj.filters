@@ -21,12 +21,18 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StarField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScreenType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StarField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

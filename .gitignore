@@ -1,5 +1,12 @@
+# Visual Studio solution files (each member keeps their own)
 *.slnx
 *.sln
-*.vs
-/x64
-/x86
+
+# Visual Studio local state
+.vs/
+
+# Build output, for every project, platform and configuration
+x64/
+x86/
+[Dd]ebug/
+[Rr]elease/

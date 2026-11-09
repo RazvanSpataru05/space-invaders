@@ -1,11 +1,11 @@
 #pragma once
 
-// Facade through which the UI talks to the game logic. Implemented by GameSession.
-// Subscribe / Unsubscribe are inherited from IGameEventSource, so GameSession only
-// needs to derive from IGameService (deriving from both would create a diamond).
-// Minimal version written alongside GameUI; the GameLogic owner may extend it.
 
-#include "Enums.h"
+#include "Enums/Difficulty.h"
+#include "Enums/LevelID.h"
+#include "Enums/Direction.h"
+#include "Enums/GameState.h"
+
 #include "GameTypes.h"
 #include "IGameEventSource.h"
 
@@ -16,7 +16,7 @@ namespace GameLogic
     public:
         ~IGameService() override = default;
 
-        virtual void StartGame(LevelId level, Difficulty difficulty) = 0;
+        virtual void StartGame(LevelID level, Difficulty difficulty) = 0;
         virtual void Update(float deltaTime) = 0;
         virtual void MovePlayer(Direction direction) = 0;
         virtual void Shoot() = 0;

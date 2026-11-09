@@ -4,9 +4,11 @@
 // reacts to game events. Talks to the game logic only through IGameService.
 // raylib is used only in GameUI.cpp so this header stays free of raylib names.
 
-#include "GameTypes.h"
-#include "IGameEventObserver.h"
-#include "IGameService.h"
+#include "Interfaces/IGameEventObserver.h"
+#include "Interfaces/IGameService.h"
+
+#include "Structs/GameSnapshot.h"
+
 #include "ScreenType.h"
 #include "StarField.h"
 
@@ -18,11 +20,7 @@ public:
     // Unsubscribes and closes the window if it was opened.
     ~GameUI() override;
 
-    // Registered with the service by address and holds a reference: not copyable or movable.
-    GameUI(const GameUI&) = delete;
-    GameUI& operator=(const GameUI&) = delete;
-    GameUI(GameUI&&) = delete;
-    GameUI& operator=(GameUI&&) = delete;
+  
 
     // Opens the window and sets up raylib. Safe to call more than once.
     void Initialize();
@@ -31,6 +29,13 @@ public:
 
     // IGameEventObserver
     void OnGameEvent(const GameLogic::GameEvent& event) override;
+ 
+private:
+    GameUI(const GameUI&) = delete;
+    GameUI& operator=(const GameUI&) = delete;
+
+    GameUI(GameUI&&) = delete;
+    GameUI& operator=(GameUI&&) = delete;
 
 private:
     void HandleInput();

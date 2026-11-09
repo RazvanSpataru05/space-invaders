@@ -6,8 +6,9 @@
 #include "Enums/Direction.h"
 #include "Enums/GameState.h"
 
-#include "GameTypes.h"
-#include "IGameEventSource.h"
+#include "Interfaces/IGameEventSource.h"
+
+#include "Structs/GameSnapshot.h"
 
 namespace GameLogic
 {

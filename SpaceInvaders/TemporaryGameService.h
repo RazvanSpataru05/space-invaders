@@ -3,11 +3,11 @@
 // TEMPORARY stand-in for GameSession so the UI can run before GameLogic is implemented.
 // When GameSession exists: use it in Main.cpp and delete this file (and remove it from the project).
 
+#include "Interfaces/IGameEventObserver.h"
+#include "Interfaces/IGameService.h"
+
 #include <algorithm>
 #include <vector>
-
-#include "IGameEventObserver.h"
-#include "IGameService.h"
 
 class TemporaryGameService final : public GameLogic::IGameService
 {
@@ -25,7 +25,7 @@ public:
         std::erase(m_observers, observer);
     }
 
-    void StartGame(GameLogic::LevelId level, GameLogic::Difficulty /*difficulty*/) override
+    void StartGame(GameLogic::LevelID level, GameLogic::Difficulty /*difficulty*/) override
     {
         m_snapshot = {};
         m_snapshot.currentLevel = level;

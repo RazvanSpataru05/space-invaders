@@ -1,6 +1,7 @@
 #include "GameUI.h"
 
 #include <array>
+#include <cstdint>
 
 #include <raylib.h>
 

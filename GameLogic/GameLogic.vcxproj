@@ -155,12 +155,11 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Difficulty.h" />
-    <ClInclude Include="Direction.h" />
-    <ClInclude Include="EnemyType.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="GameEventType.h" />
-    <ClInclude Include="GameState.h" />
+    <ClInclude Include="inc\Strategy\EasyDifficultyStrategy.h" />
+    <ClInclude Include="inc\Interfaces\IDifficultyStrategy.h" />
+    <ClInclude Include="inc\Strategy\HardDifficultyStrategy.h" />
+    <ClInclude Include="inc\Strategy\MediumDifficultyStrategy.h" />
+    <ClInclude Include="inc\Structs\DifficultyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyState.h" />
     <ClInclude Include="inc\Structs\GameEvent.h" />
     <ClInclude Include="inc\Structs\GameSnapshot.h" />
@@ -168,23 +167,22 @@
     <ClInclude Include="inc\Structs\PowerUpState.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Vector2.h" />
-    <ClInclude Include="LevelID.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="include\GameTypes.h" />
     <ClInclude Include="include\IGameEventObserver.h" />
     <ClInclude Include="include\IGameEventSource.h" />
     <ClInclude Include="include\IGameService.h" />
-    <ClInclude Include="PowerUpType.h" />
-    <ClInclude Include="ProjectileOwner.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameLogic.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Strategy\EasyDifficultyStrategy.cpp" />
+    <ClCompile Include="src\Strategy\HardDifficultyStrategy.cpp" />
+    <ClCompile Include="src\Strategy\MediumDifficultyStrategy.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

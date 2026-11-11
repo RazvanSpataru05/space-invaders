@@ -34,6 +34,7 @@ private:
     void HandleInput();
     void HandleMainMenuInput();
     void HandleLevelSelectionInput();
+    void HandleDifficultySelectionInput();
     void HandlePlaceholderInput();
 
     void Render();
@@ -52,7 +53,8 @@ private:
     // UI-only state (not in the diagram)
     StarField m_starField;
     int m_selectedMenuItem = 0;
-    int m_selectedLevel = 0; // 0..2 -> LevelId::LEVEL_1..LEVEL_3
+    int m_selectedLevel = 0;      // index into the level list (LEVEL_1..LEVEL_3)
+    int m_selectedDifficulty = 0; // index into the difficulty list (EASY..HARD)
     bool m_shouldExit = false;
     bool m_isInitialized = false;
 };

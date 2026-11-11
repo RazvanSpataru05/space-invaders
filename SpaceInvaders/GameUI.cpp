@@ -1,9 +1,13 @@
 #include "GameUI.h"
 
 #include <array>
+#include <span>
 #include <cstdint>
 
 #include <raylib.h>
+
+#include "Enums/Difficulty.h"
+#include "Enums/LevelID.h"
 
 namespace
 {
@@ -37,7 +41,17 @@ namespace
 
     // Level selection
     constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
+    constexpr std::array<GameLogic::LevelID, 3> kLevels{
+        GameLogic::LevelID::LEVEL_1, GameLogic::LevelID::LEVEL_2, GameLogic::LevelID::LEVEL_3 };
     constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
+    static_assert(kLevels.size() == kLevelLabels.size());
+
+    // Difficulty selection
+    constexpr std::array<const char*, 3> kDifficultyLabels{ "EASY", "MEDIUM", "HARD" };
+    constexpr std::array<GameLogic::Difficulty, 3> kDifficulties{
+        GameLogic::Difficulty::EASY, GameLogic::Difficulty::MEDIUM, GameLogic::Difficulty::HARD };
+    constexpr int kDifficultyCount = static_cast<int>(kDifficultyLabels.size());
+    static_assert(kDifficulties.size() == kDifficultyLabels.size());
     constexpr int kLevelLabelFontSize = 60;
 
     // Input helpers
@@ -89,16 +103,44 @@ namespace
         DrawRectangle((GetScreenWidth() - titleWidth) / 2, y + fontSize + 20, titleWidth, 4, kDimGreen);
     }
 
-    // Width of the widest main menu label, so the selection bar never changes size.
-    int WidestMainMenuLabel()
+    // Vertical list of labels; the selected one sits on a solid green bar with black text.
+    // The bar is sized to the widest label so it never changes size while navigating.
+    void DrawMenuList(std::span<const char* const> labels, int selectedIndex, int firstItemY)
     {
-        int widest = 0;
-        for (const char* label : kMainMenuLabels)
+        constexpr int itemSpacing = 64;
+        constexpr int barPaddingX = 48;
+        constexpr int barPaddingY = 10;
+
+        int widestLabel = 0;
+        for (const char* label : labels)
         {
             const int width = MeasureText(label, kMenuFontSize);
-            widest = width > widest ? width : widest;
+            widestLabel = width > widestLabel ? width : widestLabel;
         }
-        return widest;
+
+        const int barWidth = widestLabel + 2 * barPaddingX;
+        const int barHeight = kMenuFontSize + 2 * barPaddingY;
+
+        for (std::size_t i = 0; i < labels.size(); ++i)
+        {
+            const int y = firstItemY + static_cast<int>(i) * itemSpacing;
+
+            if (static_cast<int>(i) == selectedIndex)
+            {
+                DrawRectangle((GetScreenWidth() - barWidth) / 2, y - barPaddingY, barWidth, barHeight, kPrimaryGreen);
+                DrawTextCentered(labels[i], y, kMenuFontSize, kBackgroundColor);
+            }
+            else
+            {
+                DrawTextCentered(labels[i], y, kMenuFontSize, kPrimaryGreen);
+            }
+        }
+    }
+
+    // Moves a list cursor with wrap-around.
+    int StepSelection(int current, int step, int count)
+    {
+        return (current + step + count) % count;
     }
 
     // Temporary screen for everything that is not implemented yet.
@@ -196,6 +238,8 @@ void GameUI::HandleInput()
         HandleLevelSelectionInput();
         break;
     case ScreenType::DIFFICULTY_SELECTION:
+        HandleDifficultySelectionInput();
+        break;
     case ScreenType::GAMEPLAY:
     case ScreenType::GAME_OVER:
     case ScreenType::VICTORY:
@@ -208,11 +252,11 @@ void GameUI::HandleMainMenuInput()
 {
     if (IsUpPressed())
     {
-        m_selectedMenuItem = (m_selectedMenuItem + kMainMenuItemCount - 1) % kMainMenuItemCount;
+        m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItemCount);
     }
     if (IsDownPressed())
     {
-        m_selectedMenuItem = (m_selectedMenuItem + 1) % kMainMenuItemCount;
+        m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItemCount);
     }
 
     if (IsBackPressed())
@@ -239,11 +283,11 @@ void GameUI::HandleLevelSelectionInput()
 {
     if (IsLeftPressed())
     {
-        m_selectedLevel = (m_selectedLevel + kLevelCount - 1) % kLevelCount;
+        m_selectedLevel = StepSelection(m_selectedLevel, -1, kLevelCount);
     }
     if (IsRightPressed())
     {
-        m_selectedLevel = (m_selectedLevel + 1) % kLevelCount;
+        m_selectedLevel = StepSelection(m_selectedLevel, +1, kLevelCount);
     }
 
     if (IsBackPressed())
@@ -254,8 +298,35 @@ void GameUI::HandleLevelSelectionInput()
 
     if (IsConfirmPressed())
     {
-        // Difficulty is chosen next; StartGame(level, difficulty) is called after that.
         m_currentScreen = ScreenType::DIFFICULTY_SELECTION;
+    }
+}
+
+void GameUI::HandleDifficultySelectionInput()
+{
+    if (IsUpPressed())
+    {
+        m_selectedDifficulty = StepSelection(m_selectedDifficulty, -1, kDifficultyCount);
+    }
+    if (IsDownPressed())
+    {
+        m_selectedDifficulty = StepSelection(m_selectedDifficulty, +1, kDifficultyCount);
+    }
+
+    if (IsBackPressed())
+    {
+        m_currentScreen = ScreenType::LEVEL_SELECTION;
+        return;
+    }
+
+    if (IsConfirmPressed())
+    {
+        const GameLogic::LevelID level = kLevels[static_cast<std::size_t>(m_selectedLevel)];
+        const GameLogic::Difficulty difficulty = kDifficulties[static_cast<std::size_t>(m_selectedDifficulty)];
+
+        m_gameService.StartGame(level, difficulty);
+        m_gameSnapshot = m_gameService.GetGameSnapshot();
+        m_currentScreen = ScreenType::GAMEPLAY;
     }
 }
 
@@ -263,10 +334,7 @@ void GameUI::HandlePlaceholderInput()
 {
     if (IsBackPressed())
     {
-        // Difficulty selection goes back one step; everything else returns to the main menu.
-        m_currentScreen = m_currentScreen == ScreenType::DIFFICULTY_SELECTION
-            ? ScreenType::LEVEL_SELECTION
-            : ScreenType::MAIN_MENU;
+        m_currentScreen = ScreenType::MAIN_MENU;
     }
 }
 
@@ -305,38 +373,12 @@ void GameUI::Render()
 
 void GameUI::RenderMainMenu()
 {
-    const int screenWidth = GetScreenWidth();
-    const int screenHeight = GetScreenHeight();
-
     DrawScreenTitle("SPACE INVADERS", 150, kTitleFontSize);
 
-    // Menu items: the selected one sits on a solid green bar with black text
-    constexpr int firstItemY = 380;
-    constexpr int itemSpacing = 64;
-    constexpr int barPaddingX = 48;
-    constexpr int barPaddingY = 10;
-    const int barWidth = WidestMainMenuLabel() + 2 * barPaddingX;
-    const int barHeight = kMenuFontSize + 2 * barPaddingY;
+    DrawMenuList(kMainMenuLabels, m_selectedMenuItem, 380);
 
-    for (int i = 0; i < kMainMenuItemCount; ++i)
-    {
-        const char* label = kMainMenuLabels[static_cast<std::size_t>(i)];
-        const int y = firstItemY + i * itemSpacing;
-
-        if (i == m_selectedMenuItem)
-        {
-            DrawRectangle((screenWidth - barWidth) / 2, y - barPaddingY, barWidth, barHeight, kPrimaryGreen);
-            DrawTextCentered(label, y, kMenuFontSize, kBackgroundColor);
-        }
-        else
-        {
-            DrawTextCentered(label, y, kMenuFontSize, kPrimaryGreen);
-        }
-    }
-
-    // Controls hint
     DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  QUIT",
-                     screenHeight - 60, kHintFontSize, kDimGreen);
+                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderLevelSelection()
@@ -385,7 +427,16 @@ void GameUI::RenderLevelSelection()
 
 void GameUI::RenderDifficultySelection()
 {
-    DrawPlaceholderScreen("DIFFICULTY SELECTION");
+    DrawScreenTitle("SELECT DIFFICULTY", 150, kScreenTitleFontSize);
+
+    // Reminder of the level picked on the previous screen
+    const char* levelText = TextFormat("LEVEL %s", kLevelLabels[static_cast<std::size_t>(m_selectedLevel)]);
+    DrawTextCentered(levelText, 260, kHintFontSize, kDimGreen);
+
+    DrawMenuList(kDifficultyLabels, m_selectedDifficulty, 340);
+
+    DrawTextCentered("UP/DOWN  SELECT     ENTER  START     ESC  BACK",
+                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderGameplay()

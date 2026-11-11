@@ -35,6 +35,8 @@ private:
     void HandleMainMenuInput();
     void HandleLevelSelectionInput();
     void HandleDifficultySelectionInput();
+    void HandleVerdictInput();
+    void HandleVerdictPreviewInput();
     void HandlePlaceholderInput();
 
     void Render();
@@ -44,17 +46,21 @@ private:
     void RenderGameplay();
     void RenderGameOver();
     void RenderVictory();
+    void RenderVerdictPreview();
 
-    // From the class diagram
+    void ShowVerdict(ScreenType verdictScreen);
+    void StartSelectedGame();
+
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
     GameLogic::GameSnapshot m_gameSnapshot{};
 
-    // UI-only state (not in the diagram)
     StarField m_starField;
     int m_selectedMenuItem = 0;
-    int m_selectedLevel = 0;      // index into the level list (LEVEL_1..LEVEL_3)
-    int m_selectedDifficulty = 0; // index into the difficulty list (EASY..HARD)
+    int m_selectedLevel = 0;
+    int m_selectedDifficulty = 0;
+    int m_selectedVerdictOption = 0;
+    int m_selectedVerdictPreview = 0;
     bool m_shouldExit = false;
     bool m_isInitialized = false;
 };

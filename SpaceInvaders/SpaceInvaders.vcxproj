@@ -152,9 +152,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameUI.h" />
+    <ClInclude Include="MainMenuItem.h" />
     <ClInclude Include="ScreenType.h" />
     <ClInclude Include="StarField.h" />
     <ClInclude Include="TemporaryGameService.h" />
+    <ClInclude Include="VerdictMenuItem.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameLogic\GameLogic.vcxproj">

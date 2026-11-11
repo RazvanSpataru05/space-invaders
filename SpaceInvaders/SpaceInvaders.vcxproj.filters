@@ -29,6 +29,9 @@
     <ClInclude Include="GameUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ScreenType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TemporaryGameService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VerdictMenuItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

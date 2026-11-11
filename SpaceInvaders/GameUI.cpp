@@ -7,7 +7,12 @@
 #include <raylib.h>
 
 #include "Enums/Difficulty.h"
+#include "Enums/GameEventType.h"
 #include "Enums/LevelID.h"
+#include "Structs/GameEvent.h"
+
+#include "MainMenuItem.h"
+#include "VerdictMenuItem.h"
 
 namespace
 {
@@ -30,14 +35,11 @@ namespace
     // raylib's default font is a 10 px bitmap: multiples of 10 keep it pixel-sharp.
 
     // Main menu
-    enum class MainMenuItem
-    {
-        PLAY = 0,
-        EXIT = 1
-    };
-
-    constexpr std::array<const char*, 2> kMainMenuLabels{ "PLAY", "EXIT" };
+    constexpr std::array<MainMenuItem, 3> kMainMenuItems{
+        MainMenuItem::PLAY, MainMenuItem::GAME_VERDICTS, MainMenuItem::EXIT };
+    constexpr std::array<const char*, 3> kMainMenuLabels{ "PLAY", "GAME VERDICTS", "EXIT" };
     constexpr int kMainMenuItemCount = static_cast<int>(kMainMenuLabels.size());
+    static_assert(kMainMenuItems.size() == kMainMenuLabels.size());
 
     // Level selection
     constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
@@ -53,6 +55,22 @@ namespace
     constexpr int kDifficultyCount = static_cast<int>(kDifficultyLabels.size());
     static_assert(kDifficulties.size() == kDifficultyLabels.size());
     constexpr int kLevelLabelFontSize = 60;
+
+    // Game Over / Victory
+    constexpr std::array<VerdictMenuItem, 2> kVerdictMenuItems{ VerdictMenuItem::RETRY, VerdictMenuItem::MAIN_MENU };
+    constexpr std::array<const char*, 2> kGameOverOptionLabels{ "RETRY", "MAIN MENU" };
+    constexpr std::array<const char*, 2> kVictoryOptionLabels{ "PLAY AGAIN", "MAIN MENU" };
+    constexpr int kVerdictOptionCount = static_cast<int>(kVerdictMenuItems.size());
+    static_assert(kGameOverOptionLabels.size() == kVerdictMenuItems.size());
+    static_assert(kVictoryOptionLabels.size() == kVerdictMenuItems.size());
+
+    // TEMPORARY verdict preview: fakes the events a real GameSession will send
+    constexpr std::array<const char*, 2> kVerdictPreviewLabels{ "GAME OVER", "VICTORY" };
+    constexpr std::array<GameLogic::GameEventType, 2> kVerdictPreviewEvents{
+        GameLogic::GameEventType::GAME_OVER, GameLogic::GameEventType::GAME_WON };
+    constexpr int kVerdictPreviewCount = static_cast<int>(kVerdictPreviewLabels.size());
+    static_assert(kVerdictPreviewEvents.size() == kVerdictPreviewLabels.size());
+    constexpr uint32_t kPreviewScore = 4250;
 
     // Input helpers
     bool IsUpPressed()
@@ -143,6 +161,35 @@ namespace
         return (current + step + count) % count;
     }
 
+    const char* LevelLabel(GameLogic::LevelID level)
+    {
+        for (std::size_t i = 0; i < kLevels.size(); ++i)
+        {
+            if (kLevels[i] == level)
+            {
+                return kLevelLabels[i];
+            }
+        }
+        return "?";
+    }
+
+    // Shared layout of the Game Over and Victory screens.
+    void DrawVerdictScreen(const char* title, const char* subtitle, const char* details, uint32_t score,
+                           std::span<const char* const> options, int selectedOption)
+    {
+        DrawScreenTitle(title, 120, kTitleFontSize);
+        DrawTextCentered(subtitle, 230, kHintFontSize, kPrimaryGreen);
+        DrawTextCentered(details, 260, kHintFontSize, kDimGreen);
+
+        DrawTextCentered("FINAL SCORE", 320, kHintFontSize, kDimGreen);
+        DrawTextCentered(TextFormat("%06u", static_cast<unsigned int>(score)), 350, kTitleFontSize, kPrimaryGreen);
+
+        DrawMenuList(options, selectedOption, 470);
+
+        DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  MENU",
+                         GetScreenHeight() - 60, kHintFontSize, kDimGreen);
+    }
+
     // Temporary screen for everything that is not implemented yet.
     void DrawPlaceholderScreen(const char* screenName)
     {
@@ -215,14 +262,31 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
     switch (event.type)
     {
     case GameLogic::GameEventType::GAME_OVER:
-        m_currentScreen = ScreenType::GAME_OVER;
+        ShowVerdict(ScreenType::GAME_OVER);
         break;
     case GameLogic::GameEventType::GAME_WON:
-        m_currentScreen = ScreenType::VICTORY;
+        ShowVerdict(ScreenType::VICTORY);
         break;
     default:
         break;
     }
+}
+
+void GameUI::ShowVerdict(ScreenType verdictScreen)
+{
+    m_gameSnapshot = m_gameService.GetGameSnapshot(); // final score and level
+    m_selectedVerdictOption = 0;
+    m_currentScreen = verdictScreen;
+}
+
+void GameUI::StartSelectedGame()
+{
+    const GameLogic::LevelID level = kLevels[static_cast<std::size_t>(m_selectedLevel)];
+    const GameLogic::Difficulty difficulty = kDifficulties[static_cast<std::size_t>(m_selectedDifficulty)];
+
+    m_gameService.StartGame(level, difficulty);
+    m_gameSnapshot = m_gameService.GetGameSnapshot();
+    m_currentScreen = ScreenType::GAMEPLAY;
 }
 
 // ---------------------------------------------------------------- input
@@ -241,9 +305,14 @@ void GameUI::HandleInput()
         HandleDifficultySelectionInput();
         break;
     case ScreenType::GAMEPLAY:
+        HandlePlaceholderInput();
+        break;
     case ScreenType::GAME_OVER:
     case ScreenType::VICTORY:
-        HandlePlaceholderInput();
+        HandleVerdictInput();
+        break;
+    case ScreenType::VERDICT_PREVIEW:
+        HandleVerdictPreviewInput();
         break;
     }
 }
@@ -267,10 +336,13 @@ void GameUI::HandleMainMenuInput()
 
     if (IsConfirmPressed())
     {
-        switch (static_cast<MainMenuItem>(m_selectedMenuItem))
+        switch (kMainMenuItems[static_cast<std::size_t>(m_selectedMenuItem)])
         {
         case MainMenuItem::PLAY:
             m_currentScreen = ScreenType::LEVEL_SELECTION;
+            break;
+        case MainMenuItem::GAME_VERDICTS:
+            m_currentScreen = ScreenType::VERDICT_PREVIEW;
             break;
         case MainMenuItem::EXIT:
             m_shouldExit = true;
@@ -321,12 +393,67 @@ void GameUI::HandleDifficultySelectionInput()
 
     if (IsConfirmPressed())
     {
-        const GameLogic::LevelID level = kLevels[static_cast<std::size_t>(m_selectedLevel)];
-        const GameLogic::Difficulty difficulty = kDifficulties[static_cast<std::size_t>(m_selectedDifficulty)];
+        StartSelectedGame();
+    }
+}
 
-        m_gameService.StartGame(level, difficulty);
-        m_gameSnapshot = m_gameService.GetGameSnapshot();
-        m_currentScreen = ScreenType::GAMEPLAY;
+void GameUI::HandleVerdictInput()
+{
+    if (IsUpPressed())
+    {
+        m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, kVerdictOptionCount);
+    }
+    if (IsDownPressed())
+    {
+        m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, +1, kVerdictOptionCount);
+    }
+
+    if (IsBackPressed())
+    {
+        m_currentScreen = ScreenType::MAIN_MENU;
+        return;
+    }
+
+    if (IsConfirmPressed())
+    {
+        switch (kVerdictMenuItems[static_cast<std::size_t>(m_selectedVerdictOption)])
+        {
+        case VerdictMenuItem::RETRY:
+            StartSelectedGame(); // same level and difficulty as the last game
+            break;
+        case VerdictMenuItem::MAIN_MENU:
+            m_currentScreen = ScreenType::MAIN_MENU;
+            break;
+        }
+    }
+}
+
+// TEMPORARY: lets the verdict screens be designed before GameSession exists.
+void GameUI::HandleVerdictPreviewInput()
+{
+    if (IsUpPressed())
+    {
+        m_selectedVerdictPreview = StepSelection(m_selectedVerdictPreview, -1, kVerdictPreviewCount);
+    }
+    if (IsDownPressed())
+    {
+        m_selectedVerdictPreview = StepSelection(m_selectedVerdictPreview, +1, kVerdictPreviewCount);
+    }
+
+    if (IsBackPressed())
+    {
+        m_currentScreen = ScreenType::MAIN_MENU;
+        return;
+    }
+
+    if (IsConfirmPressed())
+    {
+        // Same path a real GameSession takes: an event reaches the observer.
+        OnGameEvent(GameLogic::GameEvent{ .type = kVerdictPreviewEvents[static_cast<std::size_t>(m_selectedVerdictPreview)] });
+
+        // Fake final state, since the temporary service keeps no score.
+        m_gameSnapshot.score = kPreviewScore;
+        m_gameSnapshot.currentLevel = kLevels[static_cast<std::size_t>(m_selectedLevel)];
     }
 }
 
@@ -365,6 +492,9 @@ void GameUI::Render()
         break;
     case ScreenType::VICTORY:
         RenderVictory();
+        break;
+    case ScreenType::VERDICT_PREVIEW:
+        RenderVerdictPreview();
         break;
     }
 
@@ -446,10 +576,30 @@ void GameUI::RenderGameplay()
 
 void GameUI::RenderGameOver()
 {
-    DrawPlaceholderScreen("GAME OVER");
+    const char* details = TextFormat("LEVEL %s  -  %s", LevelLabel(m_gameSnapshot.currentLevel),
+                                     kDifficultyLabels[static_cast<std::size_t>(m_selectedDifficulty)]);
+
+    DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameSnapshot.score,
+                      kGameOverOptionLabels, m_selectedVerdictOption);
 }
 
 void GameUI::RenderVictory()
 {
-    DrawPlaceholderScreen("VICTORY");
+    const char* details = TextFormat("LEVEL %s  -  %s", LevelLabel(m_gameSnapshot.currentLevel),
+                                     kDifficultyLabels[static_cast<std::size_t>(m_selectedDifficulty)]);
+
+    DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameSnapshot.score,
+                      kVictoryOptionLabels, m_selectedVerdictOption);
+}
+
+// TEMPORARY: menu for previewing the verdict screens.
+void GameUI::RenderVerdictPreview()
+{
+    DrawScreenTitle("GAME VERDICTS", 150, kScreenTitleFontSize);
+    DrawTextCentered("TEMPORARY PREVIEW", 260, kHintFontSize, kDimGreen);
+
+    DrawMenuList(kVerdictPreviewLabels, m_selectedVerdictPreview, 340);
+
+    DrawTextCentered("UP/DOWN  SELECT     ENTER  SHOW     ESC  BACK",
+                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }

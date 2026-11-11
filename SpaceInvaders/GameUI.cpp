@@ -32,7 +32,6 @@ namespace
     constexpr int kScreenTitleFontSize = 40;
     constexpr int kMenuFontSize = 30;
     constexpr int kHintFontSize = 20;
-    // raylib's default font is a 10 px bitmap: multiples of 10 keep it pixel-sharp.
 
     // Main menu
     constexpr std::array<MainMenuItem, 3> kMainMenuItems{
@@ -48,12 +47,8 @@ namespace
     constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
     static_assert(kLevels.size() == kLevelLabels.size());
 
-    // Difficulty selection
-    constexpr std::array<const char*, 3> kDifficultyLabels{ "EASY", "MEDIUM", "HARD" };
-    constexpr std::array<GameLogic::Difficulty, 3> kDifficulties{
-        GameLogic::Difficulty::EASY, GameLogic::Difficulty::MEDIUM, GameLogic::Difficulty::HARD };
-    constexpr int kDifficultyCount = static_cast<int>(kDifficultyLabels.size());
-    static_assert(kDifficulties.size() == kDifficultyLabels.size());
+    // The player does not choose a difficulty; IGameService::StartGame still needs one.
+    constexpr GameLogic::Difficulty kDefaultDifficulty = GameLogic::Difficulty::MEDIUM;
     constexpr int kLevelLabelFontSize = 60;
 
     // Game Over / Victory
@@ -282,9 +277,8 @@ void GameUI::ShowVerdict(ScreenType verdictScreen)
 void GameUI::StartSelectedGame()
 {
     const GameLogic::LevelID level = kLevels[static_cast<std::size_t>(m_selectedLevel)];
-    const GameLogic::Difficulty difficulty = kDifficulties[static_cast<std::size_t>(m_selectedDifficulty)];
 
-    m_gameService.StartGame(level, difficulty);
+    m_gameService.StartGame(level, kDefaultDifficulty);
     m_gameSnapshot = m_gameService.GetGameSnapshot();
     m_currentScreen = ScreenType::GAMEPLAY;
 }
@@ -300,9 +294,6 @@ void GameUI::HandleInput()
         break;
     case ScreenType::LEVEL_SELECTION:
         HandleLevelSelectionInput();
-        break;
-    case ScreenType::DIFFICULTY_SELECTION:
-        HandleDifficultySelectionInput();
         break;
     case ScreenType::GAMEPLAY:
         HandlePlaceholderInput();
@@ -370,29 +361,6 @@ void GameUI::HandleLevelSelectionInput()
 
     if (IsConfirmPressed())
     {
-        m_currentScreen = ScreenType::DIFFICULTY_SELECTION;
-    }
-}
-
-void GameUI::HandleDifficultySelectionInput()
-{
-    if (IsUpPressed())
-    {
-        m_selectedDifficulty = StepSelection(m_selectedDifficulty, -1, kDifficultyCount);
-    }
-    if (IsDownPressed())
-    {
-        m_selectedDifficulty = StepSelection(m_selectedDifficulty, +1, kDifficultyCount);
-    }
-
-    if (IsBackPressed())
-    {
-        m_currentScreen = ScreenType::LEVEL_SELECTION;
-        return;
-    }
-
-    if (IsConfirmPressed())
-    {
         StartSelectedGame();
     }
 }
@@ -419,7 +387,7 @@ void GameUI::HandleVerdictInput()
         switch (kVerdictMenuItems[static_cast<std::size_t>(m_selectedVerdictOption)])
         {
         case VerdictMenuItem::RETRY:
-            StartSelectedGame(); // same level and difficulty as the last game
+            StartSelectedGame(); // same level as the last game
             break;
         case VerdictMenuItem::MAIN_MENU:
             m_currentScreen = ScreenType::MAIN_MENU;
@@ -480,9 +448,6 @@ void GameUI::Render()
         break;
     case ScreenType::LEVEL_SELECTION:
         RenderLevelSelection();
-        break;
-    case ScreenType::DIFFICULTY_SELECTION:
-        RenderDifficultySelection();
         break;
     case ScreenType::GAMEPLAY:
         RenderGameplay();
@@ -551,22 +516,8 @@ void GameUI::RenderLevelSelection()
                  isSelected ? kBackgroundColor : kPrimaryGreen);
     }
 
-    DrawTextCentered("LEFT/RIGHT  SELECT     ENTER  CONFIRM     ESC  BACK",
+    DrawTextCentered("LEFT/RIGHT  SELECT     ENTER  START     ESC  BACK",
                      screenHeight - 60, kHintFontSize, kDimGreen);
-}
-
-void GameUI::RenderDifficultySelection()
-{
-    DrawScreenTitle("SELECT DIFFICULTY", 150, kScreenTitleFontSize);
-
-    // Reminder of the level picked on the previous screen
-    const char* levelText = TextFormat("LEVEL %s", kLevelLabels[static_cast<std::size_t>(m_selectedLevel)]);
-    DrawTextCentered(levelText, 260, kHintFontSize, kDimGreen);
-
-    DrawMenuList(kDifficultyLabels, m_selectedDifficulty, 340);
-
-    DrawTextCentered("UP/DOWN  SELECT     ENTER  START     ESC  BACK",
-                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderGameplay()
@@ -576,8 +527,7 @@ void GameUI::RenderGameplay()
 
 void GameUI::RenderGameOver()
 {
-    const char* details = TextFormat("LEVEL %s  -  %s", LevelLabel(m_gameSnapshot.currentLevel),
-                                     kDifficultyLabels[static_cast<std::size_t>(m_selectedDifficulty)]);
+    const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameSnapshot.currentLevel));
 
     DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameSnapshot.score,
                       kGameOverOptionLabels, m_selectedVerdictOption);
@@ -585,8 +535,7 @@ void GameUI::RenderGameOver()
 
 void GameUI::RenderVictory()
 {
-    const char* details = TextFormat("LEVEL %s  -  %s", LevelLabel(m_gameSnapshot.currentLevel),
-                                     kDifficultyLabels[static_cast<std::size_t>(m_selectedDifficulty)]);
+    const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameSnapshot.currentLevel));
 
     DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameSnapshot.score,
                       kVictoryOptionLabels, m_selectedVerdictOption);

@@ -9,7 +9,6 @@ enum class ScreenType : uint8_t
 {
     MAIN_MENU,
     LEVEL_SELECTION,
-    DIFFICULTY_SELECTION,
     GAMEPLAY,
     GAME_OVER,
     VICTORY,

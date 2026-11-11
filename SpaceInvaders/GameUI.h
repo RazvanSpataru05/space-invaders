@@ -34,7 +34,6 @@ private:
     void HandleInput();
     void HandleMainMenuInput();
     void HandleLevelSelectionInput();
-    void HandleDifficultySelectionInput();
     void HandleVerdictInput();
     void HandleVerdictPreviewInput();
     void HandlePlaceholderInput();
@@ -42,7 +41,6 @@ private:
     void Render();
     void RenderMainMenu();
     void RenderLevelSelection();
-    void RenderDifficultySelection();
     void RenderGameplay();
     void RenderGameOver();
     void RenderVictory();
@@ -58,7 +56,6 @@ private:
     StarField m_starField;
     int m_selectedMenuItem = 0;
     int m_selectedLevel = 0;
-    int m_selectedDifficulty = 0;
     int m_selectedVerdictOption = 0;
     int m_selectedVerdictPreview = 0;
     bool m_shouldExit = false;

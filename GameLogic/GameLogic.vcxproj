@@ -160,6 +160,8 @@
     <ClInclude Include="inc\Structs\EnemyState.h" />
     <ClInclude Include="inc\Structs\GameConfig.h" />
     <ClInclude Include="inc\Structs\GameEvent.h" />
+    <ClInclude Include="inc\Structs\GameProgress.h" />
+    <ClInclude Include="inc\Structs\GameEntities.h" />
     <ClInclude Include="inc\Structs\LevelConfig.h" />
     <ClInclude Include="inc\Structs\PlayerState.h" />
     <ClInclude Include="inc\Structs\PowerUpState.h" />

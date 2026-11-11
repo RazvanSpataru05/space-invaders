@@ -60,6 +60,12 @@
     <ClInclude Include="inc\GameSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Structs\GameEntities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\GameProgress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">

@@ -1,9 +1,7 @@
 #include "pch.h"
 #include "GameSession.h"
 
-GameSession::GameSession(GameLogic::LevelID level) :
-	m_currentLevel{ level },
-	m_player{ GameLogic::PlayerState(GameLogic::Vector2(0.f, 0.f), 3u) }
+GameSession::GameSession()
 {
 
 }
@@ -23,7 +21,7 @@ void GameSession::Unsubscribe(GameLogic::IGameEventObserver* observer)
 
 void GameSession::SpawnBoss() noexcept
 {
-	if (m_currentLevel != GameLogic::LevelID::LEVEL_3) return;
+	if (m_progress.currentLevel != GameLogic::LevelID::LEVEL_3) return;
 
 
 }

@@ -10,10 +10,9 @@ namespace GameLogic
 {
     struct EnemyState
     {
-        uint32_t id{};
         Vector2 position{};
-        int health{};
-        int maxHealth{};
+        uint8_t health{};
+        uint8_t maxHealth{};
         EnemyType type{};
         bool isAlive{};
     };

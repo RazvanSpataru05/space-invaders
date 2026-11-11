@@ -15,19 +15,12 @@
 class GameUI final : public GameLogic::IGameEventObserver
 {
 public:
-    // Subscribes to the service; the service must outlive this object.
     explicit GameUI(GameLogic::IGameService& gameService);
-    // Unsubscribes and closes the window if it was opened.
     ~GameUI() override;
 
-  
 
-    // Opens the window and sets up raylib. Safe to call more than once.
     void Initialize();
-    // Main loop. Returns when the player chooses EXIT or closes the window.
     void Run();
-
-    // IGameEventObserver
     void OnGameEvent(const GameLogic::GameEvent& event) override;
  
 private:
@@ -40,6 +33,7 @@ private:
 private:
     void HandleInput();
     void HandleMainMenuInput();
+    void HandleLevelSelectionInput();
     void HandlePlaceholderInput();
 
     void Render();
@@ -58,6 +52,7 @@ private:
     // UI-only state (not in the diagram)
     StarField m_starField;
     int m_selectedMenuItem = 0;
+    int m_selectedLevel = 0; // 0..2 -> LevelId::LEVEL_1..LEVEL_3
     bool m_shouldExit = false;
     bool m_isInitialized = false;
 };

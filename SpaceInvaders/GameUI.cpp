@@ -20,6 +20,7 @@ namespace
     constexpr Color kDimGreen{ 20, 110, 20, 255 };
 
     constexpr int kTitleFontSize = 60;
+    constexpr int kScreenTitleFontSize = 40;
     constexpr int kMenuFontSize = 30;
     constexpr int kHintFontSize = 20;
     // raylib's default font is a 10 px bitmap: multiples of 10 keep it pixel-sharp.
@@ -34,6 +35,11 @@ namespace
     constexpr std::array<const char*, 2> kMainMenuLabels{ "PLAY", "EXIT" };
     constexpr int kMainMenuItemCount = static_cast<int>(kMainMenuLabels.size());
 
+    // Level selection
+    constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
+    constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
+    constexpr int kLevelLabelFontSize = 60;
+
     // Input helpers
     bool IsUpPressed()
     {
@@ -43,6 +49,16 @@ namespace
     bool IsDownPressed()
     {
         return IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+    }
+
+    bool IsLeftPressed()
+    {
+        return IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
+    }
+
+    bool IsRightPressed()
+    {
+        return IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
     }
 
     bool IsConfirmPressed()
@@ -60,6 +76,17 @@ namespace
     {
         const int textWidth = MeasureText(text, fontSize);
         DrawText(text, (GetScreenWidth() - textWidth) / 2 + xOffset, y, fontSize, color);
+    }
+
+    // Screen heading: text with a dim "drop shadow" and an underline.
+    void DrawScreenTitle(const char* title, int y, int fontSize)
+    {
+        constexpr int shadowOffset = 4;
+        DrawTextCentered(title, y + shadowOffset, fontSize, kDimGreen, shadowOffset);
+        DrawTextCentered(title, y, fontSize, kPrimaryGreen);
+
+        const int titleWidth = MeasureText(title, fontSize);
+        DrawRectangle((GetScreenWidth() - titleWidth) / 2, y + fontSize + 20, titleWidth, 4, kDimGreen);
     }
 
     // Width of the widest main menu label, so the selection bar never changes size.
@@ -166,6 +193,8 @@ void GameUI::HandleInput()
         HandleMainMenuInput();
         break;
     case ScreenType::LEVEL_SELECTION:
+        HandleLevelSelectionInput();
+        break;
     case ScreenType::DIFFICULTY_SELECTION:
     case ScreenType::GAMEPLAY:
     case ScreenType::GAME_OVER:
@@ -206,11 +235,38 @@ void GameUI::HandleMainMenuInput()
     }
 }
 
+void GameUI::HandleLevelSelectionInput()
+{
+    if (IsLeftPressed())
+    {
+        m_selectedLevel = (m_selectedLevel + kLevelCount - 1) % kLevelCount;
+    }
+    if (IsRightPressed())
+    {
+        m_selectedLevel = (m_selectedLevel + 1) % kLevelCount;
+    }
+
+    if (IsBackPressed())
+    {
+        m_currentScreen = ScreenType::MAIN_MENU;
+        return;
+    }
+
+    if (IsConfirmPressed())
+    {
+        // Difficulty is chosen next; StartGame(level, difficulty) is called after that.
+        m_currentScreen = ScreenType::DIFFICULTY_SELECTION;
+    }
+}
+
 void GameUI::HandlePlaceholderInput()
 {
     if (IsBackPressed())
     {
-        m_currentScreen = ScreenType::MAIN_MENU;
+        // Difficulty selection goes back one step; everything else returns to the main menu.
+        m_currentScreen = m_currentScreen == ScreenType::DIFFICULTY_SELECTION
+            ? ScreenType::LEVEL_SELECTION
+            : ScreenType::MAIN_MENU;
     }
 }
 
@@ -252,15 +308,7 @@ void GameUI::RenderMainMenu()
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
-    // Title with a dim "drop shadow" and an underline
-    constexpr const char* title = "SPACE INVADERS";
-    constexpr int titleY = 150;
-    constexpr int shadowOffset = 4;
-    DrawTextCentered(title, titleY + shadowOffset, kTitleFontSize, kDimGreen, shadowOffset);
-    DrawTextCentered(title, titleY, kTitleFontSize, kPrimaryGreen);
-
-    const int titleWidth = MeasureText(title, kTitleFontSize);
-    DrawRectangle((screenWidth - titleWidth) / 2, titleY + kTitleFontSize + 20, titleWidth, 4, kDimGreen);
+    DrawScreenTitle("SPACE INVADERS", 150, kTitleFontSize);
 
     // Menu items: the selected one sits on a solid green bar with black text
     constexpr int firstItemY = 380;
@@ -293,7 +341,46 @@ void GameUI::RenderMainMenu()
 
 void GameUI::RenderLevelSelection()
 {
-    DrawPlaceholderScreen("LEVEL SELECTION");
+    const int screenWidth = GetScreenWidth();
+    const int screenHeight = GetScreenHeight();
+
+    DrawScreenTitle("SELECT LEVEL", 150, kScreenTitleFontSize);
+
+    // Three square boxes in a row; the selected one is filled green with a black label
+    constexpr int boxSize = 160;
+    constexpr int boxGap = 60;
+    constexpr int boxY = 300;
+    constexpr float borderThickness = 4.0f;
+    constexpr int rowWidth = kLevelCount * boxSize + (kLevelCount - 1) * boxGap;
+    const int firstBoxX = (screenWidth - rowWidth) / 2;
+
+    for (int i = 0; i < kLevelCount; ++i)
+    {
+        const char* label = kLevelLabels[static_cast<std::size_t>(i)];
+        const int boxX = firstBoxX + i * (boxSize + boxGap);
+        const bool isSelected = i == m_selectedLevel;
+
+        if (isSelected)
+        {
+            DrawRectangle(boxX, boxY, boxSize, boxSize, kPrimaryGreen);
+        }
+        else
+        {
+            const Rectangle box{ static_cast<float>(boxX), static_cast<float>(boxY),
+                                 static_cast<float>(boxSize), static_cast<float>(boxSize) };
+            DrawRectangleLinesEx(box, borderThickness, kPrimaryGreen);
+        }
+
+        const int labelWidth = MeasureText(label, kLevelLabelFontSize);
+        DrawText(label,
+                 boxX + (boxSize - labelWidth) / 2,
+                 boxY + (boxSize - kLevelLabelFontSize) / 2,
+                 kLevelLabelFontSize,
+                 isSelected ? kBackgroundColor : kPrimaryGreen);
+    }
+
+    DrawTextCentered("LEFT/RIGHT  SELECT     ENTER  CONFIRM     ESC  BACK",
+                     screenHeight - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderDifficultySelection()

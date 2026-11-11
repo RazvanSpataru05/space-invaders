@@ -4,6 +4,9 @@
 
 namespace GameLogic
 {
+	constexpr float kLeftBound{};
+	constexpr float kRightBound{};
+
 	struct PlayerState
 	{
 		Vector2 position{};

@@ -66,12 +66,21 @@
     <ClInclude Include="inc\Structs\GameProgress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\GameConfigFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\EnemyConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GameSession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\GameConfigFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

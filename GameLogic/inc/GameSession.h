@@ -11,6 +11,8 @@
 #include "Structs/GameProgress.h"
 #include "Structs/Vector2.h"
 
+#include "GameConfigFactory.h"
+
 #include <algorithm>
 
 class GameSession final : public GameLogic::IGameService
@@ -20,6 +22,13 @@ public:
 
 	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
 	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
+
+	void StartGame(GameLogic::LevelID level) override;
+
+	void Update(float deltaTime) override;
+
+	void MovePlayer(GameLogic::Direction direction) override;
+	void Shoot() override;
 
 	void SpawnEnemies() noexcept;
 	

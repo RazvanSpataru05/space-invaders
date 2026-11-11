@@ -8,24 +8,24 @@
 namespace
 {
 	// Window
-	constexpr int kScreenWidth = 960;
-	constexpr int kScreenHeight = 720;
-	constexpr int kTargetFps = 60;
+	constexpr uint16_t kScreenWidth = 960;
+	constexpr uint16_t kScreenHeight = 720;
+	constexpr uint8_t kTargetFps = 60;
 	constexpr const char* kWindowTitle = "Space Invaders";
-	constexpr int kStarCount = 140;
+	constexpr uint8_t kStarCount = 140;
 
 	// Theme: black background, terminal green
 	constexpr Color kBackgroundColor{ 0, 0, 0, 255 };
 	constexpr Color kPrimaryGreen{ 34, 197, 34, 255 };
 	constexpr Color kDimGreen{ 20, 110, 20, 255 };
 
-	constexpr int kTitleFontSize = 60;
-	constexpr int kMenuFontSize = 30;
-	constexpr int kHintFontSize = 20;
+	constexpr uint8_t kTitleFontSize = 60;
+	constexpr uint8_t kMenuFontSize = 30;
+	constexpr uint8_t kHintFontSize = 20;
 	// raylib's default font is a 10 px bitmap: multiples of 10 keep it pixel-sharp.
 
 	// Main menu
-	enum class MainMenuItem
+	enum class MainMenuItem : uint8_t
 	{
 		PLAY = 0,
 		EXIT = 1
@@ -105,7 +105,7 @@ void GameUI::Initialize()
 	if (m_isInitialized) return;
 
 	InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
-	SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
+	SetExitKey(KEY_NULL); 
 	SetTargetFPS(kTargetFps);
 
 	m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);

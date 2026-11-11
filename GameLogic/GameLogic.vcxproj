@@ -155,8 +155,10 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="inc\GameConfigFactory.h" />
     <ClInclude Include="inc\GameSession.h" />
     <ClInclude Include="inc\Structs\DifficultyConfig.h" />
+    <ClInclude Include="inc\Structs\EnemyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyState.h" />
     <ClInclude Include="inc\Structs\GameConfig.h" />
     <ClInclude Include="inc\Structs\GameEvent.h" />
@@ -173,6 +175,7 @@
     <ClInclude Include="include\IGameService.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="inc\GameConfigFactory.cpp" />
     <ClCompile Include="src\GameSession.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

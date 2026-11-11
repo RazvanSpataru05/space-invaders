@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "GameSession.h"
 
-GameSession::GameSession(std::unique_ptr<GameLogic::IDifficultyStrategy> difficultyStrategy,
-	GameLogic::LevelID level) :
-	m_difficultyStrategy{ std::move(difficultyStrategy) },
+GameSession::GameSession(GameLogic::LevelID level) :
 	m_currentLevel{ level },
-	m_player{ GameLogic::PlayerState(GameLogic::Vector2(0.f, 0.f), m_difficultyStrategy->GetPlayerLivesCount()) }
+	m_player{ GameLogic::PlayerState(GameLogic::Vector2(0.f, 0.f), 3u) }
 {
 
 }

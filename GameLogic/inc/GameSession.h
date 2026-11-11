@@ -3,7 +3,6 @@
 #include "Enums/LevelID.h"
 #include "Enums/GameState.h"
 
-#include "Interfaces/IDifficultyStrategy.h"
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
 
@@ -15,15 +14,12 @@
 #include "Structs/Vector2.h"
 
 #include <vector>
-#include <memory>
 
 class GameSession final : public GameLogic::IGameService
 {
 public:
-	explicit GameSession(std::unique_ptr<GameLogic::IDifficultyStrategy> difficultyStrategy,
-		GameLogic::LevelID level);
+	explicit GameSession(GameLogic::LevelID level);
 
-	void InitializeLevel(GameLogic::LevelID) noexcept;
 	void SpawnEnemies() noexcept;
 	
 	void UpdateEnemies(float deltaTime);
@@ -55,7 +51,6 @@ private:
 	std::vector<GameLogic::ProjectileState> m_projectiles;
 	std::vector<GameLogic::PowerUpState> m_powerUps;
 
-	std::unique_ptr<GameLogic::IDifficultyStrategy> m_difficultyStrategy;
 	std::vector<GameLogic::IGameEventObserver*> m_observers;
 	GameLogic::GameConfig m_gameConfig;
 	GameLogic::GameState m_gameState;

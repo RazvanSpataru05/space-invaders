@@ -15,12 +15,14 @@ namespace GameLogic
 {
     struct GameSnapshot
     {
-        PlayerState player{};
+        PlayerState player;
         std::vector<EnemyState> enemies;
         std::vector<ProjectileState> projectiles;
         std::vector<PowerUpState> powerUps;
         uint32_t score{};
         LevelID currentLevel{};
         GameState gameState{};
+
+        GameSnapshot() = default;
     };
 }

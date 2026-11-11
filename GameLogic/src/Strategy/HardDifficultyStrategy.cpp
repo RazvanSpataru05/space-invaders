@@ -3,9 +3,9 @@
 
 namespace GameLogic
 {
-	uint8_t HardDifficultyStrategy::GetPlayerMaxLives() const noexcept
+	uint8_t HardDifficultyStrategy::GetPlayerLivesCount() const noexcept
 	{
-		return m_config.playerMaxLives;
+		return m_config.playerLivesCount;
 	}
 
 	float HardDifficultyStrategy::GetEnemyHealthMultiplier() const noexcept

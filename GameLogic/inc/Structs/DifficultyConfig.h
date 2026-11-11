@@ -6,8 +6,8 @@ namespace GameLogic
 {
 	struct DifficultyConfig
 	{
-		uint8_t playerMaxLives;
-		float enemyHealthMultiplier;
-		float scoreMultiplier;
+		uint8_t playerLivesCount{};
+		float enemyHealthMultiplier{};
+		float scoreMultiplier{};
 	};
 }

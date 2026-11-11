@@ -11,7 +11,7 @@ namespace GameLogic
 	public:
 		virtual ~IDifficultyStrategy() = default;
 
-		[[nodiscard]] virtual uint8_t	GetPlayerMaxLives()			const noexcept;
+		[[nodiscard]] virtual uint8_t	GetPlayerLivesCount()		const noexcept;
 		[[nodiscard]] virtual float		GetEnemyHealthMultiplier()	const noexcept;
 		[[nodiscard]] virtual float		GetScoreMultiplier()		const noexcept;
 

@@ -9,7 +9,7 @@ namespace GameLogic
 	public:
 		HardDifficultyStrategy() = default;
 
-		[[nodiscard]] uint8_t	GetPlayerMaxLives()				const noexcept override;
+		[[nodiscard]] uint8_t	GetPlayerLivesCount()				const noexcept override;
 		[[nodiscard]] float		GetEnemyHealthMultiplier()		const noexcept override;
 		[[nodiscard]] float		GetScoreMultiplier()			const noexcept override;
 
@@ -18,7 +18,7 @@ namespace GameLogic
 	private:
 		inline static constexpr DifficultyConfig m_config
 		{
-			.playerMaxLives = 2u,
+			.playerLivesCount = 2u,
 			.enemyHealthMultiplier = 2.0f,
 			.scoreMultiplier = 3.0f
 		};

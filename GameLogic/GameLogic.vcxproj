@@ -155,14 +155,17 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="inc\GameSession.h" />
     <ClInclude Include="inc\Strategy\EasyDifficultyStrategy.h" />
     <ClInclude Include="inc\Interfaces\IDifficultyStrategy.h" />
     <ClInclude Include="inc\Strategy\HardDifficultyStrategy.h" />
     <ClInclude Include="inc\Strategy\MediumDifficultyStrategy.h" />
     <ClInclude Include="inc\Structs\DifficultyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyState.h" />
+    <ClInclude Include="inc\Structs\GameConfig.h" />
     <ClInclude Include="inc\Structs\GameEvent.h" />
     <ClInclude Include="inc\Structs\GameSnapshot.h" />
+    <ClInclude Include="inc\Structs\LevelConfig.h" />
     <ClInclude Include="inc\Structs\PlayerState.h" />
     <ClInclude Include="inc\Structs\PowerUpState.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
@@ -174,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameLogic.cpp" />
+    <ClCompile Include="src\GameSession.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -53,7 +53,7 @@ private:
     // From the class diagram
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
-    GameLogic::GameSnapshot m_gameSnapshot{};
+    GameLogic::GameSnapshot m_gameSnapshot;
 
     // UI-only state (not in the diagram)
     StarField m_starField;

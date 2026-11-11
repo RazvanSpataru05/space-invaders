@@ -12,6 +12,8 @@
 class TemporaryGameService final : public GameLogic::IGameService
 {
 public:
+    TemporaryGameService() = default;
+
     void Subscribe(GameLogic::IGameEventObserver* observer) override
     {
         if (observer != nullptr && std::find(m_observers.begin(), m_observers.end(), observer) == m_observers.end())
@@ -27,7 +29,6 @@ public:
 
     void StartGame(GameLogic::LevelID level, GameLogic::Difficulty /*difficulty*/) override
     {
-        m_snapshot = {};
         m_snapshot.currentLevel = level;
         m_snapshot.gameState = GameLogic::GameState::PLAYING;
     }
@@ -48,5 +49,5 @@ public:
 
 private:
     std::vector<GameLogic::IGameEventObserver*> m_observers;
-    GameLogic::GameSnapshot m_snapshot{};
+    GameLogic::GameSnapshot m_snapshot;
 };

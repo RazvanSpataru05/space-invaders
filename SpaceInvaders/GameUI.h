@@ -7,8 +7,6 @@
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
 
-#include "Structs/GameSnapshot.h"
-
 #include "ScreenType.h"
 #include "StarField.h"
 
@@ -19,8 +17,6 @@ public:
     explicit GameUI(GameLogic::IGameService& gameService);
     // Unsubscribes and closes the window if it was opened.
     ~GameUI() override;
-
-  
 
     // Opens the window and sets up raylib. Safe to call more than once.
     void Initialize();
@@ -53,7 +49,6 @@ private:
     // From the class diagram
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
-    GameLogic::GameSnapshot m_gameSnapshot;
 
     // UI-only state (not in the diagram)
     StarField m_starField;

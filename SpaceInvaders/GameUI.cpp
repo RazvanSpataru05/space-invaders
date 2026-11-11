@@ -129,7 +129,7 @@ void GameUI::Run()
 		if (m_currentScreen == ScreenType::GAMEPLAY)
 		{
 			m_gameService.Update(deltaTime);
-			m_gameSnapshot = m_gameService.GetGameSnapshot();
+			//m_gameSnapshot = m_gameService.GetGameSnapshot();
 		}
 
 		Render();

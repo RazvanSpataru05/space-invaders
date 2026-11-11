@@ -14,11 +14,15 @@
 #include "Structs/Vector2.h"
 
 #include <vector>
+#include <algorithm>
 
 class GameSession final : public GameLogic::IGameService
 {
 public:
 	explicit GameSession(GameLogic::LevelID level);
+
+	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
+	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
 
 	void SpawnEnemies() noexcept;
 	

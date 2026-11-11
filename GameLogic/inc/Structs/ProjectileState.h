@@ -4,7 +4,6 @@
 
 #include "Structs/Vector2.h"
 
-
 namespace GameLogic
 {
     struct ProjectileState
@@ -12,6 +11,6 @@ namespace GameLogic
         Vector2 position{};
         Vector2 velocity{};
         ProjectileOwner owner{};
-        int damage{};
+        uint8_t damage{};
     };
 }

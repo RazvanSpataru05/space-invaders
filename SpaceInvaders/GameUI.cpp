@@ -1,5 +1,6 @@
 #include "GameUI.h"
 
+#include <algorithm>
 #include <array>
 #include <span>
 #include <cstdint>
@@ -183,6 +184,74 @@ namespace
 
         DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  MENU",
                          GetScreenHeight() - 60, kHintFontSize, kDimGreen);
+    }
+
+    // Gameplay HUD
+    constexpr int kMaxLives = 3;
+    constexpr int kHudTextY = 20;
+    constexpr int kHudMarginX = 30;
+    constexpr int kHudDividerY = 60;
+    constexpr int kGroundY = 676;
+
+    // Pixel heart used for the lives counter ('#' = pixel).
+    constexpr std::array<const char*, 7> kHeartSprite{
+        ".##.##.",
+        "#######",
+        "#######",
+        "#######",
+        ".#####.",
+        "..###..",
+        "...#...",
+    };
+    constexpr int kHeartSpriteWidth = 7;
+    constexpr int kHeartPixelSize = 4;
+    constexpr int kHeartWidth = kHeartSpriteWidth * kHeartPixelSize;
+    constexpr int kHeartHeight = static_cast<int>(kHeartSprite.size()) * kHeartPixelSize;
+    constexpr int kHeartGap = 10;
+
+    void DrawHeartIcon(int x, int y, Color color)
+    {
+        for (std::size_t row = 0; row < kHeartSprite.size(); ++row)
+        {
+            for (int column = 0; column < kHeartSpriteWidth; ++column)
+            {
+                if (kHeartSprite[row][column] == '#')
+                {
+                    DrawRectangle(x + column * kHeartPixelSize, y + static_cast<int>(row) * kHeartPixelSize,
+                                  kHeartPixelSize, kHeartPixelSize, color);
+                }
+            }
+        }
+    }
+
+    // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
+    void DrawHud(uint32_t score, const char* levelLabel, int livesLeft)
+    {
+        const int screenWidth = GetScreenWidth();
+
+        // Score
+        DrawText("SCORE", kHudMarginX, kHudTextY, kHintFontSize, kDimGreen);
+        DrawText(TextFormat("%06u", static_cast<unsigned int>(score)),
+                 kHudMarginX + MeasureText("SCORE", kHintFontSize) + 14, kHudTextY, kHintFontSize, kPrimaryGreen);
+
+        // Level
+        DrawTextCentered(TextFormat("LEVEL %s", levelLabel), kHudTextY, kHintFontSize, kPrimaryGreen);
+
+        // Lives: bright hearts for lives left, dim hearts for lives lost
+        constexpr int livesWidth = kMaxLives * kHeartWidth + (kMaxLives - 1) * kHeartGap;
+        const int firstHeartX = screenWidth - kHudMarginX - livesWidth;
+        const int heartY = kHudTextY + (kHintFontSize - kHeartHeight) / 2;
+
+        const int labelWidth = MeasureText("LIVES", kHintFontSize);
+        DrawText("LIVES", firstHeartX - labelWidth - 16, kHudTextY, kHintFontSize, kDimGreen);
+
+        for (int i = 0; i < kMaxLives; ++i)
+        {
+            DrawHeartIcon(firstHeartX + i * (kHeartWidth + kHeartGap), heartY, i < livesLeft ? kPrimaryGreen : kDimGreen);
+        }
+
+        DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
+        DrawRectangle(0, kGroundY, screenWidth, 4, kPrimaryGreen);
     }
 
     // Temporary screen for everything that is not implemented yet.
@@ -522,6 +591,10 @@ void GameUI::RenderLevelSelection()
 
 void GameUI::RenderGameplay()
 {
+    const int livesLeft = std::clamp(static_cast<int>(m_gameSnapshot.player.health), 0, kMaxLives);
+    DrawHud(m_gameSnapshot.score, LevelLabel(m_gameSnapshot.currentLevel), livesLeft);
+
+    // The playfield itself is drawn once GameSession provides enemies and projectiles.
     DrawPlaceholderScreen("GAMEPLAY");
 }
 

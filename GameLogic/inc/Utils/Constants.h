@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Structs/Vector2.h"
+
 #include <cstdint>
 
 namespace GameLogic::Utils::Constants

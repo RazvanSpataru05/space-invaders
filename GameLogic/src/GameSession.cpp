@@ -51,6 +51,11 @@ void GameSession::MovePlayer(GameLogic::Direction direction)
 	}
 }
 
+GameLogic::GameProgress GameSession::GetGameProgress() const
+{
+	return m_progress;
+}
+
 void GameSession::Shoot()
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;

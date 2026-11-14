@@ -7,23 +7,19 @@
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
 
+#include "Structs/GameProgress.h"
+
 #include "ScreenType.h"
 #include "StarField.h"
 
 class GameUI final : public GameLogic::IGameEventObserver
 {
 public:
-    // Subscribes to the service; the service must outlive this object.
     explicit GameUI(GameLogic::IGameService& gameService);
-
     ~GameUI() override;
 
-    // Opens the window and sets up raylib. Safe to call more than once.
     void Initialize();
-    // Main loop. Returns when the player chooses EXIT or closes the window.
     void Run();
-
-    // IGameEventObserver
     void OnGameEvent(const GameLogic::GameEvent& event) override;
  
 private:
@@ -36,23 +32,32 @@ private:
 private:
     void HandleInput();
     void HandleMainMenuInput();
+    void HandleLevelSelectionInput();
+    void HandleVerdictInput();
+    void HandleVerdictPreviewInput();
     void HandlePlaceholderInput();
 
     void Render();
     void RenderMainMenu();
     void RenderLevelSelection();
-    void RenderDifficultySelection();
     void RenderGameplay();
     void RenderGameOver();
     void RenderVictory();
+    void RenderVerdictPreview();
 
-    // From the class diagram
+    void ShowVerdict(ScreenType verdictScreen);
+    void StartSelectedGame();
+
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
+    GameLogic::GameProgress m_gameProgress{};
 
-    // UI-only state (not in the diagram)
     StarField m_starField;
     int m_selectedMenuItem = 0;
+    int m_selectedLevel = 0;
+    int m_selectedVerdictOption = 0;
+    int m_selectedVerdictPreview = 0;
+    int m_livesLeft = 0;
     bool m_shouldExit = false;
     bool m_isInitialized = false;
 };

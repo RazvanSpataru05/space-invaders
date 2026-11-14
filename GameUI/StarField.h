@@ -1,17 +1,11 @@
 #pragma once
-
-// Background of small green dots ("stars") that drift slowly downwards and twinkle.
-// Pure UI decoration: no game logic, no raylib types in this header.
-
 #include <cstddef>
 #include <vector>
 
 class StarField
 {
 public:
-    // Fills the given area with starCount stars at random positions.
     void Initialize(int width, int height, int starCount);
-    // Moves the stars and advances the twinkle animation.
     void Update(float deltaTime);
     void Draw() const;
 
@@ -26,7 +20,6 @@ private:
         std::size_t layer = 0;     // 0 = far (dim, slow) ... 2 = near (bright, fast)
     };
 
-    // Re-rolls a star. anywhereOnScreen = false places it just above the top edge.
     void ResetStar(Star& star, bool anywhereOnScreen) const;
 
     std::vector<Star> m_stars;

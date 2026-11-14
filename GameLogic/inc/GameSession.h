@@ -31,6 +31,8 @@ public:
 	void MovePlayer(GameLogic::Direction direction) override;
 	void Shoot() override;
 
+	[[nodiscard]] GameLogic::GameProgress GetGameProgress() const override;
+
 	void SpawnEnemies() noexcept;
 	
 	void UpdateEnemies(float deltaTime);

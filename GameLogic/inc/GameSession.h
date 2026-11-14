@@ -32,6 +32,7 @@ public:
 	void Shoot() override;
 
 	[[nodiscard]] GameLogic::GameProgress GetGameProgress() const override;
+	[[nodiscard]] GameLogic::PlayerState GetPlayerState() const override;
 
 	void SpawnEnemies() noexcept;
 	

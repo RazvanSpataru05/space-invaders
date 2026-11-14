@@ -11,6 +11,7 @@
 #include "Enums/LevelID.h"
 #include "Structs/GameEvent.h"
 #include "Structs/GameProgress.h"
+#include "Structs/PlayerState.h"
 
 #include "MainMenuItem.h"
 #include "VerdictMenuItem.h"
@@ -311,6 +312,7 @@ void GameUI::Run()
         {
             m_gameService.Update(deltaTime);
             m_gameProgress = m_gameService.GetGameProgress();
+            m_playerState = m_gameService.GetPlayerState();
         }
 
         Render();
@@ -320,12 +322,9 @@ void GameUI::Run()
 void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 {
     // Score and level are read from the GameProgress copy that Run() refreshes every
-    // gameplay frame; lives arrive through PLAYER_HEALTH_CHANGED (value = lives left).
+    // gameplay frame; lives come from the PlayerState copy refreshed alongside it.
     switch (event.type)
     {
-    case GameLogic::GameEventType::PLAYER_HEALTH_CHANGED:
-        m_livesLeft = event.value;
-        break;
     case GameLogic::GameEventType::GAME_OVER:
         ShowVerdict(ScreenType::GAME_OVER);
         break;
@@ -340,6 +339,7 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 void GameUI::ShowVerdict(ScreenType verdictScreen)
 {
     m_gameProgress = m_gameService.GetGameProgress(); // final score and level
+    m_playerState = m_gameService.GetPlayerState();
     m_selectedVerdictOption = 0;
     m_currentScreen = verdictScreen;
 }
@@ -350,7 +350,7 @@ void GameUI::StartSelectedGame()
 
     m_gameService.StartLevel(level);
     m_gameProgress = m_gameService.GetGameProgress();
-    m_livesLeft = kMaxLives;
+    m_playerState = m_gameService.GetPlayerState();
     m_currentScreen = ScreenType::GAMEPLAY;
 }
 
@@ -593,7 +593,7 @@ void GameUI::RenderLevelSelection()
 
 void GameUI::RenderGameplay()
 {
-    const int livesLeft = std::clamp(m_livesLeft, 0, kMaxLives);
+    const int livesLeft = std::clamp(static_cast<int>(m_playerState.livesCount), 0, kMaxLives);
     DrawHud(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
 
     // The playfield itself is drawn once GameSession provides enemies and projectiles.

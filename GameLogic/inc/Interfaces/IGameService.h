@@ -7,6 +7,7 @@
 #include "Interfaces/IGameEventSource.h"
 
 #include "Structs/GameProgress.h"
+#include "Structs/PlayerState.h"
 
 namespace GameLogic
 {
@@ -22,6 +23,8 @@ namespace GameLogic
 
         // Copy of the score and current level, so the UI never reads live state.
         [[nodiscard]] virtual GameProgress GetGameProgress() const = 0;
+        // Copy of the player (position, lives); the single source of truth for lives.
+        [[nodiscard]] virtual PlayerState GetPlayerState() const = 0;
 
     };
 }

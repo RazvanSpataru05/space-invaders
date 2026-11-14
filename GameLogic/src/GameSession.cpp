@@ -56,6 +56,11 @@ GameLogic::GameProgress GameSession::GetGameProgress() const
 	return m_progress;
 }
 
+GameLogic::PlayerState GameSession::GetPlayerState() const
+{
+	return m_entities.player;
+}
+
 void GameSession::Shoot()
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;

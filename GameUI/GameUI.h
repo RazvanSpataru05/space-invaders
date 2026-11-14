@@ -8,6 +8,7 @@
 #include "Interfaces/IGameService.h"
 
 #include "Structs/GameProgress.h"
+#include "Structs/PlayerState.h"
 
 #include "ScreenType.h"
 #include "StarField.h"
@@ -51,13 +52,13 @@ private:
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
     GameLogic::GameProgress m_gameProgress{};
+    GameLogic::PlayerState m_playerState{};
 
     StarField m_starField;
     int m_selectedMenuItem = 0;
     int m_selectedLevel = 0;
     int m_selectedVerdictOption = 0;
     int m_selectedVerdictPreview = 0;
-    int m_livesLeft = 0;
     bool m_shouldExit = false;
     bool m_isInitialized = false;
 };

@@ -9,7 +9,7 @@ namespace GameLogic
 	struct EnemyConfig
 	{
 		Vector2 position{};
-		uint8_t health{};
+		uint16_t health{};
 		EnemyType type{};
 	};
 }

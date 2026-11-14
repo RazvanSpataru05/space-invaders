@@ -15,7 +15,7 @@ class GameUI final : public GameLogic::IGameEventObserver
 public:
     // Subscribes to the service; the service must outlive this object.
     explicit GameUI(GameLogic::IGameService& gameService);
-    // Unsubscribes and closes the window if it was opened.
+
     ~GameUI() override;
 
     // Opens the window and sets up raylib. Safe to call more than once.

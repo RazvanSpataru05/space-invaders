@@ -155,6 +155,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Enums\Direction.h" />
+    <ClInclude Include="inc\Enums\EnemyType.h" />
+    <ClInclude Include="inc\Enums\GameEventType.h" />
+    <ClInclude Include="inc\Enums\GameState.h" />
+    <ClInclude Include="inc\Enums\LevelID.h" />
+    <ClInclude Include="inc\Enums\PowerUpType.h" />
+    <ClInclude Include="inc\Enums\ProjectileOwner.h" />
     <ClInclude Include="inc\GameConfigFactory.h" />
     <ClInclude Include="inc\GameSession.h" />
     <ClInclude Include="inc\Structs\DifficultyConfig.h" />
@@ -169,10 +176,12 @@
     <ClInclude Include="inc\Structs\PowerUpState.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Vector2.h" />
-    <ClInclude Include="include\GameTypes.h" />
+    <ClInclude Include="include\something.h" />
     <ClInclude Include="include\IGameEventObserver.h" />
     <ClInclude Include="include\IGameEventSource.h" />
     <ClInclude Include="include\IGameService.h" />
+    <ClInclude Include="inc\Utils\Constants.h" />
+    <ClInclude Include="inc\Utils\EnemyUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp" />

@@ -1,0 +1,425 @@
+{
+    "hasBoss": false,
+    "enemies": [
+        {
+            "position": {
+                "x": 100,
+                "y": 80
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 80
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 80
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 80
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 80
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 80
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 80
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 80
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 80
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 80
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 128
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 128
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 128
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 128
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 128
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 128
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 128
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 128
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 128
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 128
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 176
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 176
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 176
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 176
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 176
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 176
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 176
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 176
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 176
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 176
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 224
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 224
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 224
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 224
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 224
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 224
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 224
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 224
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 224
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 224
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 272
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 272
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 272
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 320
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 155,
+                "y": 320
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 320
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 265,
+                "y": 320
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 320,
+                "y": 320
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 375,
+                "y": 320
+            },
+            "type": "ARMORED"
+        },
+        {
+            "position": {
+                "x": 430,
+                "y": 320
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 485,
+                "y": 320
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 540,
+                "y": 320
+            },
+            "type": "SHOOTER"
+        },
+        {
+            "position": {
+                "x": 595,
+                "y": 320
+            },
+            "type": "NORMAL"
+        }
+    ]
+}

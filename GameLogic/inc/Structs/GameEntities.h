@@ -15,5 +15,14 @@ namespace GameLogic
         std::vector<EnemyState> enemies;
         std::vector<ProjectileState> projectiles;
         std::vector<PowerUpState> powerUps;
+
+
+        void Reset()
+        {
+            player.Reset();
+            enemies.clear();
+            projectiles.clear();
+            powerUps.clear();
+        }
     };
 }

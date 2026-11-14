@@ -7,6 +7,9 @@
 #include "nlohmann/json.hpp"
 
 #include <fstream>
+#include <format>
+#include <filesystem>
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -29,11 +32,13 @@ namespace GameLogic
 				const std::filesystem::path path = std::filesystem::path{ LEVELS_DIR } / LEVEL_FILES[i];
 				std::ifstream levelFile(path);
 
+				std::cout << "hereee\n";
 				if (!levelFile.is_open())
 				{
 					throw std::runtime_error(std::format("Could not open {} file", LEVEL_FILES[i]));
 				}
 
+				std::cout << "hereee\n";
 				json data;
 				try
 				{
@@ -64,6 +69,8 @@ namespace GameLogic
 					config.health = Utils::GetEnemyHealth(config.type);
 					levels[i].enemies.emplace_back(config);
 				}
+
+				levelFile.close();
 			}
 
 			return levels;

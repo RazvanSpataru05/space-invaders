@@ -11,7 +11,7 @@
 #include "Structs/GameProgress.h"
 #include "Structs/Vector2.h"
 
-#include "GameConfigFactory.h"
+#include "Utils/GameConfigFactory.h"
 
 #include <algorithm>
 
@@ -23,7 +23,7 @@ public:
 	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
 	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
 
-	void StartGame(GameLogic::LevelID level) override;
+	void StartLevel(GameLogic::LevelID level) override;
 
 	void Update(float deltaTime) override;
 

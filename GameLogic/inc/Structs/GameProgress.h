@@ -10,6 +10,13 @@ namespace GameLogic
     {
         uint32_t score{};
         float elapsedTime{};
-        LevelID currentLevel;
+        LevelID currentLevel{};
+
+        void Reset(LevelID level)
+        {
+            currentLevel = level;
+            score = 0u;
+            elapsedTime = 0.0f;
+        }
     };
 }

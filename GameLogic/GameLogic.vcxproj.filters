@@ -1,87 +1,117 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="inc">
+      <UniqueIdentifier>{b84b44c7-df32-47ab-8c2b-56e9406d8656}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="src">
+      <UniqueIdentifier>{ca75c68e-8f97-499f-9f71-b1f541a86bcd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Header Files\Enums">
+    <Filter Include="inc\Enums">
       <UniqueIdentifier>{f1c3666b-f76a-471c-8b21-d8c21a8c9d19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="inc\Interfaces">
+      <UniqueIdentifier>{8591b6ab-9202-45c1-b41f-c749d2cb3bfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\Structs">
+      <UniqueIdentifier>{789e332b-ab69-4636-9342-132fb10b8a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\Utils">
+      <UniqueIdentifier>{5ab3a07c-eeb7-47a2-85ca-a88656d73676}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\GameTypes.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="inc\GameSession.h">
+      <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="include\IGameEventObserver.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\something.h">
+      <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="include\IGameEventSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IGameService.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\Vector2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\PlayerState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\EnemyState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\ProjectileState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\PowerUpState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameEvent.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="inc\Utils\Constants.h">
+      <Filter>inc\Utils</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\DifficultyConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\LevelConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\GameSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameEntities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameProgress.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\GameConfigFactory.h">
-      <Filter>Header Files</Filter>
+      <Filter>inc\Structs</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\EnemyConfig.h">
-      <Filter>Header Files</Filter>
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\EnemyState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\GameConfig.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\GameEntities.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\GameEvent.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\GameProgress.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\LevelConfig.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\PlayerState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\PowerUpState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\ProjectileState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\Vector2.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGameEventObserver.h">
+      <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGameEventSource.h">
+      <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGameService.h">
+      <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utils\EnemyUtils.h">
+      <Filter>inc\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\GameConfigFactory.h">
+      <Filter>inc\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\EnemyType.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\GameEventType.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\GameState.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\LevelID.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\PowerUpType.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\ProjectileOwner.h">
+      <Filter>inc\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Enums\Direction.h">
+      <Filter>inc\Enums</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="inc\GameConfigFactory.cpp">
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\GameSession.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="inc\GameConfigFactory.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

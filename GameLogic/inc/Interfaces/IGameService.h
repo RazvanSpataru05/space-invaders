@@ -13,7 +13,7 @@ namespace GameLogic
     public:
         ~IGameService() override = default;
 
-        virtual void StartGame(LevelID level) = 0;
+        virtual void StartLevel(LevelID level) = 0;
         virtual void Update(float deltaTime) = 0;
         virtual void MovePlayer(Direction direction) = 0;
         virtual void Shoot() = 0;

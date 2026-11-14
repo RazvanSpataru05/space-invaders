@@ -12,6 +12,7 @@
 #include "Structs/Vector2.h"
 
 #include "Utils/GameConfigFactory.h"
+#include "Utils/PlayerUtils.h"
 
 #include <algorithm>
 
@@ -34,6 +35,7 @@ public:
 	
 	void UpdateEnemies(float deltaTime);
 	void UpdateProjectile(float deltaTime);
+	void UpdateScore(GameLogic::EnemyType enemyType);
 
 	void CheckCollissions();
 	void CheckLevelCompletion() const noexcept;
@@ -41,12 +43,11 @@ public:
 
 	void SpawnBoss() noexcept;
 
-	void GeneratePowerUp(GameLogic::EnemyType enemyType);
+	void GeneratePowerUp();
 	void CollectPowerUp(const GameLogic::PowerUpState& powerUp);
 	void ApplyPowerUp(GameLogic::PowerUpType type);
 	
 	void NotifyObservers(const GameLogic::GameEvent& event);
-	void CalculateEnemyScore(GameLogic::EnemyType enemyType);
 
 private:
 	GameSession(const GameSession&) = delete;

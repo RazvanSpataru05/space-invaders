@@ -19,6 +19,9 @@
     <Filter Include="inc\Utils">
       <UniqueIdentifier>{5ab3a07c-eeb7-47a2-85ca-a88656d73676}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Utils">
+      <UniqueIdentifier>{89bbc331-4412-450a-b094-0a5ca397c97e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\GameSession.h">
@@ -102,6 +105,9 @@
     <ClInclude Include="inc\Enums\Direction.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Utils\PlayerUtils.h">
+      <Filter>inc\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp">
@@ -112,6 +118,12 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\PlayerUtils.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\EnemyUtils.cpp">
+      <Filter>src\Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

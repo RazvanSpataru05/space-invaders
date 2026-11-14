@@ -2,6 +2,8 @@
 
 #include "Enums/LevelID.h"
 
+#include "Utils/Constants.h"
+
 #include <cstdint>
 
 namespace GameLogic
@@ -10,10 +12,26 @@ namespace GameLogic
     {
         uint32_t score{};
         float elapsedTime{};
+
+        float enemyDirection{};
+        float baseEnemySpeed{};
+        float dropDistance{};
+
         LevelID currentLevel{};
+
+        GameProgress()
+        {
+            enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
+            baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
+            dropDistance = Utils::Constants::INITIAL_DROP_DISTANCE;
+        }
 
         void Reset(LevelID level)
         {
+            enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
+            baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
+            dropDistance = Utils::Constants::INITIAL_DROP_DISTANCE;
+
             currentLevel = level;
             score = 0u;
             elapsedTime = 0.0f;

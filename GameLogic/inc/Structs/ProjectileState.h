@@ -6,11 +6,15 @@
 
 namespace GameLogic
 {
-    struct ProjectileState
-    {
-        Vector2 position{};
-        Vector2 velocity{};
-        ProjectileOwner owner{};
-        uint8_t damage{};
-    };
+	struct ProjectileState
+	{
+		Vector2 position{};
+		float velocity{};
+		ProjectileOwner owner{};
+		uint8_t damage{};
+
+		ProjectileState(Vector2 pos, float v, ProjectileOwner o, uint8_t d) :
+			position{ pos }, velocity{ v }, owner{ o }, damage{ d } {
+		}
+	};
 }

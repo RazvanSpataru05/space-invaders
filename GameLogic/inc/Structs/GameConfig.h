@@ -9,11 +9,10 @@ namespace GameLogic
 {
 	struct GameConfig
 	{
+		std::array<LevelConfig, 3> levels{};	
 		float powerUpDropChance{};
 		float playerMovementSpeed{};
 		float enemyMovementSpeed{};
-
 		float projectileSpeed{};
-		std::array<LevelConfig, 3> levels{};	
 	};
 }

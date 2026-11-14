@@ -30,11 +30,17 @@ void GameSession::StartLevel(GameLogic::LevelID level)
 
 void GameSession::Update(float deltaTime)
 {
+	if (m_gameState != GameLogic::GameState::PLAYING) return;
+
+	UpdateEnemies(deltaTime);
+	UpdateProjectile(deltaTime);
 
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction)
 {
+	if (m_gameState != GameLogic::GameState::PLAYING) return;
+
 	if (direction == GameLogic::Direction::LEFT)
 	{
 		m_entities.player.position.x = std::max(m_entities.player.position.x - 10.0f, GameLogic::kLeftBound);
@@ -47,7 +53,14 @@ void GameSession::MovePlayer(GameLogic::Direction direction)
 
 void GameSession::Shoot()
 {
+	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
+	m_entities.projectiles.emplace_back(
+		m_entities.player.position,
+		GameLogic::Utils::ProjectileVelocity(m_gameConfig.projectileSpeed, GameLogic::ProjectileOwner::PLAYER),
+		GameLogic::ProjectileOwner::PLAYER,
+		GameLogic::Utils::Constants::PROJECTILE_INITIAL_DAMAGE
+	);
 }
 
 void GameSession::SpawnEnemies() noexcept
@@ -60,6 +73,52 @@ void GameSession::SpawnEnemies() noexcept
 	}
 }
 
+void GameSession::UpdateEnemies(float deltaTime)
+{
+	bool hitEdge = false;
+
+	for (auto& enemy : m_entities.enemies)
+	{
+		GameLogic::Utils::UpdateEnemyHorizontalPosition(enemy, m_progress, deltaTime);
+
+		if (GameLogic::Utils::CheckEdge(enemy, m_progress.enemyDirection));
+		{
+			hitEdge = true;
+		}
+	}
+
+	if (hitEdge)
+	{
+		for (auto& enemy : m_entities.enemies)
+		{
+			GameLogic::Utils::UpdateEnemyVerticalPosition(enemy, m_progress, deltaTime);
+		}
+	}
+}
+
+void GameSession::UpdateProjectile(float deltaTime)
+{
+	for (auto& projectile : m_entities.projectiles)
+	{
+		GameLogic::Utils::UpdateProjectilePosition(projectile, deltaTime);
+	}
+
+	std::erase_if(m_entities.projectiles, [](const GameLogic::ProjectileState& p) {
+				return (p.position.y < 0 || p.position.y > GameLogic::Utils::Constants::SCREEN_HEIGHT);
+		});
+}
+
+void GameSession::UpdateScore(GameLogic::EnemyType enemyType)
+{
+	switch (enemyType)
+	{
+	case GameLogic::EnemyType::NORMAL:		m_progress.score += GameLogic::Utils::Constants::NORMAL_ENEMY_SCORE;	return;
+	case GameLogic::EnemyType::ARMORED:		m_progress.score += GameLogic::Utils::Constants::ARMORED_ENEMY_SCORE;	return;
+	case GameLogic::EnemyType::SHOOTER:		m_progress.score += GameLogic::Utils::Constants::SHOOTER_ENEMY_SCORE;	return;
+	case GameLogic::EnemyType::BOSS:		m_progress.score += GameLogic::Utils::Constants::BOSS_ENEMY_SCORE;		return;
+	}
+}
+
 void GameSession::SpawnBoss() noexcept
 {
 	if (m_progress.currentLevel != GameLogic::LevelID::LEVEL_3) return;
@@ -68,4 +127,14 @@ void GameSession::SpawnBoss() noexcept
 		GameLogic::Utils::Constants::BOSS_POSITION,
 		GameLogic::Utils::Constants::BOSS_ENEMY_HEALTH,
 		GameLogic::EnemyType::BOSS);
+}
+
+void GameSession::GeneratePowerUp()
+{
+
+}
+
+void GameSession::NotifyObservers(const GameLogic::GameEvent& event)
+{
+
 }

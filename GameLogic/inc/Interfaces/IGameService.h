@@ -8,6 +8,10 @@
 
 #include "Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
+#include "Structs/EnemyState.h"
+#include "Structs/ProjectileState.h"
+
+#include <span>
 
 namespace GameLogic
 {
@@ -21,10 +25,10 @@ namespace GameLogic
         virtual void MovePlayer(Direction direction) = 0;
         virtual void Shoot() = 0;
 
-        // Copy of the score and current level, so the UI never reads live state.
-        [[nodiscard]] virtual GameProgress GetGameProgress() const = 0;
-        // Copy of the player (position, lives); the single source of truth for lives.
-        [[nodiscard]] virtual PlayerState GetPlayerState() const = 0;
+        [[nodiscard]] virtual GameProgress GetGameProgress()                            const noexcept = 0;
+        [[nodiscard]] virtual PlayerState GetPlayerState()                              const noexcept= 0;
+        [[nodiscard]] virtual std::span<const EnemyState> GetEnemiesState()             const noexcept = 0;
+        [[nodiscard]] virtual std::span<const ProjectileState> GetProjectilesState()    const noexcept = 0;
 
     };
 }

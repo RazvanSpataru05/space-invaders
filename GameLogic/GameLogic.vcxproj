@@ -164,6 +164,9 @@
     <ClInclude Include="inc\Enums\ProjectileOwner.h" />
     <ClInclude Include="inc\GameConfigFactory.h" />
     <ClInclude Include="inc\GameSession.h" />
+    <ClInclude Include="inc\Interfaces\IGameEventObserver.h" />
+    <ClInclude Include="inc\Interfaces\IGameEventSource.h" />
+    <ClInclude Include="inc\Interfaces\IGameService.h" />
     <ClInclude Include="inc\Structs\DifficultyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyState.h" />
@@ -177,9 +180,6 @@
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Vector2.h" />
     <ClInclude Include="include\something.h" />
-    <ClInclude Include="include\IGameEventObserver.h" />
-    <ClInclude Include="include\IGameEventSource.h" />
-    <ClInclude Include="include\IGameService.h" />
     <ClInclude Include="inc\Utils\Constants.h" />
     <ClInclude Include="inc\Utils\EnemyUtils.h" />
     <ClInclude Include="inc\Utils\PlayerUtils.h" />

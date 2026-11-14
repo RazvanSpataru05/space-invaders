@@ -24,6 +24,6 @@ namespace GameLogic::Utils
 
 	bool CheckEdge(const EnemyState& enemy, float direction);
 
-	void UpdateEnemyHorizontalPosition(EnemyState& enemy, GameProgress& progress, float dt);
-	void UpdateEnemyVerticalPosition(EnemyState& enemy, GameProgress& progress, float dt);
+	void UpdateEnemyHorizontalPosition(EnemyState& enemy, const GameProgress& progress, float dt);
+	void UpdateEnemyVerticalPosition(EnemyState& enemy, const GameProgress& progress, float dt);
 }

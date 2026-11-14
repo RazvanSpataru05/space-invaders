@@ -69,15 +69,6 @@
     <ClInclude Include="inc\Structs\Vector2.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
-    <ClInclude Include="include\IGameEventObserver.h">
-      <Filter>inc\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IGameEventSource.h">
-      <Filter>inc\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IGameService.h">
-      <Filter>inc\Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utils\EnemyUtils.h">
       <Filter>inc\Utils</Filter>
     </ClInclude>
@@ -107,6 +98,15 @@
     </ClInclude>
     <ClInclude Include="inc\Utils\PlayerUtils.h">
       <Filter>inc\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Interfaces\IGameEventObserver.h">
+      <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Interfaces\IGameEventSource.h">
+      <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Interfaces\IGameService.h">
+      <Filter>inc\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,14 +4,17 @@
 #include <array>
 #include <span>
 #include <cstdint>
+#include <iostream>
 
 #include <raylib.h>
 
 #include "Enums/GameEventType.h"
 #include "Enums/LevelID.h"
+
 #include "Structs/GameEvent.h"
 #include "Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
+#include "Structs/EnemyState.h"
 
 #include "MainMenuItem.h"
 #include "VerdictMenuItem.h"
@@ -83,6 +86,21 @@ namespace
         return IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
     }
 
+    bool IsSpacePressed()
+    {
+        return IsKeyPressed(KEY_SPACE);
+    }
+
+    bool IsLeftHold()
+    {
+        return IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A);
+    }
+
+    bool IsRightHold()
+    {
+        return IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D);
+    }
+
     bool IsRightPressed()
     {
         return IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
@@ -90,7 +108,7 @@ namespace
 
     bool IsConfirmPressed()
     {
-        return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER) || IsKeyPressed(KEY_SPACE);
+        return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER);
     }
 
     bool IsBackPressed()
@@ -134,7 +152,7 @@ namespace
         const int barWidth = widestLabel + 2 * barPaddingX;
         const int barHeight = kMenuFontSize + 2 * barPaddingY;
 
-        for (std::size_t i = 0; i < labels.size(); ++i)
+        for (size_t i = 0; i < labels.size(); ++i)
         {
             const int y = firstItemY + static_cast<int>(i) * itemSpacing;
 
@@ -158,7 +176,7 @@ namespace
 
     const char* LevelLabel(GameLogic::LevelID level)
     {
-        for (std::size_t i = 0; i < kLevels.size(); ++i)
+        for (size_t i = 0; i < kLevels.size(); ++i)
         {
             if (kLevels[i] == level)
             {
@@ -224,7 +242,7 @@ namespace
     }
 
     // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
-    void DrawHud(uint32_t score, const char* levelLabel, int livesLeft)
+    void DrawHUD(uint32_t score, const char* levelLabel, int livesLeft)
     {
         const int screenWidth = GetScreenWidth();
 
@@ -281,10 +299,7 @@ GameUI::~GameUI()
 
 void GameUI::Initialize()
 {
-    if (m_isInitialized)
-    {
-        return;
-    }
+    if (m_isInitialized) return;
 
     InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
     SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
@@ -299,8 +314,6 @@ void GameUI::Initialize()
 
 void GameUI::Run()
 {
-    Initialize();
-
     while (!m_shouldExit && !WindowShouldClose())
     {
         const float deltaTime = GetFrameTime();
@@ -367,7 +380,7 @@ void GameUI::HandleInput()
         HandleLevelSelectionInput();
         break;
     case ScreenType::GAMEPLAY:
-        HandlePlaceholderInput();
+        HandleGameplayInput();
         break;
     case ScreenType::GAME_OVER:
     case ScreenType::VICTORY:
@@ -496,11 +509,25 @@ void GameUI::HandleVerdictPreviewInput()
     }
 }
 
-void GameUI::HandlePlaceholderInput()
+void GameUI::HandleGameplayInput()
 {
     if (IsBackPressed())
     {
         m_currentScreen = ScreenType::MAIN_MENU;
+    }
+
+    if (IsLeftHold())
+    {
+        m_gameService.MovePlayer(GameLogic::Direction::LEFT);
+    }
+    if (IsRightHold())
+    {
+        m_gameService.MovePlayer(GameLogic::Direction::RIGHT);
+    }
+
+    if (IsSpacePressed())
+    {
+        m_gameService.Shoot();
     }
 }
 
@@ -537,7 +564,7 @@ void GameUI::Render()
     EndDrawing();
 }
 
-void GameUI::RenderMainMenu()
+void GameUI::RenderMainMenu() const
 {
     DrawScreenTitle("SPACE INVADERS", 150, kTitleFontSize);
 
@@ -547,7 +574,7 @@ void GameUI::RenderMainMenu()
                      GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
-void GameUI::RenderLevelSelection()
+void GameUI::RenderLevelSelection() const
 {
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
@@ -594,13 +621,31 @@ void GameUI::RenderLevelSelection()
 void GameUI::RenderGameplay()
 {
     const int livesLeft = std::clamp(static_cast<int>(m_playerState.livesCount), 0, kMaxLives);
-    DrawHud(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
+    DrawHUD(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
 
-    // The playfield itself is drawn once GameSession provides enemies and projectiles.
-    DrawPlaceholderScreen("GAMEPLAY");
+    DrawRectangle(m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y, 30, 30, GREEN);
+
+    for (const auto& enemy : m_gameService.GetEnemiesState())
+    {
+        Color color{};
+
+        switch (enemy.type)
+        {
+        case GameLogic::EnemyType::NORMAL: color = GREEN; break;
+        case GameLogic::EnemyType::ARMORED: color = BLUE; break;
+        case GameLogic::EnemyType::SHOOTER: color = ORANGE; break;
+        }
+
+        DrawRectangle(static_cast<int>(enemy.position.x), static_cast<int>(enemy.position.y), 30, 30, color);
+    }
+
+    for (const auto& projectile : m_gameService.GetProjectilesState())
+    {
+        DrawRectangle(projectile.position.x, projectile.position.y, 2, 10, RED);
+    }
 }
 
-void GameUI::RenderGameOver()
+void GameUI::RenderGameOver() const
 {
     const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameProgress.currentLevel));
 
@@ -608,7 +653,7 @@ void GameUI::RenderGameOver()
                       kGameOverOptionLabels, m_selectedVerdictOption);
 }
 
-void GameUI::RenderVictory()
+void GameUI::RenderVictory() const
 {
     const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameProgress.currentLevel));
 
@@ -617,7 +662,7 @@ void GameUI::RenderVictory()
 }
 
 // TEMPORARY: menu for previewing the verdict screens.
-void GameUI::RenderVerdictPreview()
+void GameUI::RenderVerdictPreview() const
 {
     DrawScreenTitle("GAME VERDICTS", 150, kScreenTitleFontSize);
     DrawTextCentered("TEMPORARY PREVIEW", 260, kHintFontSize, kDimGreen);

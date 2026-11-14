@@ -34,43 +34,60 @@ void GameSession::Update(float deltaTime)
 
 	UpdateEnemies(deltaTime);
 	UpdateProjectile(deltaTime);
+	m_progress.elapsedTime += deltaTime;
+
+	//std::cout << "Delta time: " << m_progress.elapsedTime << '\n';
 
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction)
 {
-	if (m_gameState != GameLogic::GameState::PLAYING) return;
+	if (m_progress.elapsedTime < 2.0f || m_gameState != GameLogic::GameState::PLAYING) return;
 
 	if (direction == GameLogic::Direction::LEFT)
 	{
-		m_entities.player.position.x = std::max(m_entities.player.position.x - 10.0f, GameLogic::kLeftBound);
+		m_entities.player.position.x = std::max(m_entities.player.position.x - GameLogic::Utils::Constants::SHIP_SPEED,
+												GameLogic::Utils::Constants::WIDTH_OFFSET);
 	}
 	else
 	{
-		m_entities.player.position.x = std::min(m_entities.player.position.x + 10.0f, GameLogic::kRightBound);
+		m_entities.player.position.x = std::min(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_SPEED,
+			GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::WIDTH_OFFSET - GameLogic::Utils::Constants::SHIP_WIDTH);
 	}
+	std::cout << "updated position: " << "(" << m_entities.player.position.x << ", " << m_entities.player.position.y << ")\n";
 }
 
-GameLogic::GameProgress GameSession::GetGameProgress() const
+GameLogic::GameProgress GameSession::GetGameProgress() const noexcept
 {
 	return m_progress;
 }
 
-GameLogic::PlayerState GameSession::GetPlayerState() const
+GameLogic::PlayerState GameSession::GetPlayerState() const noexcept
 {
 	return m_entities.player;
 }
 
+std::span<const GameLogic::EnemyState> GameSession::GetEnemiesState() const noexcept
+{
+	return m_entities.enemies;
+}
+
+std::span<const GameLogic::ProjectileState> GameSession::GetProjectilesState() const noexcept
+{
+	return m_entities.projectiles;
+}
+
 void GameSession::Shoot()
 {
-	if (m_gameState != GameLogic::GameState::PLAYING) return;
+	if (m_progress.elapsedTime < 2.0f || m_gameState != GameLogic::GameState::PLAYING) return;
 
 	m_entities.projectiles.emplace_back(
-		m_entities.player.position,
+		GameLogic::Vector2(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH * 0.5f, m_entities.player.position.y),
 		GameLogic::Utils::ProjectileVelocity(m_gameConfig.projectileSpeed, GameLogic::ProjectileOwner::PLAYER),
 		GameLogic::ProjectileOwner::PLAYER,
 		GameLogic::Utils::Constants::PROJECTILE_INITIAL_DAMAGE
 	);
+	std::cout << "projectile count: " << m_entities.projectiles.size() << '\n';
 }
 
 void GameSession::SpawnEnemies() noexcept
@@ -85,13 +102,20 @@ void GameSession::SpawnEnemies() noexcept
 
 void GameSession::UpdateEnemies(float deltaTime)
 {
+	if (m_progress.elapsedTime < 2.0f) return;
+
+	std::erase_if(m_entities.enemies, [](const GameLogic::EnemyState& e)
+		{
+			return e.health == 0u;
+		});
+
 	bool hitEdge = false;
 
 	for (auto& enemy : m_entities.enemies)
 	{
 		GameLogic::Utils::UpdateEnemyHorizontalPosition(enemy, m_progress, deltaTime);
 
-		if (GameLogic::Utils::CheckEdge(enemy, m_progress.enemyDirection));
+		if (GameLogic::Utils::CheckEdge(enemy, m_progress.enemyDirection))
 		{
 			hitEdge = true;
 		}
@@ -99,6 +123,8 @@ void GameSession::UpdateEnemies(float deltaTime)
 
 	if (hitEdge)
 	{
+		m_progress.ChangeDirection();
+
 		for (auto& enemy : m_entities.enemies)
 		{
 			GameLogic::Utils::UpdateEnemyVerticalPosition(enemy, m_progress, deltaTime);
@@ -129,6 +155,18 @@ void GameSession::UpdateScore(GameLogic::EnemyType enemyType)
 	}
 }
 
+void GameSession::CheckCollissions()
+{
+}
+
+void GameSession::CheckLevelCompletion() const noexcept
+{
+}
+
+void GameSession::CheckPlayerDefeat() const noexcept
+{
+}
+
 void GameSession::SpawnBoss() noexcept
 {
 	if (m_progress.currentLevel != GameLogic::LevelID::LEVEL_3) return;
@@ -144,7 +182,15 @@ void GameSession::GeneratePowerUp()
 
 }
 
+void GameSession::CollectPowerUp(const GameLogic::PowerUpState& powerUp)
+{
+}
+
+void GameSession::ApplyPowerUp(GameLogic::PowerUpType type)
+{
+}
+
 void GameSession::NotifyObservers(const GameLogic::GameEvent& event)
 {
-
+	
 }

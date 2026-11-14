@@ -23,14 +23,19 @@ namespace GameLogic
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
             baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
-            dropDistance = Utils::Constants::INITIAL_DROP_DISTANCE;
+            dropDistance   = Utils::Constants::INITIAL_DROP_DISTANCE;
+        }
+
+        void ChangeDirection()
+        {
+            enemyDirection *= -1;
         }
 
         void Reset(LevelID level)
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
             baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
-            dropDistance = Utils::Constants::INITIAL_DROP_DISTANCE;
+            dropDistance   = Utils::Constants::INITIAL_DROP_DISTANCE;
 
             currentLevel = level;
             score = 0u;

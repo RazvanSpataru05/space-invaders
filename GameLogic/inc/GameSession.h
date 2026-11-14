@@ -31,8 +31,10 @@ public:
 	void MovePlayer(GameLogic::Direction direction) override;
 	void Shoot() override;
 
-	[[nodiscard]] GameLogic::GameProgress GetGameProgress() const override;
-	[[nodiscard]] GameLogic::PlayerState GetPlayerState() const override;
+	[[nodiscard]] GameLogic::GameProgress						GetGameProgress()		const noexcept override;
+	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()		const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()		const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetProjectilesState()	const noexcept override;
 
 	void SpawnEnemies() noexcept;
 	

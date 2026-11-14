@@ -20,13 +20,16 @@ namespace GameLogic::Utils::Constants
 	constexpr uint8_t PROJECTILE_INITIAL_DAMAGE{ 50u };
 
 	constexpr float INITIAL_ENEMY_DIRECTION{ 1.0f }; // 1: enemies move to right, -1: enemies move to the left
-	constexpr float INITIAL_ENEMY_SPEED{ 100.0f };
-	constexpr float INITIAL_DROP_DISTANCE{ 25.0f };
+	constexpr float INITIAL_ENEMY_SPEED{ 60.0f };
+	constexpr float INITIAL_DROP_DISTANCE{ 150.0f };
+
+	constexpr float SHIP_WIDTH{ 30.0f };
+	constexpr float SHIP_SPEED{ 4.0f };
 
 	constexpr float SCREEN_HEIGHT{ 720.0f };
 	constexpr float SCREEN_WIDTH{ 960.0f };
 	constexpr float WIDTH_OFFSET{ 40.0f };
 
-	const Vector2 PLAYER_INITIAL_POSITION{ Vector2(480.0f, 680.0f) };
+	const Vector2 PLAYER_INITIAL_POSITION{ Vector2(480.0f, 615.0f) };
 	const Vector2 BOSS_POSITION{ Vector2(320.0f, 80.0f) };
 }

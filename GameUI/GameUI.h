@@ -36,20 +36,23 @@ private:
     void HandleLevelSelectionInput();
     void HandleVerdictInput();
     void HandleVerdictPreviewInput();
-    void HandlePlaceholderInput();
+    void HandleGameplayInput();
 
     void Render();
-    void RenderMainMenu();
-    void RenderLevelSelection();
+    void RenderMainMenu() const;
+    void RenderLevelSelection() const;
     void RenderGameplay();
-    void RenderGameOver();
-    void RenderVictory();
-    void RenderVerdictPreview();
+    void RenderGameOver() const;
+    void RenderVictory() const;
+    void RenderVerdictPreview() const;
 
     void ShowVerdict(ScreenType verdictScreen);
     void StartSelectedGame();
 
+private:
+
     GameLogic::IGameService& m_gameService;
+
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
     GameLogic::GameProgress m_gameProgress{};
     GameLogic::PlayerState m_playerState{};

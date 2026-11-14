@@ -3,10 +3,10 @@
 
 int main()
 {
-    GameSession gameSession;
+	GameSession gameSession;
 
-    GameUI gameUI(gameSession);
+	GameUI gameUI{ gameSession };
 
-    gameUI.Initialize();
-    gameUI.Run();
+	gameUI.Initialize();
+	gameUI.Run();
 }

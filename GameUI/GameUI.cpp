@@ -8,6 +8,7 @@
 
 #include <raylib.h>
 
+#include "Enums/EnemyType.h"
 #include "Enums/GameEventType.h"
 #include "Enums/LevelID.h"
 
@@ -247,31 +248,86 @@ namespace
         DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
     }
 
-    // Player ship texture. The Assets folder is copied next to the exe by the post-build step.
-    constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
-    constexpr float kPlayerHitboxSize = 30.0f; // the logic treats the player as a 30 x 30 box
-    Texture2D g_playerShipTexture{};           // loaded in GameUI::Initialize, after the window exists
+    // Sprites are PNGs in Assets/Sprites (copied next to the exe by the post-build step).
+    // Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
+    constexpr float kHitboxSize = 30.0f; // the logic treats every ship as a 30 x 30 box
 
-    // position is the top-left of the hitbox. The sprite is scaled to the hitbox width
-    // (keeping its aspect ratio) and sits on the hitbox's bottom edge.
+    constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
+    Texture2D g_playerShipTexture{};
+
+    struct EnemySprite
+    {
+        const char* path;   // nullptr: no sprite yet, the fallback square is drawn
+        Color fallbackColor;
+        Texture2D texture;
+    };
+
+    // Indexed by GameLogic::EnemyType: NORMAL, ARMORED, SHOOTER, BOSS.
+    std::array<EnemySprite, 4> g_enemySprites{ {
+        { "Assets/Sprites/enemy_normal.png",  GREEN,  {} },
+        { "Assets/Sprites/enemy_armored.png", BLUE,   {} },
+        { "Assets/Sprites/enemy_shooter.png", ORANGE, {} },
+        { nullptr,                            RED,    {} },
+    } };
+
+    Texture2D LoadPixelTexture(const char* path)
+    {
+        const Texture2D texture = LoadTexture(path);
+        if (texture.id != 0)
+        {
+            SetTextureFilter(texture, TEXTURE_FILTER_POINT); // keep pixel art sharp when scaled
+        }
+        return texture;
+    }
+
+    // Draws the texture scaled to the box width (keeping its aspect ratio) inside the box whose
+    // top-left is (x, y): sitting on the bottom edge, or centred vertically.
+    void DrawTextureInBox(const Texture2D& texture, float x, float y, bool sitOnBottom)
+    {
+        const float width = static_cast<float>(texture.width);
+        const float height = static_cast<float>(texture.height);
+        const float drawHeight = kHitboxSize * height / width;
+        const float offsetY = sitOnBottom ? kHitboxSize - drawHeight : (kHitboxSize - drawHeight) / 2.0f;
+
+        DrawTexturePro(texture,
+                       Rectangle{ 0.0f, 0.0f, width, height },
+                       Rectangle{ x, y + offsetY, kHitboxSize, drawHeight },
+                       Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+    }
+
+    // Texture missing or no sprite for this type: a plain square keeps the game playable.
+    void DrawFallbackSquare(float x, float y, Color color)
+    {
+        DrawRectangle(static_cast<int>(x), static_cast<int>(y),
+                      static_cast<int>(kHitboxSize), static_cast<int>(kHitboxSize), color);
+    }
+
+    // position is the top-left of the hitbox.
     void DrawPlayerShip(float x, float y)
     {
         if (g_playerShipTexture.id == 0)
         {
-            // Texture missing: fall back to a plain square so the game stays playable.
-            DrawRectangle(static_cast<int>(x), static_cast<int>(y),
-                          static_cast<int>(kPlayerHitboxSize), static_cast<int>(kPlayerHitboxSize), kPrimaryGreen);
+            DrawFallbackSquare(x, y, kPrimaryGreen);
+            return;
+        }
+        DrawTextureInBox(g_playerShipTexture, x, y, true);
+    }
+
+    void DrawEnemyShip(const GameLogic::EnemyState& enemy)
+    {
+        const std::size_t index = static_cast<std::size_t>(enemy.type);
+        if (index >= g_enemySprites.size())
+        {
             return;
         }
 
-        const float width = static_cast<float>(g_playerShipTexture.width);
-        const float height = static_cast<float>(g_playerShipTexture.height);
-        const float drawHeight = kPlayerHitboxSize * height / width;
-
-        DrawTexturePro(g_playerShipTexture,
-                       Rectangle{ 0.0f, 0.0f, width, height },
-                       Rectangle{ x, y + kPlayerHitboxSize - drawHeight, kPlayerHitboxSize, drawHeight },
-                       Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+        const EnemySprite& sprite = g_enemySprites[index];
+        if (sprite.texture.id == 0)
+        {
+            DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.fallbackColor);
+            return;
+        }
+        DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, false);
     }
 
     // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
@@ -326,8 +382,14 @@ GameUI::~GameUI()
 
     if (m_isInitialized && IsWindowReady())
     {
-        UnloadTexture(g_playerShipTexture); // textures must be freed while the window still exists
+        // Textures must be freed while the window still exists.
+        UnloadTexture(g_playerShipTexture);
         g_playerShipTexture = Texture2D{};
+        for (EnemySprite& sprite : g_enemySprites)
+        {
+            UnloadTexture(sprite.texture);
+            sprite.texture = Texture2D{};
+        }
         CloseWindow();
     }
 }
@@ -340,8 +402,14 @@ void GameUI::Initialize()
     SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
     SetTargetFPS(kTargetFps);
 
-    g_playerShipTexture = LoadTexture(kPlayerShipTexturePath);
-    SetTextureFilter(g_playerShipTexture, TEXTURE_FILTER_POINT); // keep pixel art sharp when scaled
+    g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
+    for (EnemySprite& sprite : g_enemySprites)
+    {
+        if (sprite.path != nullptr)
+        {
+            sprite.texture = LoadPixelTexture(sprite.path);
+        }
+    }
 
     m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
     m_currentScreen = ScreenType::MAIN_MENU;
@@ -666,16 +734,7 @@ void GameUI::RenderGameplay()
 
     for (const auto& enemy : m_gameService.GetEnemiesState())
     {
-        Color color{};
-
-        switch (enemy.type)
-        {
-        case GameLogic::EnemyType::NORMAL: color = GREEN; break;
-        case GameLogic::EnemyType::ARMORED: color = BLUE; break;
-        case GameLogic::EnemyType::SHOOTER: color = ORANGE; break;
-        }
-
-        DrawRectangle(static_cast<int>(enemy.position.x), static_cast<int>(enemy.position.y), 30, 30, color);
+        DrawEnemyShip(enemy);
     }
 
     for (const auto& projectile : m_gameService.GetProjectilesState())

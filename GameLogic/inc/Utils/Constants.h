@@ -26,6 +26,9 @@ namespace GameLogic::Utils::Constants
 	constexpr float SHIP_WIDTH{ 30.0f };
 	constexpr float SHIP_SPEED{ 4.0f };
 
+	constexpr float START_COOLDOWN_SECONDS{ 2.0f };
+	constexpr float SHOOT_COOLDOWN_SECONDS{ 0.25f };
+
 	constexpr float SCREEN_HEIGHT{ 720.0f };
 	constexpr float SCREEN_WIDTH{ 960.0f };
 	constexpr float WIDTH_OFFSET{ 40.0f };

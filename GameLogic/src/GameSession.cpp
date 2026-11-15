@@ -35,6 +35,7 @@ void GameSession::Update(float deltaTime)
 	UpdateEnemies(deltaTime);
 	UpdateProjectile(deltaTime);
 	m_progress.elapsedTime += deltaTime;
+	m_progress.shootCoodldown += deltaTime;
 
 	//std::cout << "Delta time: " << m_progress.elapsedTime << '\n';
 
@@ -79,7 +80,9 @@ std::span<const GameLogic::ProjectileState> GameSession::GetProjectilesState() c
 
 void GameSession::Shoot()
 {
-	if (m_progress.elapsedTime < 2.0f || m_gameState != GameLogic::GameState::PLAYING) return;
+	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
+		|| m_progress.shootCoodldown < GameLogic::Utils::Constants::SHOOT_COOLDOWN_SECONDS
+		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	m_entities.projectiles.emplace_back(
 		GameLogic::Vector2(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH * 0.5f, m_entities.player.position.y),
@@ -87,6 +90,7 @@ void GameSession::Shoot()
 		GameLogic::ProjectileOwner::PLAYER,
 		GameLogic::Utils::Constants::PROJECTILE_INITIAL_DAMAGE
 	);
+	m_progress.shootCoodldown = 0.0f;
 	std::cout << "projectile count: " << m_entities.projectiles.size() << '\n';
 }
 

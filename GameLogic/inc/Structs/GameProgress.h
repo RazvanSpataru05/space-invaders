@@ -12,6 +12,7 @@ namespace GameLogic
     {
         uint32_t score{};
         float elapsedTime{};
+        float shootCoodldown{};
 
         float enemyDirection{};
         float baseEnemySpeed{};
@@ -40,6 +41,8 @@ namespace GameLogic
             currentLevel = level;
             score = 0u;
             elapsedTime = 0.0f;
+            shootCoodldown = 0.0f;
+
         }
     };
 }

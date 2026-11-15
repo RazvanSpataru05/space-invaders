@@ -247,33 +247,31 @@ namespace
         DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
     }
 
-    // Player ship: 15 x 12 pixels at 2 px = 30 x 24, matching the logic's SHIP_WIDTH hitbox.
-    constexpr std::array<const char*, 12> kPlayerShipSprite{
-        ".......#.......",
-        "......###......",
-        "......###......",
-        ".....#####.....",
-        ".....##.##.....",
-        "...#.#####.#...",
-        "..##.#####.##..",
-        ".#############.",
-        "###############",
-        "###.#######.###",
-        "##...#####...##",
-        "#.....#.#.....#",
-    };
-    constexpr int kPlayerShipPixelSize = 2;
-    constexpr int kPlayerShipWidth = 15 * kPlayerShipPixelSize;
-    constexpr int kPlayerShipHeight = static_cast<int>(kPlayerShipSprite.size()) * kPlayerShipPixelSize;
-    constexpr int kPlayerHitboxSize = 30; // the logic treats the player as a 30 x 30 box
-    static_assert(kPlayerShipWidth == kPlayerHitboxSize);
+    // Player ship texture. The Assets folder is copied next to the exe by the post-build step.
+    constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
+    constexpr float kPlayerHitboxSize = 30.0f; // the logic treats the player as a 30 x 30 box
+    Texture2D g_playerShipTexture{};           // loaded in GameUI::Initialize, after the window exists
 
-    // position is the top-left of the hitbox; the ship sits on its bottom edge.
+    // position is the top-left of the hitbox. The sprite is scaled to the hitbox width
+    // (keeping its aspect ratio) and sits on the hitbox's bottom edge.
     void DrawPlayerShip(float x, float y)
     {
-        DrawPixelSprite(kPlayerShipSprite, static_cast<int>(x),
-                        static_cast<int>(y) + kPlayerHitboxSize - kPlayerShipHeight,
-                        kPlayerShipPixelSize, kPrimaryGreen);
+        if (g_playerShipTexture.id == 0)
+        {
+            // Texture missing: fall back to a plain square so the game stays playable.
+            DrawRectangle(static_cast<int>(x), static_cast<int>(y),
+                          static_cast<int>(kPlayerHitboxSize), static_cast<int>(kPlayerHitboxSize), kPrimaryGreen);
+            return;
+        }
+
+        const float width = static_cast<float>(g_playerShipTexture.width);
+        const float height = static_cast<float>(g_playerShipTexture.height);
+        const float drawHeight = kPlayerHitboxSize * height / width;
+
+        DrawTexturePro(g_playerShipTexture,
+                       Rectangle{ 0.0f, 0.0f, width, height },
+                       Rectangle{ x, y + kPlayerHitboxSize - drawHeight, kPlayerHitboxSize, drawHeight },
+                       Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
     // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
@@ -328,6 +326,8 @@ GameUI::~GameUI()
 
     if (m_isInitialized && IsWindowReady())
     {
+        UnloadTexture(g_playerShipTexture); // textures must be freed while the window still exists
+        g_playerShipTexture = Texture2D{};
         CloseWindow();
     }
 }
@@ -339,6 +339,9 @@ void GameUI::Initialize()
     InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
     SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
     SetTargetFPS(kTargetFps);
+
+    g_playerShipTexture = LoadTexture(kPlayerShipTexturePath);
+    SetTextureFilter(g_playerShipTexture, TEXTURE_FILTER_POINT); // keep pixel art sharp when scaled
 
     m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
     m_currentScreen = ScreenType::MAIN_MENU;

@@ -226,19 +226,54 @@ namespace
     constexpr int kHeartHeight = static_cast<int>(kHeartSprite.size()) * kHeartPixelSize;
     constexpr int kHeartGap = 10;
 
-    void DrawHeartIcon(int x, int y, Color color)
+    // Draws a sprite given as rows of text ('#' = pixel), each pixel as a pixelSize square.
+    void DrawPixelSprite(std::span<const char* const> rows, int x, int y, int pixelSize, Color color)
     {
-        for (std::size_t row = 0; row < kHeartSprite.size(); ++row)
+        for (std::size_t row = 0; row < rows.size(); ++row)
         {
-            for (int column = 0; column < kHeartSpriteWidth; ++column)
+            for (int column = 0; rows[row][column] != '\0'; ++column)
             {
-                if (kHeartSprite[row][column] == '#')
+                if (rows[row][column] == '#')
                 {
-                    DrawRectangle(x + column * kHeartPixelSize, y + static_cast<int>(row) * kHeartPixelSize,
-                                  kHeartPixelSize, kHeartPixelSize, color);
+                    DrawRectangle(x + column * pixelSize, y + static_cast<int>(row) * pixelSize,
+                                  pixelSize, pixelSize, color);
                 }
             }
         }
+    }
+
+    void DrawHeartIcon(int x, int y, Color color)
+    {
+        DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
+    }
+
+    // Player ship: 15 x 12 pixels at 2 px = 30 x 24, matching the logic's SHIP_WIDTH hitbox.
+    constexpr std::array<const char*, 12> kPlayerShipSprite{
+        ".......#.......",
+        "......###......",
+        "......###......",
+        ".....#####.....",
+        ".....##.##.....",
+        "...#.#####.#...",
+        "..##.#####.##..",
+        ".#############.",
+        "###############",
+        "###.#######.###",
+        "##...#####...##",
+        "#.....#.#.....#",
+    };
+    constexpr int kPlayerShipPixelSize = 2;
+    constexpr int kPlayerShipWidth = 15 * kPlayerShipPixelSize;
+    constexpr int kPlayerShipHeight = static_cast<int>(kPlayerShipSprite.size()) * kPlayerShipPixelSize;
+    constexpr int kPlayerHitboxSize = 30; // the logic treats the player as a 30 x 30 box
+    static_assert(kPlayerShipWidth == kPlayerHitboxSize);
+
+    // position is the top-left of the hitbox; the ship sits on its bottom edge.
+    void DrawPlayerShip(float x, float y)
+    {
+        DrawPixelSprite(kPlayerShipSprite, static_cast<int>(x),
+                        static_cast<int>(y) + kPlayerHitboxSize - kPlayerShipHeight,
+                        kPlayerShipPixelSize, kPrimaryGreen);
     }
 
     // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
@@ -623,7 +658,8 @@ void GameUI::RenderGameplay()
     const int livesLeft = std::clamp(static_cast<int>(m_playerState.livesCount), 0, kMaxLives);
     DrawHUD(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
 
-    DrawRectangle(m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y, 30, 30, GREEN);
+    const GameLogic::Vector2 playerPosition = m_gameService.GetPlayerState().position;
+    DrawPlayerShip(playerPosition.x, playerPosition.y);
 
     for (const auto& enemy : m_gameService.GetEnemiesState())
     {

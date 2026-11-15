@@ -250,24 +250,26 @@ namespace
 
     // Sprites are PNGs in Assets/Sprites (copied next to the exe by the post-build step).
     // Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
-    constexpr float kHitboxSize = 30.0f; // the logic treats every ship as a 30 x 30 box
+    constexpr float kHitboxSize = 30.0f; // the logic treats the player and regular enemies as 30 x 30 boxes
+    constexpr float kBossBoxSize = 150.0f; // UI-only choice: the logic has no boss size yet
 
     constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
     Texture2D g_playerShipTexture{};
 
     struct EnemySprite
     {
-        const char* path;   // nullptr: no sprite yet, the fallback square is drawn
+        const char* path;   // nullptr: no sprite, the fallback square is drawn
+        float boxSize;      // the sprite is scaled to this width
         Color fallbackColor;
         Texture2D texture;
     };
 
     // Indexed by GameLogic::EnemyType: NORMAL, ARMORED, SHOOTER, BOSS.
     std::array<EnemySprite, 4> g_enemySprites{ {
-        { "Assets/Sprites/enemy_normal.png",  GREEN,  {} },
-        { "Assets/Sprites/enemy_armored.png", BLUE,   {} },
-        { "Assets/Sprites/enemy_shooter.png", ORANGE, {} },
-        { nullptr,                            RED,    {} },
+        { "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
+        { "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
+        { "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
+        { "Assets/Sprites/boss.png",          kBossBoxSize, RED,    {} },
     } };
 
     Texture2D LoadPixelTexture(const char* path)
@@ -280,26 +282,26 @@ namespace
         return texture;
     }
 
-    // Draws the texture scaled to the box width (keeping its aspect ratio) inside the box whose
+    // Draws the texture scaled to boxSize wide (keeping its aspect ratio) inside the square box whose
     // top-left is (x, y): sitting on the bottom edge, or centred vertically.
-    void DrawTextureInBox(const Texture2D& texture, float x, float y, bool sitOnBottom)
+    void DrawTextureInBox(const Texture2D& texture, float x, float y, float boxSize, bool sitOnBottom)
     {
         const float width = static_cast<float>(texture.width);
         const float height = static_cast<float>(texture.height);
-        const float drawHeight = kHitboxSize * height / width;
-        const float offsetY = sitOnBottom ? kHitboxSize - drawHeight : (kHitboxSize - drawHeight) / 2.0f;
+        const float drawHeight = boxSize * height / width;
+        const float offsetY = sitOnBottom ? boxSize - drawHeight : (boxSize - drawHeight) / 2.0f;
 
         DrawTexturePro(texture,
                        Rectangle{ 0.0f, 0.0f, width, height },
-                       Rectangle{ x, y + offsetY, kHitboxSize, drawHeight },
+                       Rectangle{ x, y + offsetY, boxSize, drawHeight },
                        Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
     // Texture missing or no sprite for this type: a plain square keeps the game playable.
-    void DrawFallbackSquare(float x, float y, Color color)
+    void DrawFallbackSquare(float x, float y, float boxSize, Color color)
     {
         DrawRectangle(static_cast<int>(x), static_cast<int>(y),
-                      static_cast<int>(kHitboxSize), static_cast<int>(kHitboxSize), color);
+                      static_cast<int>(boxSize), static_cast<int>(boxSize), color);
     }
 
     // position is the top-left of the hitbox.
@@ -307,10 +309,10 @@ namespace
     {
         if (g_playerShipTexture.id == 0)
         {
-            DrawFallbackSquare(x, y, kPrimaryGreen);
+            DrawFallbackSquare(x, y, kHitboxSize, kPrimaryGreen);
             return;
         }
-        DrawTextureInBox(g_playerShipTexture, x, y, true);
+        DrawTextureInBox(g_playerShipTexture, x, y, kHitboxSize, true);
     }
 
     void DrawEnemyShip(const GameLogic::EnemyState& enemy)
@@ -324,10 +326,10 @@ namespace
         const EnemySprite& sprite = g_enemySprites[index];
         if (sprite.texture.id == 0)
         {
-            DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.fallbackColor);
+            DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.boxSize, sprite.fallbackColor);
             return;
         }
-        DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, false);
+        DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, sprite.boxSize, false);
     }
 
     // Top bar: score (left), level (centre), lives (right); ground line at the bottom.

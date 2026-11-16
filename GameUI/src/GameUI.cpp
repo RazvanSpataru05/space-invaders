@@ -38,20 +38,43 @@ namespace
 
 	constexpr uint8_t kLevelLabelFontSize = 60;
 
-	// Game Over / Victory
-	constexpr std::array<VerdictMenuItem, 3> kVerdictMenuItems{
-		VerdictMenuItem::MAIN_MENU,
-		VerdictMenuItem::RETRY,
-		VerdictMenuItem::NEXT_LEVEL };
+	const char* VerdictLabel(VerdictMenuItem item)
+	{
+		switch (item)
+		{
+		case VerdictMenuItem::NEXT_LEVEL:	return "NEXT LEVEL";
+		case VerdictMenuItem::RETRY:		return "RETRY";
+		case VerdictMenuItem::MAIN_MENU:	return "MAIN MENU";
+		}
+		return "?";
+	}
 
-	constexpr std::array<const char*, 2> kGameOverOptionLabels{ "RETRY", "MAIN MENU" };
-	constexpr std::array<const char*, 3> kLevelCompletedOptionLabels
-	{		"MAIN MENU",
-		   "RETRY",
-		   "NEXT LEVEL"
-	};
+	std::vector<VerdictMenuItem> GetVerdictItems(bool isVictory, size_t level)
+	{
+		std::vector<VerdictMenuItem> items;
 
-	constexpr int kVerdictOptionCount = static_cast<int>(kVerdictMenuItems.size());
+		if (isVictory && level < 2)
+		{
+			items.emplace_back(VerdictMenuItem::NEXT_LEVEL);
+		}
+
+		items.emplace_back(VerdictMenuItem::RETRY);
+		items.emplace_back(VerdictMenuItem::MAIN_MENU);
+		return items;
+	}
+
+	std::vector<const char*> GetVerdictLabels(const std::vector<VerdictMenuItem>& items)
+	{
+		std::vector<const char*> labels;
+		labels.reserve(items.size());
+
+		for (VerdictMenuItem item : items)
+		{
+			labels.emplace_back(VerdictLabel(item));
+		}
+		
+		return labels;
+	}
 
 	bool IsUpPressed()
 	{
@@ -330,15 +353,6 @@ namespace
 		DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
 		DrawRectangle(0, kGroundY, screenWidth, 4, kPrimaryGreen);
 	}
-
-	// Temporary screen for everything that is not implemented yet.
-	void DrawPlaceholderScreen(const char* screenName)
-	{
-		const int centerY = GetScreenHeight() / 2;
-		DrawTextCentered(screenName, centerY - 60, kMenuFontSize, kPrimaryGreen);
-		DrawTextCentered("COMING SOON", centerY, kHintFontSize, kDimGreen);
-		DrawTextCentered("PRESS ESC TO RETURN", centerY + 40, kHintFontSize, kDimGreen);
-	}
 }
 
 GameUI::GameUI(GameLogic::IGameService& gameService)
@@ -466,7 +480,12 @@ void GameUI::HandleMainMenuInput()
 	{
 		switch (kMainMenuItems[static_cast<size_t>(m_selectedMenuItem)])
 		{
-		case MainMenuItem::PLAY:            m_currentScreen = ScreenType::LEVEL_SELECTION; break;
+		case MainMenuItem::PLAY:
+		{
+			m_currentScreen = ScreenType::LEVEL_SELECTION;
+			m_gameService.GetLevel() = 0;
+			break;
+		}
 		case MainMenuItem::EXIT:            m_shouldExit = true; break;
 		}
 	}
@@ -497,21 +516,18 @@ void GameUI::HandleLevelSelectionInput()
 
 void GameUI::HandleVerdictInput()
 {
-	if (IsUpPressed())
-	{
-		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, kVerdictOptionCount);
-	}
-	if (IsDownPressed())
-	{
-		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, +1, kVerdictOptionCount);
-	}
+	const auto items = GetVerdictItems(m_currentScreen == ScreenType::VICTORY, m_gameService.GetLevel());
+	const int count = static_cast<int>(items.size());
+
+	if (IsUpPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, count);
+	if (IsDownPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, count);
 
 	if (IsConfirmPressed())
 	{
-		switch (kVerdictMenuItems[static_cast<size_t>(m_selectedVerdictOption)])
+		switch (items[static_cast<size_t>(m_selectedVerdictOption)])
 		{
-		case VerdictMenuItem::RETRY:        StartSelectedGame();								 break;
 		case VerdictMenuItem::NEXT_LEVEL:	++m_gameService.GetLevel(); StartSelectedGame();     break;
+		case VerdictMenuItem::RETRY:        StartSelectedGame();								 break;
 		case VerdictMenuItem::MAIN_MENU:    m_currentScreen = ScreenType::MAIN_MENU;			 break;
 		}
 	}
@@ -642,20 +658,18 @@ void GameUI::RenderGameplay()
 void GameUI::RenderGameOver() const
 {
 	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
+	const auto labels = GetVerdictLabels(GetVerdictItems(false, m_gameService.GetLevel()));
 
 	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService.GetGameProgress().score,
-		kGameOverOptionLabels, m_selectedVerdictOption);
+		labels, m_selectedVerdictOption);
 }
 
 void GameUI::RenderVictory() const
 {
 	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
-
-	std::vector<const char*> victoryLabels{ "MAIN MENU", "RETRY" };
-
-	if (m_gameService.GetLevel() != 2) victoryLabels.emplace_back("NEXT LEVEL");
+	const auto labels = GetVerdictLabels(GetVerdictItems(true, m_gameService.GetLevel()));
 
 	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService.GetGameProgress().score,
-		victoryLabels, m_selectedVerdictOption);
+		labels, m_selectedVerdictOption);
 
 }

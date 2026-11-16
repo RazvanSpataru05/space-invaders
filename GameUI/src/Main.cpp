@@ -4,7 +4,6 @@
 int main()
 {
 	GameSession gameSession;
-
 	GameUI gameUI{ gameSession };
 
 	gameUI.Initialize();

@@ -1,9 +1,5 @@
 #pragma once
 
-// Presentation layer: owns the window, reads input, draws the current screen and
-// reacts to game events. Talks to the game logic only through IGameService.
-// raylib is used only in GameUI.cpp so this header stays free of raylib names.
-
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
 
@@ -22,13 +18,6 @@ public:
     void Initialize();
     void Run();
     void OnGameEvent(const GameLogic::GameEvent& event) override;
- 
-private:
-    GameUI(const GameUI&) = delete;
-    GameUI& operator=(const GameUI&) = delete;
-
-    GameUI(GameUI&&) = delete;
-    GameUI& operator=(GameUI&&) = delete;
 
 private:
     void HandleInput();
@@ -48,6 +37,13 @@ private:
 
     void ShowVerdict(ScreenType verdictScreen);
     void StartSelectedGame();
+
+private:
+    GameUI(const GameUI&) = delete;
+    GameUI& operator=(const GameUI&) = delete;
+
+    GameUI(GameUI&&) = delete;
+    GameUI& operator=(GameUI&&) = delete;
 
 private:
 

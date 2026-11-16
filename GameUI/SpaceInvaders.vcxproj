@@ -111,8 +111,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\raylib\raylib\src;$(ProjectDir)..\GameLogic\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\raylib\raylib\src;inc;$(ProjectDir)..\GameLogic\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,7 +124,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)Assets" "$(OutDir)Assets" /E /I /Y</Command>
+      <Command>xcopy "$(SolutionDir)Assets" "$(OutDir)Assets" /E /I /Y </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,8 +135,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\raylib\raylib\src;$(ProjectDir)..\GameLogic\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\raylib\raylib\src;inc;$(ProjectDir)..\GameLogic\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,25 +148,25 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)Assets" "$(OutDir)Assets" /E /I /Y</Command>
+      <Command>xcopy "$(SolutionDir)Assets" "$(OutDir)Assets" /E /I /Y </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="GameUI.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="StarField.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="GameUI.h" />
-    <ClInclude Include="MainMenuItem.h" />
-    <ClInclude Include="ScreenType.h" />
-    <ClInclude Include="StarField.h" />
-    <ClInclude Include="VerdictMenuItem.h" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameLogic\GameLogic.vcxproj">
       <Project>{d9419b24-70c4-4454-ad5f-21e13d599f05}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\GameUI.h" />
+    <ClInclude Include="inc\MainMenuItem.h" />
+    <ClInclude Include="inc\ScreenType.h" />
+    <ClInclude Include="inc\StarField.h" />
+    <ClInclude Include="inc\VerdictMenuItem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\GameUI.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\StarField.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -230,7 +230,7 @@ namespace
     // Draws a sprite given as rows of text ('#' = pixel), each pixel as a pixelSize square.
     void DrawPixelSprite(std::span<const char* const> rows, int x, int y, int pixelSize, Color color)
     {
-        for (std::size_t row = 0; row < rows.size(); ++row)
+        for (size_t row = 0; row < rows.size(); ++row)
         {
             for (int column = 0; rows[row][column] != '\0'; ++column)
             {
@@ -250,7 +250,7 @@ namespace
 
     // Sprites are PNGs in Assets/Sprites (copied next to the exe by the post-build step).
     // Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
-    constexpr float kHitboxSize = 30.0f; // the logic treats the player and regular enemies as 30 x 30 boxes
+    constexpr float kHitboxSize = 40.0f; 
     constexpr float kBossBoxSize = 150.0f; // UI-only choice: the logic has no boss size yet
 
     constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
@@ -258,14 +258,15 @@ namespace
 
     struct EnemySprite
     {
-        const char* path;   // nullptr: no sprite, the fallback square is drawn
-        float boxSize;      // the sprite is scaled to this width
+        const char* path{ nullptr };   // nullptr: no sprite, the fallback square is drawn
+        float boxSize{};      // the sprite is scaled to this width
         Color fallbackColor;
         Texture2D texture;
     };
 
     // Indexed by GameLogic::EnemyType: NORMAL, ARMORED, SHOOTER, BOSS.
     std::array<EnemySprite, 4> g_enemySprites{ {
+
         { "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
         { "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
         { "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
@@ -282,8 +283,6 @@ namespace
         return texture;
     }
 
-    // Draws the texture scaled to boxSize wide (keeping its aspect ratio) inside the square box whose
-    // top-left is (x, y): sitting on the bottom edge, or centred vertically.
     void DrawTextureInBox(const Texture2D& texture, float x, float y, float boxSize, bool sitOnBottom)
     {
         const float width = static_cast<float>(texture.width);
@@ -297,7 +296,6 @@ namespace
                        Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
-    // Texture missing or no sprite for this type: a plain square keeps the game playable.
     void DrawFallbackSquare(float x, float y, float boxSize, Color color)
     {
         DrawRectangle(static_cast<int>(x), static_cast<int>(y),
@@ -317,11 +315,7 @@ namespace
 
     void DrawEnemyShip(const GameLogic::EnemyState& enemy)
     {
-        const std::size_t index = static_cast<std::size_t>(enemy.type);
-        if (index >= g_enemySprites.size())
-        {
-            return;
-        }
+        const size_t index = static_cast<size_t>(enemy.type);
 
         const EnemySprite& sprite = g_enemySprites[index];
         if (sprite.texture.id == 0)
@@ -332,20 +326,16 @@ namespace
         DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, sprite.boxSize, false);
     }
 
-    // Top bar: score (left), level (centre), lives (right); ground line at the bottom.
     void DrawHUD(uint32_t score, const char* levelLabel, int livesLeft)
     {
         const int screenWidth = GetScreenWidth();
 
-        // Score
         DrawText("SCORE", kHudMarginX, kHudTextY, kHintFontSize, kDimGreen);
-        DrawText(TextFormat("%06u", static_cast<unsigned int>(score)),
+        DrawText(TextFormat("%06u", static_cast<unsigned>(score)),
                  kHudMarginX + MeasureText("SCORE", kHintFontSize) + 14, kHudTextY, kHintFontSize, kPrimaryGreen);
 
-        // Level
         DrawTextCentered(TextFormat("LEVEL %s", levelLabel), kHudTextY, kHintFontSize, kPrimaryGreen);
 
-        // Lives: bright hearts for lives left, dim hearts for lives lost
         constexpr int livesWidth = kMaxLives * kHeartWidth + (kMaxLives - 1) * kHeartGap;
         const int firstHeartX = screenWidth - kHudMarginX - livesWidth;
         const int heartY = kHudTextY + (kHintFontSize - kHeartHeight) / 2;
@@ -387,11 +377,13 @@ GameUI::~GameUI()
         // Textures must be freed while the window still exists.
         UnloadTexture(g_playerShipTexture);
         g_playerShipTexture = Texture2D{};
+
         for (EnemySprite& sprite : g_enemySprites)
         {
             UnloadTexture(sprite.texture);
             sprite.texture = Texture2D{};
         }
+
         CloseWindow();
     }
 }
@@ -401,13 +393,14 @@ void GameUI::Initialize()
     if (m_isInitialized) return;
 
     InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
-    SetExitKey(KEY_NULL); // Esc is handled per screen, not as "close window"
+    SetExitKey(KEY_NULL); 
     SetTargetFPS(kTargetFps);
 
     g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
+
     for (EnemySprite& sprite : g_enemySprites)
     {
-        if (sprite.path != nullptr)
+        if (sprite.path)
         {
             sprite.texture = LoadPixelTexture(sprite.path);
         }
@@ -442,24 +435,17 @@ void GameUI::Run()
 
 void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 {
-    // Score and level are read from the GameProgress copy that Run() refreshes every
-    // gameplay frame; lives come from the PlayerState copy refreshed alongside it.
     switch (event.type)
     {
-    case GameLogic::GameEventType::GAME_OVER:
-        ShowVerdict(ScreenType::GAME_OVER);
-        break;
-    case GameLogic::GameEventType::GAME_WON:
-        ShowVerdict(ScreenType::VICTORY);
-        break;
-    default:
-        break;
+    case GameLogic::GameEventType::GAME_OVER: ShowVerdict(ScreenType::GAME_OVER);   break;
+    case GameLogic::GameEventType::GAME_WON:  ShowVerdict(ScreenType::VICTORY);     break;
+    default:                                                                        break;
     }
 }
 
 void GameUI::ShowVerdict(ScreenType verdictScreen)
 {
-    m_gameProgress = m_gameService.GetGameProgress(); // final score and level
+    m_gameProgress = m_gameService.GetGameProgress(); 
     m_playerState = m_gameService.GetPlayerState();
     m_selectedVerdictOption = 0;
     m_currentScreen = verdictScreen;
@@ -475,28 +461,18 @@ void GameUI::StartSelectedGame()
     m_currentScreen = ScreenType::GAMEPLAY;
 }
 
-// ---------------------------------------------------------------- input
+// ---------------------------------------------------------------- Input
 
 void GameUI::HandleInput()
 {
     switch (m_currentScreen)
     {
-    case ScreenType::MAIN_MENU:
-        HandleMainMenuInput();
-        break;
-    case ScreenType::LEVEL_SELECTION:
-        HandleLevelSelectionInput();
-        break;
-    case ScreenType::GAMEPLAY:
-        HandleGameplayInput();
-        break;
+    case ScreenType::MAIN_MENU: HandleMainMenuInput(); break;
+    case ScreenType::LEVEL_SELECTION: HandleLevelSelectionInput(); break;
+    case ScreenType::GAMEPLAY: HandleGameplayInput(); break;
     case ScreenType::GAME_OVER:
-    case ScreenType::VICTORY:
-        HandleVerdictInput();
-        break;
-    case ScreenType::VERDICT_PREVIEW:
-        HandleVerdictPreviewInput();
-        break;
+    case ScreenType::VICTORY: HandleVerdictInput(); break;
+    case ScreenType::VERDICT_PREVIEW: HandleVerdictPreviewInput(); break;
     }
 }
 
@@ -519,17 +495,11 @@ void GameUI::HandleMainMenuInput()
 
     if (IsConfirmPressed())
     {
-        switch (kMainMenuItems[static_cast<std::size_t>(m_selectedMenuItem)])
+        switch (kMainMenuItems[static_cast<size_t>(m_selectedMenuItem)])
         {
-        case MainMenuItem::PLAY:
-            m_currentScreen = ScreenType::LEVEL_SELECTION;
-            break;
-        case MainMenuItem::GAME_VERDICTS:
-            m_currentScreen = ScreenType::VERDICT_PREVIEW;
-            break;
-        case MainMenuItem::EXIT:
-            m_shouldExit = true;
-            break;
+        case MainMenuItem::PLAY:            m_currentScreen = ScreenType::LEVEL_SELECTION; break;
+        case MainMenuItem::GAME_VERDICTS:   m_currentScreen = ScreenType::VERDICT_PREVIEW; break;
+        case MainMenuItem::EXIT:            m_shouldExit = true; break;
         }
     }
 }
@@ -576,14 +546,10 @@ void GameUI::HandleVerdictInput()
 
     if (IsConfirmPressed())
     {
-        switch (kVerdictMenuItems[static_cast<std::size_t>(m_selectedVerdictOption)])
+        switch (kVerdictMenuItems[static_cast<size_t>(m_selectedVerdictOption)])
         {
-        case VerdictMenuItem::RETRY:
-            StartSelectedGame(); // same level as the last game
-            break;
-        case VerdictMenuItem::MAIN_MENU:
-            m_currentScreen = ScreenType::MAIN_MENU;
-            break;
+        case VerdictMenuItem::RETRY:        StartSelectedGame();                        break;
+        case VerdictMenuItem::MAIN_MENU:    m_currentScreen = ScreenType::MAIN_MENU;    break;
         }
     }
 }
@@ -609,11 +575,11 @@ void GameUI::HandleVerdictPreviewInput()
     if (IsConfirmPressed())
     {
         // Same path a real GameSession takes: an event reaches the observer.
-        OnGameEvent(GameLogic::GameEvent{ .type = kVerdictPreviewEvents[static_cast<std::size_t>(m_selectedVerdictPreview)] });
+        OnGameEvent(GameLogic::GameEvent{ .type = kVerdictPreviewEvents[static_cast<size_t>(m_selectedVerdictPreview)] });
 
         // Fake final state, since the temporary service keeps no score.
         m_gameProgress.score = kPreviewScore;
-        m_gameProgress.currentLevel = kLevels[static_cast<std::size_t>(m_selectedLevel)];
+        m_gameProgress.currentLevel = kLevels[static_cast<size_t>(m_selectedLevel)];
     }
 }
 
@@ -645,28 +611,16 @@ void GameUI::Render()
 {
     BeginDrawing();
     ClearBackground(kBackgroundColor);
-    m_starField.Draw(); // shared background for every screen
+    m_starField.Draw(); 
 
     switch (m_currentScreen)
     {
-    case ScreenType::MAIN_MENU:
-        RenderMainMenu();
-        break;
-    case ScreenType::LEVEL_SELECTION:
-        RenderLevelSelection();
-        break;
-    case ScreenType::GAMEPLAY:
-        RenderGameplay();
-        break;
-    case ScreenType::GAME_OVER:
-        RenderGameOver();
-        break;
-    case ScreenType::VICTORY:
-        RenderVictory();
-        break;
-    case ScreenType::VERDICT_PREVIEW:
-        RenderVerdictPreview();
-        break;
+    case ScreenType::MAIN_MENU: RenderMainMenu();               break;
+    case ScreenType::LEVEL_SELECTION: RenderLevelSelection();   break;
+    case ScreenType::GAMEPLAY: RenderGameplay();                break;
+    case ScreenType::GAME_OVER: RenderGameOver();               break;
+    case ScreenType::VICTORY: RenderVictory();                  break;
+    case ScreenType::VERDICT_PREVIEW: RenderVerdictPreview();   break;
     }
 
     EndDrawing();
@@ -699,7 +653,7 @@ void GameUI::RenderLevelSelection() const
 
     for (int i = 0; i < kLevelCount; ++i)
     {
-        const char* label = kLevelLabels[static_cast<std::size_t>(i)];
+        const char* label = kLevelLabels[static_cast<size_t>(i)];
         const int boxX = firstBoxX + i * (boxSize + boxGap);
         const bool isSelected = i == m_selectedLevel;
 
@@ -730,8 +684,8 @@ void GameUI::RenderGameplay()
 {
     const int livesLeft = std::clamp(static_cast<int>(m_playerState.livesCount), 0, kMaxLives);
     DrawHUD(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
-
-    const GameLogic::Vector2 playerPosition = m_gameService.GetPlayerState().position;
+    
+    const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
     DrawPlayerShip(playerPosition.x, playerPosition.y);
 
     for (const auto& enemy : m_gameService.GetEnemiesState())

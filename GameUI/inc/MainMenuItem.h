@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-// Entries of the main menu, in display order.
 enum class MainMenuItem : uint8_t
 {
     PLAY,

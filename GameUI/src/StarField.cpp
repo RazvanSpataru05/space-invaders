@@ -9,9 +9,9 @@ namespace
 {
     struct LayerStyle
     {
-        float minSpeed;
-        float maxSpeed;
-        int size; // square side in pixels
+        float minSpeed{};
+        float maxSpeed{};
+        int size{};
         Color color;
     };
 
@@ -24,20 +24,21 @@ namespace
 
     constexpr float kMinTwinkleSpeed = 1.0f;
     constexpr float kMaxTwinkleSpeed = 3.0f;
-    constexpr float kMinBrightness = 0.3f; // alpha factor at the dimmest point of a twinkle
-    constexpr float kTimeWrap = 10000.0f;  // keeps m_time small enough for float precision
+    constexpr float kMinBrightness = 0.3f; 
+    constexpr float kTimeWrap = 10000.0f;  
 
     float RandomFloat(float min, float max)
     {
-        constexpr int resolution = 10000;
+        constexpr int resolution{ 10000 };
         const float t = static_cast<float>(GetRandomValue(0, resolution)) / static_cast<float>(resolution);
         return min + (max - min) * t;
     }
 
     // 60% far, 30% mid, 10% near
-    std::size_t PickLayer()
+    size_t PickLayer()
     {
         const int roll = GetRandomValue(0, 99);
+
         if (roll < 60)
         {
             return 0;
@@ -75,6 +76,7 @@ void StarField::ResetStar(Star& star, bool anywhereOnScreen) const
 void StarField::Update(float deltaTime)
 {
     m_time += deltaTime;
+
     if (m_time > kTimeWrap)
     {
         m_time -= kTimeWrap;
@@ -96,7 +98,6 @@ void StarField::Draw() const
     {
         const LayerStyle& style = kLayers[star.layer];
 
-        // sin in [-1, 1] -> brightness in [kMinBrightness, 1]
         const float wave = 0.5f + 0.5f * std::sin(m_time * star.twinkleSpeed + star.twinklePhase);
         const float brightness = kMinBrightness + (1.0f - kMinBrightness) * wave;
 

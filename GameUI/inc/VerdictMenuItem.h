@@ -6,5 +6,6 @@
 enum class VerdictMenuItem : uint8_t
 {
     RETRY,
+    NEXT_LEVEL,
     MAIN_MENU
 };

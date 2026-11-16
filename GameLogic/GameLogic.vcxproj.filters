@@ -27,9 +27,6 @@
     <ClInclude Include="inc\GameSession.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="include\something.h">
-      <Filter>inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utils\Constants.h">
       <Filter>inc\Utils</Filter>
     </ClInclude>

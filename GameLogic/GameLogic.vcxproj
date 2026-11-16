@@ -179,7 +179,6 @@
     <ClInclude Include="inc\Structs\PowerUpState.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Vector2.h" />
-    <ClInclude Include="include\something.h" />
     <ClInclude Include="inc\Utils\Constants.h" />
     <ClInclude Include="inc\Utils\EnemyUtils.h" />
     <ClInclude Include="inc\Utils\PlayerUtils.h" />

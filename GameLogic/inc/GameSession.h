@@ -24,17 +24,20 @@ public:
 	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
 	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
 
-	void StartLevel(GameLogic::LevelID level) override;
+	void StartLevel() noexcept override;
 
-	void Update(float deltaTime) override;
+	void Update(float deltaTime) noexcept override;
 
-	void MovePlayer(GameLogic::Direction direction) override;
-	void Shoot() override;
+	void MovePlayer(GameLogic::Direction direction) noexcept override;
+	void Shoot() noexcept override;
+	void Reset() noexcept override;
 
 	[[nodiscard]] GameLogic::GameProgress						GetGameProgress()		const noexcept override;
 	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()		const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()		const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetProjectilesState()	const noexcept override;
+	[[nodiscard]] size_t&										GetLevel()				noexcept override;
+	[[nodsicard]] size_t										GetLevel()				const noexcept override;
 
 	void SpawnEnemies() noexcept;
 	
@@ -43,8 +46,8 @@ public:
 	void UpdateScore(GameLogic::EnemyType enemyType);
 
 	void CheckCollissions();
-	void CheckLevelCompletion() const noexcept;
-	void CheckPlayerDefeat()	const noexcept;
+	void CheckLevelCompletion() noexcept;
+	void CheckPlayerDefeat()	noexcept;
 
 	void SpawnBoss() noexcept;
 
@@ -53,6 +56,10 @@ public:
 	void ApplyPowerUp(GameLogic::PowerUpType type);
 	
 	void NotifyObservers(const GameLogic::GameEvent& event);
+
+private:
+	void UpdateEnemiesHealth();
+	void UpdateEnemiesPosition(float deltaTime);
 
 private:
 	GameSession(const GameSession&) = delete;
@@ -69,5 +76,7 @@ private:
 	GameLogic::GameState m_gameState;
 
 	std::vector<GameLogic::IGameEventObserver*> m_observers;
+
+	size_t m_currentLevel{};
 };
 

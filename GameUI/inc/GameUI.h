@@ -1,18 +1,36 @@
 #pragma once
 
+#include "Enums/EnemyType.h"
+#include "Enums/GameEventType.h"
+#include "Enums/LevelID.h"
+
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
 
+#include "Structs/GameEvent.h"
 #include "Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
+#include "Structs/EnemyState.h"
+
+#include "MainMenuItem.h"
+#include "VerdictMenuItem.h"
 
 #include "ScreenType.h"
 #include "StarField.h"
+
+#include <raylib.h>
+
+#include <algorithm>
+#include <array>
+#include <span>
+#include <cstdint>
+#include <iostream>
 
 class GameUI final : public GameLogic::IGameEventObserver
 {
 public:
     explicit GameUI(GameLogic::IGameService& gameService);
+
     ~GameUI() override;
 
     void Initialize();
@@ -24,7 +42,6 @@ private:
     void HandleMainMenuInput();
     void HandleLevelSelectionInput();
     void HandleVerdictInput();
-    void HandleVerdictPreviewInput();
     void HandleGameplayInput();
 
     void Render();
@@ -33,7 +50,6 @@ private:
     void RenderGameplay();
     void RenderGameOver() const;
     void RenderVictory() const;
-    void RenderVerdictPreview() const;
 
     void ShowVerdict(ScreenType verdictScreen);
     void StartSelectedGame();
@@ -48,16 +64,13 @@ private:
 private:
 
     GameLogic::IGameService& m_gameService;
-
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
     GameLogic::GameProgress m_gameProgress{};
-    GameLogic::PlayerState m_playerState{};
 
     StarField m_starField;
-    int m_selectedMenuItem = 0;
-    int m_selectedLevel = 0;
-    int m_selectedVerdictOption = 0;
-    int m_selectedVerdictPreview = 0;
-    bool m_shouldExit = false;
-    bool m_isInitialized = false;
+    int m_selectedMenuItem{};
+    int m_selectedVerdictOption{};
+    int m_selectedVerdictPreview{};
+    bool m_shouldExit{};
+    bool m_isInitialized{};
 };

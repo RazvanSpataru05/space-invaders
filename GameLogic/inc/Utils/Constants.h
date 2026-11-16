@@ -23,7 +23,9 @@ namespace GameLogic::Utils::Constants
 	constexpr float INITIAL_ENEMY_SPEED{ 60.0f };
 	constexpr float INITIAL_DROP_DISTANCE{ 150.0f };
 
-	constexpr float SHIP_WIDTH{ 30.0f };
+	constexpr float PROJECTILE_WIDTH{ 2.0f };
+	constexpr float PROJECTILE_HEIGHT{ 10.0f };
+	constexpr float SHIP_WIDTH{ 40.0f };
 	constexpr float SHIP_SPEED{ 4.0f };
 
 	constexpr float START_COOLDOWN_SECONDS{ 2.0f };

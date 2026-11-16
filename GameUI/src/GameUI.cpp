@@ -1,728 +1,658 @@
 #include "GameUI.h"
 
-#include <algorithm>
-#include <array>
-#include <span>
-#include <cstdint>
-#include <iostream>
-
-#include <raylib.h>
-
-#include "Enums/EnemyType.h"
-#include "Enums/GameEventType.h"
-#include "Enums/LevelID.h"
-
-#include "Structs/GameEvent.h"
-#include "Structs/GameProgress.h"
-#include "Structs/PlayerState.h"
-#include "Structs/EnemyState.h"
-
-#include "MainMenuItem.h"
-#include "VerdictMenuItem.h"
-
 namespace
 {
-    // Window
-    constexpr uint16_t kScreenWidth = 960;
-    constexpr uint16_t kScreenHeight = 720;
-    constexpr uint8_t kTargetFps = 60;
-    constexpr const char* kWindowTitle = "Space Invaders";
-    constexpr uint8_t kStarCount = 140;
+	// Window
+	constexpr uint16_t kScreenWidth = 960;
+	constexpr uint16_t kScreenHeight = 720;
 
-    // Theme: black background, terminal green
-    constexpr Color kBackgroundColor{ 0, 0, 0, 255 };
-    constexpr Color kPrimaryGreen{ 34, 197, 34, 255 };
-    constexpr Color kDimGreen{ 20, 110, 20, 255 };
+	constexpr uint8_t kTargetFps = 60;
+	constexpr const char* kWindowTitle = "Space Invaders";
+	constexpr uint8_t kStarCount = 140;
 
-    constexpr uint8_t kTitleFontSize = 60;
-    constexpr int kScreenTitleFontSize = 40;
-    constexpr uint8_t kMenuFontSize = 30;
-    constexpr uint8_t kHintFontSize = 20;
+	// Theme: black background, terminal green
+	constexpr Color kBackgroundColor{ 0, 0, 0, 255 };
+	constexpr Color kPrimaryGreen{ 34, 197, 34, 255 };
+	constexpr Color kDimGreen{ 20, 110, 20, 255 };
 
-    // Main menu
-    constexpr std::array<MainMenuItem, 3> kMainMenuItems{
-        MainMenuItem::PLAY, MainMenuItem::GAME_VERDICTS, MainMenuItem::EXIT };
-    constexpr std::array<const char*, 3> kMainMenuLabels{ "PLAY", "GAME VERDICTS", "EXIT" };
-    constexpr int kMainMenuItemCount = static_cast<int>(kMainMenuLabels.size());
-    static_assert(kMainMenuItems.size() == kMainMenuLabels.size());
+	constexpr uint8_t kTitleFontSize = 60;
+	constexpr uint8_t kScreenTitleFontSize = 40;
+	constexpr uint8_t kMenuFontSize = 30;
+	constexpr uint8_t kHintFontSize = 20;
 
-    // Level selection
-    constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
-    constexpr std::array<GameLogic::LevelID, 3> kLevels{
-        GameLogic::LevelID::LEVEL_1, GameLogic::LevelID::LEVEL_2, GameLogic::LevelID::LEVEL_3 };
-    constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
-    static_assert(kLevels.size() == kLevelLabels.size());
+	// Main menu
+	constexpr std::array<MainMenuItem, 2> kMainMenuItems{
+		MainMenuItem::PLAY,
+		MainMenuItem::EXIT };
 
-    constexpr int kLevelLabelFontSize = 60;
+	constexpr std::array<const char*, 2> kMainMenuLabels{ "PLAY", "EXIT" };
+	constexpr int kMainMenuItemCount = static_cast<int>(kMainMenuLabels.size());
 
-    // Game Over / Victory
-    constexpr std::array<VerdictMenuItem, 2> kVerdictMenuItems{ VerdictMenuItem::RETRY, VerdictMenuItem::MAIN_MENU };
-    constexpr std::array<const char*, 2> kGameOverOptionLabels{ "RETRY", "MAIN MENU" };
-    constexpr std::array<const char*, 2> kVictoryOptionLabels{ "PLAY AGAIN", "MAIN MENU" };
-    constexpr int kVerdictOptionCount = static_cast<int>(kVerdictMenuItems.size());
-    static_assert(kGameOverOptionLabels.size() == kVerdictMenuItems.size());
-    static_assert(kVictoryOptionLabels.size() == kVerdictMenuItems.size());
+	// Level selection
+	constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
+	constexpr std::array<GameLogic::LevelID, 3> kLevels{
+		GameLogic::LevelID::LEVEL_1,
+		GameLogic::LevelID::LEVEL_2,
+		GameLogic::LevelID::LEVEL_3 };
+	constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
 
-    // TEMPORARY verdict preview: fakes the events a real GameSession will send
-    constexpr std::array<const char*, 2> kVerdictPreviewLabels{ "GAME OVER", "VICTORY" };
-    constexpr std::array<GameLogic::GameEventType, 2> kVerdictPreviewEvents{
-        GameLogic::GameEventType::GAME_OVER, GameLogic::GameEventType::GAME_WON };
-    constexpr int kVerdictPreviewCount = static_cast<int>(kVerdictPreviewLabels.size());
-    static_assert(kVerdictPreviewEvents.size() == kVerdictPreviewLabels.size());
-    constexpr uint32_t kPreviewScore = 4250;
+	constexpr uint8_t kLevelLabelFontSize = 60;
 
-    // Input helpers
-    bool IsUpPressed()
-    {
-        return IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
-    }
+	// Game Over / Victory
+	constexpr std::array<VerdictMenuItem, 3> kVerdictMenuItems{
+		VerdictMenuItem::MAIN_MENU,
+		VerdictMenuItem::RETRY,
+		VerdictMenuItem::NEXT_LEVEL };
 
-    bool IsDownPressed()
-    {
-        return IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
-    }
+	constexpr std::array<const char*, 2> kGameOverOptionLabels{ "RETRY", "MAIN MENU" };
+	constexpr std::array<const char*, 3> kLevelCompletedOptionLabels
+	{ "MAIN MENU",
+		   "RETRY",
+		   "NEXT LEVEL"
+	};
 
-    bool IsLeftPressed()
-    {
-        return IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
-    }
+	constexpr int kVerdictOptionCount = static_cast<int>(kVerdictMenuItems.size());
 
-    bool IsSpacePressed()
-    {
-        return IsKeyPressed(KEY_SPACE);
-    }
+	bool IsUpPressed()
+	{
+		return IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
+	}
 
-    bool IsLeftHold()
-    {
-        return IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A);
-    }
+	bool IsDownPressed()
+	{
+		return IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+	}
 
-    bool IsRightHold()
-    {
-        return IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D);
-    }
+	bool IsLeftPressed()
+	{
+		return IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
+	}
 
-    bool IsRightPressed()
-    {
-        return IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
-    }
+	bool IsSpacePressed()
+	{
+		return IsKeyPressed(KEY_SPACE);
+	}
 
-    bool IsConfirmPressed()
-    {
-        return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER);
-    }
+	bool IsLeftHold()
+	{
+		return IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A);
+	}
 
-    bool IsBackPressed()
-    {
-        return IsKeyPressed(KEY_ESCAPE);
-    }
+	bool IsRightHold()
+	{
+		return IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D);
+	}
 
-    // Drawing helpers
-    void DrawTextCentered(const char* text, int y, int fontSize, Color color, int xOffset = 0)
-    {
-        const int textWidth = MeasureText(text, fontSize);
-        DrawText(text, (GetScreenWidth() - textWidth) / 2 + xOffset, y, fontSize, color);
-    }
+	bool IsRightPressed()
+	{
+		return IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
+	}
 
-    // Screen heading: text with a dim "drop shadow" and an underline.
-    void DrawScreenTitle(const char* title, int y, int fontSize)
-    {
-        constexpr int shadowOffset = 4;
-        DrawTextCentered(title, y + shadowOffset, fontSize, kDimGreen, shadowOffset);
-        DrawTextCentered(title, y, fontSize, kPrimaryGreen);
+	bool IsConfirmPressed()
+	{
+		return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER);
+	}
 
-        const int titleWidth = MeasureText(title, fontSize);
-        DrawRectangle((GetScreenWidth() - titleWidth) / 2, y + fontSize + 20, titleWidth, 4, kDimGreen);
-    }
+	bool IsBackPressed()
+	{
+		return IsKeyPressed(KEY_ESCAPE);
+	}
 
-    // Vertical list of labels; the selected one sits on a solid green bar with black text.
-    // The bar is sized to the widest label so it never changes size while navigating.
-    void DrawMenuList(std::span<const char* const> labels, int selectedIndex, int firstItemY)
-    {
-        constexpr int itemSpacing = 64;
-        constexpr int barPaddingX = 48;
-        constexpr int barPaddingY = 10;
+	// Drawing helpers
+	void DrawTextCentered(const char* text, int y, int fontSize, Color color, int xOffset = 0)
+	{
+		const int textWidth = MeasureText(text, fontSize);
+		DrawText(text, (GetScreenWidth() - textWidth) / 2 + xOffset, y, fontSize, color);
+	}
 
-        int widestLabel = 0;
-        for (const char* label : labels)
-        {
-            const int width = MeasureText(label, kMenuFontSize);
-            widestLabel = width > widestLabel ? width : widestLabel;
-        }
+	// Screen heading: text with a dim "drop shadow" and an underline.
+	void DrawScreenTitle(const char* title, int y, int fontSize)
+	{
+		constexpr int shadowOffset = 4;
+		DrawTextCentered(title, y + shadowOffset, fontSize, kDimGreen, shadowOffset);
+		DrawTextCentered(title, y, fontSize, kPrimaryGreen);
 
-        const int barWidth = widestLabel + 2 * barPaddingX;
-        const int barHeight = kMenuFontSize + 2 * barPaddingY;
+		const int titleWidth = MeasureText(title, fontSize);
+		DrawRectangle((GetScreenWidth() - titleWidth) / 2, y + fontSize + 20, titleWidth, 4, kDimGreen);
+	}
 
-        for (size_t i = 0; i < labels.size(); ++i)
-        {
-            const int y = firstItemY + static_cast<int>(i) * itemSpacing;
+	// Vertical list of labels; the selected one sits on a solid green bar with black text.
+	// The bar is sized to the widest label so it never changes size while navigating.
+	void DrawMenuList(std::span<const char* const> labels, int selectedIndex, int firstItemY)
+	{
+		constexpr int itemSpacing = 64;
+		constexpr int barPaddingX = 48;
+		constexpr int barPaddingY = 10;
 
-            if (static_cast<int>(i) == selectedIndex)
-            {
-                DrawRectangle((GetScreenWidth() - barWidth) / 2, y - barPaddingY, barWidth, barHeight, kPrimaryGreen);
-                DrawTextCentered(labels[i], y, kMenuFontSize, kBackgroundColor);
-            }
-            else
-            {
-                DrawTextCentered(labels[i], y, kMenuFontSize, kPrimaryGreen);
-            }
-        }
-    }
+		int widestLabel = 0;
+		for (const char* label : labels)
+		{
+			const int width = MeasureText(label, kMenuFontSize);
+			widestLabel = width > widestLabel ? width : widestLabel;
+		}
 
-    // Moves a list cursor with wrap-around.
-    int StepSelection(int current, int step, int count)
-    {
-        return (current + step + count) % count;
-    }
+		const int barWidth = widestLabel + 2 * barPaddingX;
+		const int barHeight = kMenuFontSize + 2 * barPaddingY;
 
-    const char* LevelLabel(GameLogic::LevelID level)
-    {
-        for (size_t i = 0; i < kLevels.size(); ++i)
-        {
-            if (kLevels[i] == level)
-            {
-                return kLevelLabels[i];
-            }
-        }
-        return "?";
-    }
+		for (size_t i = 0; i < labels.size(); ++i)
+		{
+			const int y = firstItemY + static_cast<int>(i) * itemSpacing;
 
-    // Shared layout of the Game Over and Victory screens.
-    void DrawVerdictScreen(const char* title, const char* subtitle, const char* details, uint32_t score,
-                           std::span<const char* const> options, int selectedOption)
-    {
-        DrawScreenTitle(title, 120, kTitleFontSize);
-        DrawTextCentered(subtitle, 230, kHintFontSize, kPrimaryGreen);
-        DrawTextCentered(details, 260, kHintFontSize, kDimGreen);
+			if (static_cast<int>(i) == selectedIndex)
+			{
+				DrawRectangle((GetScreenWidth() - barWidth) / 2, y - barPaddingY, barWidth, barHeight, kPrimaryGreen);
+				DrawTextCentered(labels[i], y, kMenuFontSize, kBackgroundColor);
+			}
+			else
+			{
+				DrawTextCentered(labels[i], y, kMenuFontSize, kPrimaryGreen);
+			}
+		}
+	}
 
-        DrawTextCentered("FINAL SCORE", 320, kHintFontSize, kDimGreen);
-        DrawTextCentered(TextFormat("%06u", static_cast<unsigned int>(score)), 350, kTitleFontSize, kPrimaryGreen);
+	// Moves a list cursor with wrap-around.
+	int StepSelection(int current, int step, int count)
+	{
+		return (current + step + count) % count;
+	}
 
-        DrawMenuList(options, selectedOption, 470);
+	const char* LevelLabel(size_t level)
+	{
+		for (size_t i = 0; i < kLevels.size(); ++i)
+		{
+			if (i == level)
+			{
+				return kLevelLabels[i];
+			}
+		}
+		return "?";
+	}
 
-        DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  MENU",
-                         GetScreenHeight() - 60, kHintFontSize, kDimGreen);
-    }
+	// Shared layout of the Game Over and Victory screens.
+	void DrawVerdictScreen(const char* title, const char* subtitle, const char* details, uint32_t score,
+		std::span<const char* const> options, int selectedOption)
+	{
+		DrawScreenTitle(title, 120, kTitleFontSize);
+		DrawTextCentered(subtitle, 230, kHintFontSize, kPrimaryGreen);
+		DrawTextCentered(details, 260, kHintFontSize, kDimGreen);
 
-    // Gameplay HUD
-    constexpr int kMaxLives = GameLogic::Utils::Constants::PLAYER_INITIAL_LIVES;
-    constexpr int kHudTextY = 20;
-    constexpr int kHudMarginX = 30;
-    constexpr int kHudDividerY = 60;
-    constexpr int kGroundY = 676;
+		DrawTextCentered("FINAL SCORE", 320, kHintFontSize, kDimGreen);
+		DrawTextCentered(TextFormat("%06u", score), 350, kTitleFontSize, kPrimaryGreen);
 
-    // Pixel heart used for the lives counter ('#' = pixel).
-    constexpr std::array<const char*, 7> kHeartSprite{
-        ".##.##.",
-        "#######",
-        "#######",
-        "#######",
-        ".#####.",
-        "..###..",
-        "...#...",
-    };
-    constexpr int kHeartSpriteWidth = 7;
-    constexpr int kHeartPixelSize = 4;
-    constexpr int kHeartWidth = kHeartSpriteWidth * kHeartPixelSize;
-    constexpr int kHeartHeight = static_cast<int>(kHeartSprite.size()) * kHeartPixelSize;
-    constexpr int kHeartGap = 10;
+		DrawMenuList(options, selectedOption, 470);
 
-    // Draws a sprite given as rows of text ('#' = pixel), each pixel as a pixelSize square.
-    void DrawPixelSprite(std::span<const char* const> rows, int x, int y, int pixelSize, Color color)
-    {
-        for (size_t row = 0; row < rows.size(); ++row)
-        {
-            for (int column = 0; rows[row][column] != '\0'; ++column)
-            {
-                if (rows[row][column] == '#')
-                {
-                    DrawRectangle(x + column * pixelSize, y + static_cast<int>(row) * pixelSize,
-                                  pixelSize, pixelSize, color);
-                }
-            }
-        }
-    }
+		DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  MENU",
+			GetScreenHeight() - 60, kHintFontSize, kDimGreen);
+	}
 
-    void DrawHeartIcon(int x, int y, Color color)
-    {
-        DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
-    }
+	// Gameplay HUD
+	constexpr int kMaxLives = GameLogic::Utils::Constants::PLAYER_INITIAL_LIVES;
+	constexpr int kHudTextY = 20;
+	constexpr int kHudMarginX = 30;
+	constexpr int kHudDividerY = 60;
+	constexpr int kGroundY = 676;
 
-    // Sprites are PNGs in Assets/Sprites (copied next to the exe by the post-build step).
-    // Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
-    constexpr float kHitboxSize = 40.0f; 
-    constexpr float kBossBoxSize = 150.0f; // UI-only choice: the logic has no boss size yet
+	// Pixel heart used for the lives counter ('#' = pixel).
+	constexpr std::array<const char*, 7> kHeartSprite{
+		".##.##.",
+		"#######",
+		"#######",
+		"#######",
+		".#####.",
+		"..###..",
+		"...#...",
+	};
+	constexpr int kHeartSpriteWidth = 7;
+	constexpr int kHeartPixelSize = 4;
+	constexpr int kHeartWidth = kHeartSpriteWidth * kHeartPixelSize;
+	constexpr int kHeartHeight = static_cast<int>(kHeartSprite.size()) * kHeartPixelSize;
+	constexpr int kHeartGap = 10;
 
-    constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
-    Texture2D g_playerShipTexture{};
+	// Draws a sprite given as rows of text ('#' = pixel), each pixel as a pixelSize square.
+	void DrawPixelSprite(std::span<const char* const> rows, int x, int y, int pixelSize, Color color)
+	{
+		for (size_t row = 0; row < rows.size(); ++row)
+		{
+			for (int column = 0; rows[row][column] != '\0'; ++column)
+			{
+				if (rows[row][column] == '#')
+				{
+					DrawRectangle(x + column * pixelSize, y + static_cast<int>(row) * pixelSize,
+						pixelSize, pixelSize, color);
+				}
+			}
+		}
+	}
 
-    struct EnemySprite
-    {
-        const char* path{ nullptr };   // nullptr: no sprite, the fallback square is drawn
-        float boxSize{};      // the sprite is scaled to this width
-        Color fallbackColor;
-        Texture2D texture;
-    };
+	void DrawHeartIcon(int x, int y, Color color)
+	{
+		DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
+	}
 
-    // Indexed by GameLogic::EnemyType: NORMAL, ARMORED, SHOOTER, BOSS.
-    std::array<EnemySprite, 4> g_enemySprites{ {
+	// Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
+	constexpr float kHitboxSize = 40.0f;
+	constexpr float kBossBoxSize = 150.0f; // UI-only choice: the logic has no boss size yet
 
-        { "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
-        { "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
-        { "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
-        { "Assets/Sprites/boss.png",          kBossBoxSize, RED,    {} },
-    } };
+	constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
+	Texture2D g_playerShipTexture{};
 
-    Texture2D LoadPixelTexture(const char* path)
-    {
-        const Texture2D texture = LoadTexture(path);
-        if (texture.id != 0)
-        {
-            SetTextureFilter(texture, TEXTURE_FILTER_POINT); // keep pixel art sharp when scaled
-        }
-        return texture;
-    }
+	struct EnemySprite
+	{
+		const char* path{ nullptr };   // nullptr: no sprite, the fallback square is drawn
+		float boxSize{};      // the sprite is scaled to this width
+		Color fallbackColor;
+		Texture2D texture;
+	};
 
-    void DrawTextureInBox(const Texture2D& texture, float x, float y, float boxSize, bool sitOnBottom)
-    {
-        const float width = static_cast<float>(texture.width);
-        const float height = static_cast<float>(texture.height);
-        const float drawHeight = boxSize * height / width;
-        const float offsetY = sitOnBottom ? boxSize - drawHeight : (boxSize - drawHeight) / 2.0f;
+	std::array<EnemySprite, 4> g_enemySprites{ {
 
-        DrawTexturePro(texture,
-                       Rectangle{ 0.0f, 0.0f, width, height },
-                       Rectangle{ x, y + offsetY, boxSize, drawHeight },
-                       Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
-    }
+		{ "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
+		{ "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
+		{ "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
+		{ "Assets/Sprites/boss.png",          kBossBoxSize, RED,    {} },
+	} };
 
-    void DrawFallbackSquare(float x, float y, float boxSize, Color color)
-    {
-        DrawRectangle(static_cast<int>(x), static_cast<int>(y),
-                      static_cast<int>(boxSize), static_cast<int>(boxSize), color);
-    }
+	Texture2D LoadPixelTexture(const char* path)
+	{
+		const Texture2D texture = LoadTexture(path);
+		if (texture.id != 0)
+		{
+			SetTextureFilter(texture, TEXTURE_FILTER_POINT);
+		}
+		return texture;
+	}
 
-    // position is the top-left of the hitbox.
-    void DrawPlayerShip(float x, float y)
-    {
-        if (g_playerShipTexture.id == 0)
-        {
-            DrawFallbackSquare(x, y, kHitboxSize, kPrimaryGreen);
-            return;
-        }
-        DrawTextureInBox(g_playerShipTexture, x, y, kHitboxSize, true);
-    }
+	void DrawTextureInBox(const Texture2D& texture, float x, float y, float boxSize, bool sitOnBottom)
+	{
+		const float width = static_cast<float>(texture.width);
+		const float height = static_cast<float>(texture.height);
+		const float drawHeight = boxSize * height / width;
+		const float offsetY = sitOnBottom ? boxSize - drawHeight : (boxSize - drawHeight) / 2.0f;
 
-    void DrawEnemyShip(const GameLogic::EnemyState& enemy)
-    {
-        const size_t index = static_cast<size_t>(enemy.type);
+		DrawTexturePro(texture,
+			Rectangle{ 0.0f, 0.0f, width, height },
+			Rectangle{ x, y + offsetY, boxSize, drawHeight },
+			Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
+	}
 
-        const EnemySprite& sprite = g_enemySprites[index];
-        if (sprite.texture.id == 0)
-        {
-            DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.boxSize, sprite.fallbackColor);
-            return;
-        }
-        DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, sprite.boxSize, false);
-    }
+	void DrawFallbackSquare(float x, float y, float boxSize, Color color)
+	{
+		DrawRectangle(static_cast<int>(x), static_cast<int>(y),
+			static_cast<int>(boxSize), static_cast<int>(boxSize), color);
+	}
 
-    void DrawHUD(uint32_t score, const char* levelLabel, int livesLeft)
-    {
-        const int screenWidth = GetScreenWidth();
+	// position is the top-left of the hitbox.
+	void DrawPlayerShip(float x, float y)
+	{
+		if (g_playerShipTexture.id == 0)
+		{
+			DrawFallbackSquare(x, y, kHitboxSize, kPrimaryGreen);
+			return;
+		}
+		DrawTextureInBox(g_playerShipTexture, x, y, kHitboxSize, true);
+	}
 
-        DrawText("SCORE", kHudMarginX, kHudTextY, kHintFontSize, kDimGreen);
-        DrawText(TextFormat("%06u", static_cast<unsigned>(score)),
-                 kHudMarginX + MeasureText("SCORE", kHintFontSize) + 14, kHudTextY, kHintFontSize, kPrimaryGreen);
+	void DrawEnemyShip(const GameLogic::EnemyState& enemy)
+	{
+		const size_t index = static_cast<size_t>(enemy.type);
 
-        DrawTextCentered(TextFormat("LEVEL %s", levelLabel), kHudTextY, kHintFontSize, kPrimaryGreen);
+		const EnemySprite& sprite = g_enemySprites[index];
+		if (sprite.texture.id == 0)
+		{
+			DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.boxSize, sprite.fallbackColor);
+			return;
+		}
+		DrawTextureInBox(sprite.texture, enemy.position.x, enemy.position.y, sprite.boxSize, false);
+	}
 
-        constexpr int livesWidth = kMaxLives * kHeartWidth + (kMaxLives - 1) * kHeartGap;
-        const int firstHeartX = screenWidth - kHudMarginX - livesWidth;
-        const int heartY = kHudTextY + (kHintFontSize - kHeartHeight) / 2;
+	void DrawHUD(uint32_t score, const char* levelLabel, int livesLeft)
+	{
+		const int screenWidth = GetScreenWidth();
 
-        const int labelWidth = MeasureText("LIVES", kHintFontSize);
-        DrawText("LIVES", firstHeartX - labelWidth - 16, kHudTextY, kHintFontSize, kDimGreen);
+		DrawText("SCORE", kHudMarginX, kHudTextY, kHintFontSize, kDimGreen);
+		DrawText(TextFormat("%06u", static_cast<unsigned>(score)),
+			kHudMarginX + MeasureText("SCORE", kHintFontSize) + 14, kHudTextY, kHintFontSize, kPrimaryGreen);
 
-        for (int i = 0; i < kMaxLives; ++i)
-        {
-            DrawHeartIcon(firstHeartX + i * (kHeartWidth + kHeartGap), heartY, i < livesLeft ? kPrimaryGreen : kDimGreen);
-        }
+		DrawTextCentered(TextFormat("LEVEL %s", levelLabel), kHudTextY, kHintFontSize, kPrimaryGreen);
 
-        DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
-        DrawRectangle(0, kGroundY, screenWidth, 4, kPrimaryGreen);
-    }
+		constexpr int livesWidth = kMaxLives * kHeartWidth + (kMaxLives - 1) * kHeartGap;
+		const int firstHeartX = screenWidth - kHudMarginX - livesWidth;
+		const int heartY = kHudTextY + (kHintFontSize - kHeartHeight) / 2;
 
-    // Temporary screen for everything that is not implemented yet.
-    void DrawPlaceholderScreen(const char* screenName)
-    {
-        const int centerY = GetScreenHeight() / 2;
-        DrawTextCentered(screenName, centerY - 60, kMenuFontSize, kPrimaryGreen);
-        DrawTextCentered("COMING SOON", centerY, kHintFontSize, kDimGreen);
-        DrawTextCentered("PRESS ESC TO RETURN", centerY + 40, kHintFontSize, kDimGreen);
-    }
+		const int labelWidth = MeasureText("LIVES", kHintFontSize);
+		DrawText("LIVES", firstHeartX - labelWidth - 16, kHudTextY, kHintFontSize, kDimGreen);
+
+		for (int i = 0; i < kMaxLives; ++i)
+		{
+			DrawHeartIcon(firstHeartX + i * (kHeartWidth + kHeartGap), heartY, i < livesLeft ? kPrimaryGreen : kDimGreen);
+		}
+
+		DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
+		DrawRectangle(0, kGroundY, screenWidth, 4, kPrimaryGreen);
+	}
+
+	// Temporary screen for everything that is not implemented yet.
+	void DrawPlaceholderScreen(const char* screenName)
+	{
+		const int centerY = GetScreenHeight() / 2;
+		DrawTextCentered(screenName, centerY - 60, kMenuFontSize, kPrimaryGreen);
+		DrawTextCentered("COMING SOON", centerY, kHintFontSize, kDimGreen);
+		DrawTextCentered("PRESS ESC TO RETURN", centerY + 40, kHintFontSize, kDimGreen);
+	}
 }
 
 GameUI::GameUI(GameLogic::IGameService& gameService)
-    : m_gameService{ gameService }
+	: m_gameService{ gameService }
 {
-    m_gameService.Subscribe(this);
+	m_gameService.Subscribe(this);
 }
 
 GameUI::~GameUI()
 {
-    m_gameService.Unsubscribe(this);
+	m_gameService.Unsubscribe(this);
 
-    if (m_isInitialized && IsWindowReady())
-    {
-        // Textures must be freed while the window still exists.
-        UnloadTexture(g_playerShipTexture);
-        g_playerShipTexture = Texture2D{};
+	if (m_isInitialized && IsWindowReady())
+	{
+		UnloadTexture(g_playerShipTexture);
+		g_playerShipTexture = Texture2D{};
 
-        for (EnemySprite& sprite : g_enemySprites)
-        {
-            UnloadTexture(sprite.texture);
-            sprite.texture = Texture2D{};
-        }
+		for (EnemySprite& sprite : g_enemySprites)
+		{
+			UnloadTexture(sprite.texture);
+			sprite.texture = Texture2D{};
+		}
 
-        CloseWindow();
-    }
+		CloseWindow();
+	}
 }
 
 void GameUI::Initialize()
 {
-    if (m_isInitialized) return;
+	if (m_isInitialized) return;
 
-    InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
-    SetExitKey(KEY_NULL); 
-    SetTargetFPS(kTargetFps);
+	InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
+	SetExitKey(KEY_NULL);
+	SetTargetFPS(kTargetFps);
 
-    g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
+	g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
 
-    for (EnemySprite& sprite : g_enemySprites)
-    {
-        if (sprite.path)
-        {
-            sprite.texture = LoadPixelTexture(sprite.path);
-        }
-    }
+	for (EnemySprite& sprite : g_enemySprites)
+	{
+		if (sprite.path)
+		{
+			sprite.texture = LoadPixelTexture(sprite.path);
+		}
+	}
 
-    m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
-    m_currentScreen = ScreenType::MAIN_MENU;
-    m_selectedMenuItem = 0;
-    m_shouldExit = false;
-    m_isInitialized = true;
+	m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
+	m_currentScreen = ScreenType::MAIN_MENU;
+	m_selectedMenuItem = 0;
+	m_shouldExit = false;
+	m_isInitialized = true;
 }
 
 void GameUI::Run()
 {
-    while (!m_shouldExit && !WindowShouldClose())
-    {
-        const float deltaTime = GetFrameTime();
+	while (!m_shouldExit && !WindowShouldClose())
+	{
+		const float deltaTime = GetFrameTime();
 
-        HandleInput();
-        m_starField.Update(deltaTime);
+		HandleInput();
+		m_starField.Update(deltaTime);
 
-        if (m_currentScreen == ScreenType::GAMEPLAY)
-        {
-            m_gameService.Update(deltaTime);
-            m_gameProgress = m_gameService.GetGameProgress();
-            m_playerState = m_gameService.GetPlayerState();
-        }
+		if (m_currentScreen == ScreenType::GAMEPLAY)
+		{
+			m_gameService.Update(deltaTime);
+			m_gameProgress = m_gameService.GetGameProgress();
+		}
 
-        Render();
-    }
+		Render();
+	}
 }
 
 void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 {
-    switch (event.type)
-    {
-    case GameLogic::GameEventType::GAME_OVER: ShowVerdict(ScreenType::GAME_OVER);   break;
-    case GameLogic::GameEventType::GAME_WON:  ShowVerdict(ScreenType::VICTORY);     break;
-    default:                                                                        break;
-    }
+	switch (event.type)
+	{
+	case GameLogic::GameEventType::LEVEL_COMPLETED:     m_currentScreen = ScreenType::VICTORY;       break;
+	case GameLogic::GameEventType::GAME_OVER:           m_currentScreen = ScreenType::GAME_OVER;     break;
+	default:                                                                                         break;
+	}
 }
 
 void GameUI::ShowVerdict(ScreenType verdictScreen)
 {
-    m_gameProgress = m_gameService.GetGameProgress(); 
-    m_playerState = m_gameService.GetPlayerState();
-    m_selectedVerdictOption = 0;
-    m_currentScreen = verdictScreen;
+	m_gameProgress = m_gameService.GetGameProgress();
+	m_selectedVerdictOption = 0;
+	m_currentScreen = verdictScreen;
 }
 
 void GameUI::StartSelectedGame()
 {
-    const GameLogic::LevelID level = kLevels[static_cast<std::size_t>(m_selectedLevel)];
-
-    m_gameService.StartLevel(level);
-    m_gameProgress = m_gameService.GetGameProgress();
-    m_playerState = m_gameService.GetPlayerState();
-    m_currentScreen = ScreenType::GAMEPLAY;
+	m_gameService.StartLevel();
+	m_gameProgress = m_gameService.GetGameProgress();
+	m_currentScreen = ScreenType::GAMEPLAY;
 }
 
 // ---------------------------------------------------------------- Input
 
 void GameUI::HandleInput()
 {
-    switch (m_currentScreen)
-    {
-    case ScreenType::MAIN_MENU: HandleMainMenuInput(); break;
-    case ScreenType::LEVEL_SELECTION: HandleLevelSelectionInput(); break;
-    case ScreenType::GAMEPLAY: HandleGameplayInput(); break;
-    case ScreenType::GAME_OVER:
-    case ScreenType::VICTORY: HandleVerdictInput(); break;
-    case ScreenType::VERDICT_PREVIEW: HandleVerdictPreviewInput(); break;
-    }
+	switch (m_currentScreen)
+	{
+	case ScreenType::MAIN_MENU:             HandleMainMenuInput(); break;
+	case ScreenType::LEVEL_SELECTION:       HandleLevelSelectionInput(); break;
+	case ScreenType::GAMEPLAY:              HandleGameplayInput(); break;
+	case ScreenType::GAME_OVER:
+	case ScreenType::VICTORY:               HandleVerdictInput(); break;
+	}
 }
 
 void GameUI::HandleMainMenuInput()
 {
-    if (IsUpPressed())
-    {
-        m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItemCount);
-    }
-    if (IsDownPressed())
-    {
-        m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItemCount);
-    }
+	if (IsUpPressed())
+	{
+		m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItemCount);
+	}
+	if (IsDownPressed())
+	{
+		m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItemCount);
+	}
 
-    if (IsBackPressed())
-    {
-        m_shouldExit = true;
-        return;
-    }
+	if (IsBackPressed())
+	{
+		m_shouldExit = true;
+		return;
+	}
 
-    if (IsConfirmPressed())
-    {
-        switch (kMainMenuItems[static_cast<size_t>(m_selectedMenuItem)])
-        {
-        case MainMenuItem::PLAY:            m_currentScreen = ScreenType::LEVEL_SELECTION; break;
-        case MainMenuItem::GAME_VERDICTS:   m_currentScreen = ScreenType::VERDICT_PREVIEW; break;
-        case MainMenuItem::EXIT:            m_shouldExit = true; break;
-        }
-    }
+	if (IsConfirmPressed())
+	{
+		switch (kMainMenuItems[static_cast<size_t>(m_selectedMenuItem)])
+		{
+		case MainMenuItem::PLAY:            m_currentScreen = ScreenType::LEVEL_SELECTION; break;
+		case MainMenuItem::EXIT:            m_shouldExit = true; break;
+		}
+	}
 }
 
 void GameUI::HandleLevelSelectionInput()
 {
-    if (IsLeftPressed())
-    {
-        m_selectedLevel = StepSelection(m_selectedLevel, -1, kLevelCount);
-    }
-    if (IsRightPressed())
-    {
-        m_selectedLevel = StepSelection(m_selectedLevel, +1, kLevelCount);
-    }
+	if (IsLeftPressed())
+	{
+		m_gameService.GetLevel() = StepSelection(static_cast<int>(m_gameService.GetLevel()), -1, kLevelCount);
+	}
+	if (IsRightPressed())
+	{
+		m_gameService.GetLevel() = StepSelection(static_cast<int>(m_gameService.GetLevel()), +1, kLevelCount);
+	}
 
-    if (IsBackPressed())
-    {
-        m_currentScreen = ScreenType::MAIN_MENU;
-        return;
-    }
+	if (IsBackPressed())
+	{
+		m_currentScreen = ScreenType::MAIN_MENU;
+		return;
+	}
 
-    if (IsConfirmPressed())
-    {
-        StartSelectedGame();
-    }
+	if (IsConfirmPressed())
+	{
+		StartSelectedGame();
+	}
 }
 
 void GameUI::HandleVerdictInput()
 {
-    if (IsUpPressed())
-    {
-        m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, kVerdictOptionCount);
-    }
-    if (IsDownPressed())
-    {
-        m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, +1, kVerdictOptionCount);
-    }
+	if (IsUpPressed())
+	{
+		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, kVerdictOptionCount);
+	}
+	if (IsDownPressed())
+	{
+		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, +1, kVerdictOptionCount);
+	}
 
-    if (IsBackPressed())
-    {
-        m_currentScreen = ScreenType::MAIN_MENU;
-        return;
-    }
-
-    if (IsConfirmPressed())
-    {
-        switch (kVerdictMenuItems[static_cast<size_t>(m_selectedVerdictOption)])
-        {
-        case VerdictMenuItem::RETRY:        StartSelectedGame();                        break;
-        case VerdictMenuItem::MAIN_MENU:    m_currentScreen = ScreenType::MAIN_MENU;    break;
-        }
-    }
-}
-
-// TEMPORARY: lets the verdict screens be designed before GameSession exists.
-void GameUI::HandleVerdictPreviewInput()
-{
-    if (IsUpPressed())
-    {
-        m_selectedVerdictPreview = StepSelection(m_selectedVerdictPreview, -1, kVerdictPreviewCount);
-    }
-    if (IsDownPressed())
-    {
-        m_selectedVerdictPreview = StepSelection(m_selectedVerdictPreview, +1, kVerdictPreviewCount);
-    }
-
-    if (IsBackPressed())
-    {
-        m_currentScreen = ScreenType::MAIN_MENU;
-        return;
-    }
-
-    if (IsConfirmPressed())
-    {
-        // Same path a real GameSession takes: an event reaches the observer.
-        OnGameEvent(GameLogic::GameEvent{ .type = kVerdictPreviewEvents[static_cast<size_t>(m_selectedVerdictPreview)] });
-
-        // Fake final state, since the temporary service keeps no score.
-        m_gameProgress.score = kPreviewScore;
-        m_gameProgress.currentLevel = kLevels[static_cast<size_t>(m_selectedLevel)];
-    }
+	if (IsConfirmPressed())
+	{
+		switch (kVerdictMenuItems[static_cast<size_t>(m_selectedVerdictOption)])
+		{
+		case VerdictMenuItem::RETRY:        StartSelectedGame();								 break;
+		case VerdictMenuItem::NEXT_LEVEL:	++m_gameService.GetLevel(); StartSelectedGame();     break;
+		case VerdictMenuItem::MAIN_MENU:    m_currentScreen = ScreenType::MAIN_MENU;			 break;
+		}
+	}
 }
 
 void GameUI::HandleGameplayInput()
 {
-    if (IsBackPressed())
-    {
-        m_currentScreen = ScreenType::MAIN_MENU;
-    }
+	if (IsBackPressed())
+	{
+		m_currentScreen = ScreenType::MAIN_MENU;
+		m_gameService.Reset();
+		std::cout << "Enemies remaining: " << m_gameService.GetEnemiesState().size();
+	}
 
-    if (IsLeftHold())
-    {
-        m_gameService.MovePlayer(GameLogic::Direction::LEFT);
-    }
-    if (IsRightHold())
-    {
-        m_gameService.MovePlayer(GameLogic::Direction::RIGHT);
-    }
+	if (IsLeftHold())
+	{
+		m_gameService.MovePlayer(GameLogic::Direction::LEFT);
+	}
+	if (IsRightHold())
+	{
+		m_gameService.MovePlayer(GameLogic::Direction::RIGHT);
+	}
 
-    if (IsSpacePressed())
-    {
-        m_gameService.Shoot();
-    }
+	if (IsSpacePressed())
+	{
+		m_gameService.Shoot();
+	}
 }
 
 // ---------------------------------------------------------------- rendering
 
 void GameUI::Render()
 {
-    BeginDrawing();
-    ClearBackground(kBackgroundColor);
-    m_starField.Draw(); 
+	BeginDrawing();
+	ClearBackground(kBackgroundColor);
+	m_starField.Draw();
 
-    switch (m_currentScreen)
-    {
-    case ScreenType::MAIN_MENU: RenderMainMenu();               break;
-    case ScreenType::LEVEL_SELECTION: RenderLevelSelection();   break;
-    case ScreenType::GAMEPLAY: RenderGameplay();                break;
-    case ScreenType::GAME_OVER: RenderGameOver();               break;
-    case ScreenType::VICTORY: RenderVictory();                  break;
-    case ScreenType::VERDICT_PREVIEW: RenderVerdictPreview();   break;
-    }
+	switch (m_currentScreen)
+	{
+	case ScreenType::MAIN_MENU:         RenderMainMenu();         break;
+	case ScreenType::LEVEL_SELECTION:   RenderLevelSelection();   break;
+	case ScreenType::GAMEPLAY:          RenderGameplay();         break;
+	case ScreenType::GAME_OVER:         RenderGameOver();         break;
+	case ScreenType::VICTORY:           RenderVictory();          break;
+	}
 
-    EndDrawing();
+	EndDrawing();
 }
 
 void GameUI::RenderMainMenu() const
 {
-    DrawScreenTitle("SPACE INVADERS", 150, kTitleFontSize);
+	DrawScreenTitle("SPACE INVADERS", 150, kTitleFontSize);
 
-    DrawMenuList(kMainMenuLabels, m_selectedMenuItem, 380);
+	DrawMenuList(kMainMenuLabels, m_selectedMenuItem, 380);
 
-    DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  QUIT",
-                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
+	DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  QUIT",
+		GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderLevelSelection() const
 {
-    const int screenWidth = GetScreenWidth();
-    const int screenHeight = GetScreenHeight();
+	const int screenWidth = GetScreenWidth();
+	const int screenHeight = GetScreenHeight();
 
-    DrawScreenTitle("SELECT LEVEL", 150, kScreenTitleFontSize);
+	DrawScreenTitle("SELECT LEVEL", 150, kScreenTitleFontSize);
 
-    // Three square boxes in a row; the selected one is filled green with a black label
-    constexpr int boxSize = 160;
-    constexpr int boxGap = 60;
-    constexpr int boxY = 300;
-    constexpr float borderThickness = 4.0f;
-    constexpr int rowWidth = kLevelCount * boxSize + (kLevelCount - 1) * boxGap;
-    const int firstBoxX = (screenWidth - rowWidth) / 2;
+	// Three square boxes in a row; the selected one is filled green with a black label
+	constexpr int boxSize = 160;
+	constexpr int boxGap = 60;
+	constexpr int boxY = 300;
+	constexpr float borderThickness = 4.0f;
+	constexpr int rowWidth = kLevelCount * boxSize + (kLevelCount - 1) * boxGap;
+	const int firstBoxX = (screenWidth - rowWidth) / 2;
 
-    for (int i = 0; i < kLevelCount; ++i)
-    {
-        const char* label = kLevelLabels[static_cast<size_t>(i)];
-        const int boxX = firstBoxX + i * (boxSize + boxGap);
-        const bool isSelected = i == m_selectedLevel;
+	for (int i = 0; i < kLevelCount; ++i)
+	{
+		const char* label = kLevelLabels[static_cast<size_t>(i)];
+		const int boxX = firstBoxX + i * (boxSize + boxGap);
+		const bool isSelected = i == m_gameService.GetLevel();
 
-        if (isSelected)
-        {
-            DrawRectangle(boxX, boxY, boxSize, boxSize, kPrimaryGreen);
-        }
-        else
-        {
-            const Rectangle box{ static_cast<float>(boxX), static_cast<float>(boxY),
-                                 static_cast<float>(boxSize), static_cast<float>(boxSize) };
-            DrawRectangleLinesEx(box, borderThickness, kPrimaryGreen);
-        }
+		if (isSelected)
+		{
+			DrawRectangle(boxX, boxY, boxSize, boxSize, kPrimaryGreen);
+		}
+		else
+		{
+			const Rectangle box{ static_cast<float>(boxX), static_cast<float>(boxY),
+								 static_cast<float>(boxSize), static_cast<float>(boxSize) };
+			DrawRectangleLinesEx(box, borderThickness, kPrimaryGreen);
+		}
 
-        const int labelWidth = MeasureText(label, kLevelLabelFontSize);
-        DrawText(label,
-                 boxX + (boxSize - labelWidth) / 2,
-                 boxY + (boxSize - kLevelLabelFontSize) / 2,
-                 kLevelLabelFontSize,
-                 isSelected ? kBackgroundColor : kPrimaryGreen);
-    }
+		const int labelWidth = MeasureText(label, kLevelLabelFontSize);
+		DrawText(label,
+			boxX + (boxSize - labelWidth) / 2,
+			boxY + (boxSize - kLevelLabelFontSize) / 2,
+			kLevelLabelFontSize,
+			isSelected ? kBackgroundColor : kPrimaryGreen);
+	}
 
-    DrawTextCentered("LEFT/RIGHT  SELECT     ENTER  START     ESC  BACK",
-                     screenHeight - 60, kHintFontSize, kDimGreen);
+	DrawTextCentered("LEFT/RIGHT  SELECT     ENTER  START     ESC  BACK",
+		screenHeight - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderGameplay()
 {
-    const int livesLeft = std::clamp(static_cast<int>(m_playerState.livesCount), 0, kMaxLives);
-    DrawHUD(m_gameProgress.score, LevelLabel(m_gameProgress.currentLevel), livesLeft);
-    
-    const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
-    DrawPlayerShip(playerPosition.x, playerPosition.y);
+	const int livesLeft = m_gameService.GetPlayerState().livesCount;
+	DrawHUD(m_gameProgress.score, LevelLabel(m_gameService.GetLevel()), livesLeft);
 
-    for (const auto& enemy : m_gameService.GetEnemiesState())
-    {
-        DrawEnemyShip(enemy);
-    }
+	const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
+	DrawPlayerShip(playerPosition.x, playerPosition.y);
 
-    for (const auto& projectile : m_gameService.GetProjectilesState())
-    {
-        DrawRectangle(projectile.position.x, projectile.position.y, 2, 10, RED);
-    }
+	for (const auto& enemy : m_gameService.GetEnemiesState())
+	{
+		DrawEnemyShip(enemy);
+	}
+
+	for (const auto& projectile : m_gameService.GetProjectilesState())
+	{
+		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, RED);
+	}
 }
 
 void GameUI::RenderGameOver() const
 {
-    const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameProgress.currentLevel));
+	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
 
-    DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameProgress.score,
-                      kGameOverOptionLabels, m_selectedVerdictOption);
+	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameProgress.score,
+		kGameOverOptionLabels, m_selectedVerdictOption);
 }
 
 void GameUI::RenderVictory() const
 {
-    const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameProgress.currentLevel));
+	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
 
-    DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameProgress.score,
-                      kVictoryOptionLabels, m_selectedVerdictOption);
-}
+	std::vector<const char*> victoryLabels{ "MAIN MENU", "RETRY" };
+	if (m_gameService.GetLevel() != 2) victoryLabels.emplace_back("NEXT LEVEL");
 
-// TEMPORARY: menu for previewing the verdict screens.
-void GameUI::RenderVerdictPreview() const
-{
-    DrawScreenTitle("GAME VERDICTS", 150, kScreenTitleFontSize);
-    DrawTextCentered("TEMPORARY PREVIEW", 260, kHintFontSize, kDimGreen);
+	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameProgress.score,
+		victoryLabels, m_selectedVerdictOption);
 
-    DrawMenuList(kVerdictPreviewLabels, m_selectedVerdictPreview, 340);
-
-    DrawTextCentered("UP/DOWN  SELECT     ENTER  SHOW     ESC  BACK",
-                     GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }

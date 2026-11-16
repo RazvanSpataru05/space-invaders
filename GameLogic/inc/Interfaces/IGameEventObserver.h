@@ -1,7 +1,5 @@
 #pragma once
 
-// Observer side of the Observer pattern. Implemented by GameUI.
-
 #include "Structs/GameEvent.h"
 
 namespace GameLogic

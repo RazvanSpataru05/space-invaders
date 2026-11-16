@@ -18,8 +18,6 @@ namespace GameLogic
         float baseEnemySpeed{};
         float dropDistance{};
 
-        LevelID currentLevel{};
-
         GameProgress()
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
@@ -32,13 +30,12 @@ namespace GameLogic
             enemyDirection *= -1;
         }
 
-        void Reset(LevelID level)
+        void Reset()
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
             baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
             dropDistance   = Utils::Constants::INITIAL_DROP_DISTANCE;
 
-            currentLevel = level;
             score = 0u;
             elapsedTime = 0.0f;
             shootCoodldown = 0.0f;

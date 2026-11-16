@@ -1,418 +1,418 @@
 {
-    "hasBoss": true,
-    "enemies": [
-        {
-            "position": {
-                "x": 140,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 80
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 80
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 80
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 80
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 140,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 145
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 420,
-                "y": 145
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 145
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 145
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 145
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 140,
-                "y": 210
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 210
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 420,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 210
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 210
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 210
-            },
-            "type": "SHOOTER"
-        },
-        {
-            "position": {
-                "x": 140,
-                "y": 275
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 275
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 420,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 275
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 275
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 275
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 140,
-                "y": 340
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 340
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 420,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 340
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 340
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 340
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 140,
-                "y": 405
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 210,
-                "y": 405
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 280,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 350,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 420,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 490,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 560,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 630,
-                "y": 405
-            },
-            "type": "ARMORED"
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 405
-            },
-            "type": "NORMAL"
-        },
-        {
-            "position": {
-                "x": 770,
-                "y": 405
-            },
-            "type": "NORMAL"
-        }
-    ]
+  "hasBoss": true,
+  "enemies": [
+    {
+      "position": {
+        "x": 140,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 80
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 80
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 80
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 80
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 145
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 420,
+        "y": 145
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 145
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 145
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 145
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 210
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 210
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 420,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 210
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 210
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 210
+      },
+      "type": "SHOOTER"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 275
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 275
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 420,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 275
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 275
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 275
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 340
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 340
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 420,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 340
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 340
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 340
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 405
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 210,
+        "y": 405
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 280,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 420,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 490,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 560,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 405
+      },
+      "type": "ARMORED"
+    },
+    {
+      "position": {
+        "x": 700,
+        "y": 405
+      },
+      "type": "NORMAL"
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 405
+      },
+      "type": "NORMAL"
+    }
+  ]
 }

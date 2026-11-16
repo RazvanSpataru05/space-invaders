@@ -9,7 +9,6 @@
 #include <fstream>
 #include <format>
 #include <filesystem>
-#include <iostream>
 
 using json = nlohmann::json;
 
@@ -23,22 +22,21 @@ namespace GameLogic
 			"level1.json", "level2.json", "level3.json"
 		};
 
-		std::array<LevelConfig, 3> LoadLevels()
+		void LoadLevels(GameConfig& gameConfig)
 		{
-			std::array<LevelConfig, 3> levels{};
 
-			for (size_t i = 0; i < levels.size(); ++i)
+			for (size_t i = 0; i < gameConfig.levels.size(); ++i)
 			{
+				LevelConfig level{};
+
 				const std::filesystem::path path = std::filesystem::path{ LEVELS_DIR } / LEVEL_FILES[i];
 				std::ifstream levelFile(path);
 
-				std::cout << "hereee\n";
 				if (!levelFile.is_open())
 				{
 					throw std::runtime_error(std::format("Could not open {} file", LEVEL_FILES[i]));
 				}
 
-				std::cout << "hereee\n";
 				json data;
 				try
 				{
@@ -49,7 +47,7 @@ namespace GameLogic
 					throw std::runtime_error(std::format("Parse error: {}", e.what()));
 				}
 
-				levels[i].hasBoss = data["hasBoss"];
+				level.hasBoss = data["hasBoss"];
 
 				for (const auto& enemy : data["enemies"])
 				{
@@ -66,14 +64,13 @@ namespace GameLogic
 					else if (type == "BOSS")	config.type = EnemyType::BOSS;
 					else						config.type = EnemyType::NORMAL;
 
-					config.health = Utils::GetEnemyHealth(config.type);
-					levels[i].enemies.emplace_back(config);
+					config.health = Utils::GetEnemyHealth(config.type, gameConfig);
+					level.enemies.emplace_back(config);
 				}
+				gameConfig.levels[i] = std::move(level);
 
 				levelFile.close();
 			}
-
-			return levels;
 		}
 	}
 

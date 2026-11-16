@@ -3,6 +3,7 @@
 
 GameSession::GameSession() :
 	m_gameConfig{ GameLogic::CreateDefaultConfig() },
+	m_progress{ GameLogic::GameProgress(m_gameConfig) },
 	m_gameState{ GameLogic::GameState::PLAYING }
 {
 }
@@ -39,26 +40,25 @@ void GameSession::Update(float deltaTime) noexcept
 	UpdateEnemies(deltaTime);
 	UpdateProjectile(deltaTime);
 
-	std::cout << "Enemies left: " << m_entities.enemies.size() << std::endl;
-
 	m_progress.elapsedTime += deltaTime;
 	m_progress.shootCoodldown += deltaTime;
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
 {
-	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
+	if (m_progress.elapsedTime < m_gameConfig.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	if (direction == GameLogic::Direction::LEFT)
 	{
-		m_entities.player.position.x = std::max(m_entities.player.position.x - GameLogic::Utils::Constants::SHIP_SPEED,
+		m_entities.player.position.x = std::max(m_entities.player.position.x - m_gameConfig.playerMovementSpeed,
 			GameLogic::Utils::Constants::WIDTH_OFFSET);
 	}
 	else
 	{
-		m_entities.player.position.x = std::min(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_SPEED,
-			GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::WIDTH_OFFSET - GameLogic::Utils::Constants::SHIP_WIDTH);
+		m_entities.player.position.x = std::min(m_entities.player.position.x + m_gameConfig.playerMovementSpeed,
+			GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::WIDTH_OFFSET
+			- GameLogic::Utils::Constants::SHIP_WIDTH);
 	}
 }
 
@@ -94,24 +94,25 @@ size_t GameSession::GetLevel() const noexcept
 
 void GameSession::Shoot() noexcept
 {
-	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
-		|| m_progress.shootCoodldown < GameLogic::Utils::Constants::SHOOT_COOLDOWN_SECONDS
+	if (m_progress.elapsedTime < m_gameConfig.startCooldown
+		|| m_progress.shootCoodldown < m_gameConfig.shootCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	m_entities.projectiles.emplace_back(
 		GameLogic::Vector2(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH * 0.5f, m_entities.player.position.y),
 		GameLogic::Utils::ProjectileVelocity(m_gameConfig.projectileSpeed, GameLogic::ProjectileOwner::PLAYER),
 		GameLogic::ProjectileOwner::PLAYER,
-		GameLogic::Utils::Constants::PROJECTILE_INITIAL_DAMAGE
+		m_gameConfig.projectileDamage
 	);
+
 	m_progress.shootCoodldown = 0.0f;
 	std::cout << "projectile count: " << m_entities.projectiles.size() << '\n';
 }
 
 void GameSession::Reset() noexcept
 {
-	m_progress.Reset();
-	m_entities.Reset();
+	m_progress.Reset(m_gameConfig);
+	m_entities.Reset(m_gameConfig.playerLivesCount);
 }
 
 void GameSession::SpawnEnemies() noexcept
@@ -124,7 +125,7 @@ void GameSession::SpawnEnemies() noexcept
 
 void GameSession::UpdateEnemies(float deltaTime)
 {
-	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
+	if (m_progress.elapsedTime < m_gameConfig.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	UpdateEnemiesHealth();
@@ -133,7 +134,7 @@ void GameSession::UpdateEnemies(float deltaTime)
 
 void GameSession::UpdateProjectile(float deltaTime)
 {
-	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
+	if (m_progress.elapsedTime < m_gameConfig.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	for (auto& projectile : m_entities.projectiles)
@@ -146,20 +147,20 @@ void GameSession::UpdateProjectile(float deltaTime)
 		});
 }
 
-void GameSession::UpdateScore(GameLogic::EnemyType enemyType)
+void GameSession::UpdateScore(GameLogic::EnemyType type)
 {
-	switch (enemyType)
+	switch (type)
 	{
-	case GameLogic::EnemyType::NORMAL:		m_progress.score += GameLogic::Utils::Constants::NORMAL_ENEMY_SCORE;	return;
-	case GameLogic::EnemyType::ARMORED:		m_progress.score += GameLogic::Utils::Constants::ARMORED_ENEMY_SCORE;	return;
-	case GameLogic::EnemyType::SHOOTER:		m_progress.score += GameLogic::Utils::Constants::SHOOTER_ENEMY_SCORE;	return;
-	case GameLogic::EnemyType::BOSS:		m_progress.score += GameLogic::Utils::Constants::BOSS_ENEMY_SCORE;		return;
+	case GameLogic::EnemyType::NORMAL:		m_progress.score += m_gameConfig.normalEnemyScore;	return;
+	case GameLogic::EnemyType::ARMORED:		m_progress.score += m_gameConfig.armoredEnemyScore;	return;
+	case GameLogic::EnemyType::SHOOTER:		m_progress.score += m_gameConfig.shooterEnemyScore;	return;
+	case GameLogic::EnemyType::BOSS:		m_progress.score += m_gameConfig.bossScore;			return;
 	}
 }
 
 void GameSession::CheckCollissions()
 {
-	if (m_progress.elapsedTime < GameLogic::Utils::Constants::START_COOLDOWN_SECONDS
+	if (m_progress.elapsedTime < m_gameConfig.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 
 	auto it = m_entities.projectiles.begin();
@@ -180,8 +181,7 @@ void GameSession::CheckCollissions()
 				&& yStart < projectilePos.y + GameLogic::Utils::Constants::PROJECTILE_HEIGHT
 				&& yEnd > projectilePos.y)
 			{
-				std::cout << "hit\n";
-				enemy.health = static_cast<int16_t>(std::max(0, enemy.health - GameLogic::Utils::Constants::PROJECTILE_INITIAL_DAMAGE));
+				enemy.health = static_cast<int16_t>(std::max(0, enemy.health - m_gameConfig.projectileDamage));
 				it = m_entities.projectiles.erase(it);
 			}
 		}
@@ -214,11 +214,11 @@ void GameSession::CheckPlayerDefeat() noexcept
 
 void GameSession::SpawnBoss() noexcept
 {
-	if (m_currentLevel != 2) return;
+	if (!m_gameConfig.levels[m_currentLevel].hasBoss) return;
 
 	m_entities.enemies.emplace_back(
 		GameLogic::Utils::Constants::BOSS_POSITION,
-		GameLogic::Utils::Constants::BOSS_ENEMY_HEALTH,
+		m_gameConfig.bossEnemyHealth,
 		GameLogic::EnemyType::BOSS);
 }
 
@@ -247,10 +247,17 @@ void GameSession::NotifyObservers(const GameLogic::GameEvent& event)
 
 void GameSession::UpdateEnemiesHealth()
 {
-	std::erase_if(m_entities.enemies, [](const GameLogic::EnemyState& e)
+	auto it = m_entities.enemies.begin();
+	while (it != m_entities.enemies.end())
+	{
+		if (it->health == 0u)
 		{
-			return e.health == 0u;
-		});
+			UpdateScore(it->type);
+			it = m_entities.enemies.erase(it);
+			continue;
+		}
+		it++;
+	}
 }
 
 void GameSession::UpdateEnemiesPosition(float deltaTime)

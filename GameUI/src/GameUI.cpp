@@ -186,7 +186,7 @@ namespace
 	}
 
 	// Gameplay HUD
-	constexpr int kMaxLives = GameLogic::Utils::Constants::PLAYER_INITIAL_LIVES;
+	constexpr int kMaxLives = 3;
 	constexpr int kHudTextY = 20;
 	constexpr int kHudMarginX = 30;
 	constexpr int kHudDividerY = 60;
@@ -403,7 +403,6 @@ void GameUI::Run()
 		if (m_currentScreen == ScreenType::GAMEPLAY)
 		{
 			m_gameService.Update(deltaTime);
-			m_gameProgress = m_gameService.GetGameProgress();
 		}
 
 		Render();
@@ -422,7 +421,6 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 
 void GameUI::ShowVerdict(ScreenType verdictScreen)
 {
-	m_gameProgress = m_gameService.GetGameProgress();
 	m_selectedVerdictOption = 0;
 	m_currentScreen = verdictScreen;
 }
@@ -430,7 +428,6 @@ void GameUI::ShowVerdict(ScreenType verdictScreen)
 void GameUI::StartSelectedGame()
 {
 	m_gameService.StartLevel();
-	m_gameProgress = m_gameService.GetGameProgress();
 	m_currentScreen = ScreenType::GAMEPLAY;
 }
 
@@ -621,7 +618,7 @@ void GameUI::RenderLevelSelection() const
 void GameUI::RenderGameplay()
 {
 	const int livesLeft = m_gameService.GetPlayerState().livesCount;
-	DrawHUD(m_gameProgress.score, LevelLabel(m_gameService.GetLevel()), livesLeft);
+	DrawHUD(m_gameService.GetGameProgress().score, LevelLabel(m_gameService.GetLevel()), livesLeft);
 
 	const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
 	DrawPlayerShip(playerPosition.x, playerPosition.y);
@@ -641,7 +638,7 @@ void GameUI::RenderGameOver() const
 {
 	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
 
-	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameProgress.score,
+	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService.GetGameProgress().score,
 		kGameOverOptionLabels, m_selectedVerdictOption);
 }
 
@@ -652,7 +649,7 @@ void GameUI::RenderVictory() const
 	std::vector<const char*> victoryLabels{ "MAIN MENU", "RETRY" };
 	if (m_gameService.GetLevel() != 2) victoryLabels.emplace_back("NEXT LEVEL");
 
-	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameProgress.score,
+	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService.GetGameProgress().score,
 		victoryLabels, m_selectedVerdictOption);
 
 }

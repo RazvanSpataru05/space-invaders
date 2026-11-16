@@ -15,6 +15,7 @@
 #include "Utils/PlayerUtils.h"
 
 #include <algorithm>
+#include <iostream>
 
 class GameSession final : public GameLogic::IGameService
 {

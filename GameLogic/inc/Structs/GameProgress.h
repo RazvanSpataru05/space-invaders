@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Enums/LevelID.h"
+#include "Enums/EnemyType.h"
+
+#include "Structs/GameConfig.h"
 
 #include "Utils/Constants.h"
 
@@ -18,11 +21,11 @@ namespace GameLogic
         float baseEnemySpeed{};
         float dropDistance{};
 
-        GameProgress()
+        GameProgress(const GameConfig& config)
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
-            baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
-            dropDistance   = Utils::Constants::INITIAL_DROP_DISTANCE;
+            baseEnemySpeed = config.enemyMovementSpeed;
+            dropDistance = config.enemyDropDistance;
         }
 
         void ChangeDirection()
@@ -30,11 +33,11 @@ namespace GameLogic
             enemyDirection *= -1;
         }
 
-        void Reset()
+        void Reset(const GameConfig& config)
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
-            baseEnemySpeed = Utils::Constants::INITIAL_ENEMY_SPEED;
-            dropDistance   = Utils::Constants::INITIAL_DROP_DISTANCE;
+            baseEnemySpeed = config.enemyMovementSpeed;
+            dropDistance = config.enemyDropDistance;
 
             score = 0u;
             elapsedTime = 0.0f;

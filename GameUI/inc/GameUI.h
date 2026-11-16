@@ -65,7 +65,6 @@ private:
 
     GameLogic::IGameService& m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
-    GameLogic::GameProgress m_gameProgress{};
 
     StarField m_starField;
     int m_selectedMenuItem{};

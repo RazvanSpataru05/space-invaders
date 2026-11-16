@@ -7,13 +7,34 @@ namespace GameLogic
 	{
 		GameConfig config;
 
-		config.powerUpDropChance	= 0.10f;
-		config.playerMovementSpeed  = 300.0f;
-		config.enemyMovementSpeed   = 100.0f;
-		config.projectileSpeed      = 400.0f;
-		config.levels = LoadLevels();
+		config.playerMovementSpeed = 4.0f;
+		config.powerUpChance = 0.10f;
+		config.shootCooldown = 0.25f;
+		config.startCooldown = 2.0f;
+
+		config.projectileSpeed = 400.0f;
+		config.projectileDamage = 50u;
+
+		config.enemyMovementSpeed = 60.0f;
+		config.enemyDropDistance = 150.0f;
+
+		config.normalEnemyHealth = 100u;
+		config.armoredEnemyHealth = 250u;
+		config.shooterEnemyHealth = 150u;
+		config.bossEnemyHealth = 1000u;
+
+		config.normalEnemyScore = 30u;
+		config.armoredEnemyScore = 50u;
+		config.shooterEnemyScore = 80u;
+		config.bossScore = 500u;
+
+		config.playerLivesCount = 3u;
+
+		LoadLevels(config);
 
 		return config;
+
+
 	}
 }
 

@@ -6,30 +6,11 @@
 
 namespace GameLogic::Utils::Constants
 {
-	constexpr uint16_t NORMAL_ENEMY_HEALTH{ 100u };
-	constexpr uint16_t ARMORED_ENEMY_HEALTH{ 250u };
-	constexpr uint16_t SHOOTER_ENEMY_HEALTH{ 150u };
-	constexpr uint16_t BOSS_ENEMY_HEALTH{ 1000u };
-
-	constexpr uint16_t NORMAL_ENEMY_SCORE{ 30u };
-	constexpr uint16_t ARMORED_ENEMY_SCORE{ 50u };
-	constexpr uint16_t SHOOTER_ENEMY_SCORE{ 80u };
-	constexpr uint16_t BOSS_ENEMY_SCORE{ 500u };
-
-	constexpr uint8_t PLAYER_INITIAL_LIVES{ 3u };
-	constexpr uint8_t PROJECTILE_INITIAL_DAMAGE{ 50u };
-
 	constexpr float INITIAL_ENEMY_DIRECTION{ 1.0f }; // 1: enemies move to right, -1: enemies move to the left
-	constexpr float INITIAL_ENEMY_SPEED{ 60.0f };
-	constexpr float INITIAL_DROP_DISTANCE{ 150.0f };
 
 	constexpr float PROJECTILE_WIDTH{ 2.0f };
 	constexpr float PROJECTILE_HEIGHT{ 10.0f };
 	constexpr float SHIP_WIDTH{ 40.0f };
-	constexpr float SHIP_SPEED{ 4.0f };
-
-	constexpr float START_COOLDOWN_SECONDS{ 2.0f };
-	constexpr float SHOOT_COOLDOWN_SECONDS{ 0.25f };
 
 	constexpr float SCREEN_HEIGHT{ 720.0f };
 	constexpr float SCREEN_WIDTH{ 960.0f };

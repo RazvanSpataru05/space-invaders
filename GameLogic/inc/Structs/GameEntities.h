@@ -17,9 +17,9 @@ namespace GameLogic
         std::vector<PowerUpState> powerUps;
 
 
-        void Reset()
+        void Reset(uint8_t lives)
         {
-            player.Reset();
+            player.Reset(lives);
             enemies.clear();
             projectiles.clear();
             powerUps.clear();

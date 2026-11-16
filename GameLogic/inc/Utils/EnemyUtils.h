@@ -4,21 +4,22 @@
 
 #include "Structs/EnemyState.h"
 #include "Structs/GameProgress.h"
+#include "Structs/GameConfig.h"
 
 #include "Utils/Constants.h"
 
 namespace GameLogic::Utils
 {
 
-	constexpr uint16_t GetEnemyHealth(EnemyType type)
+	constexpr uint16_t GetEnemyHealth(EnemyType type, const GameConfig& config)
 	{
 		switch (type)
 		{
 		default:
-		case EnemyType::NORMAL:		return Constants::NORMAL_ENEMY_HEALTH;
-		case EnemyType::ARMORED:	return Constants::ARMORED_ENEMY_HEALTH;
-		case EnemyType::SHOOTER:	return Constants::SHOOTER_ENEMY_HEALTH;
-		case EnemyType::BOSS:		return Constants::BOSS_ENEMY_HEALTH;
+		case EnemyType::NORMAL:		return config.normalEnemyHealth;
+		case EnemyType::ARMORED:	return config.armoredEnemyHealth;
+		case EnemyType::SHOOTER:	return config.shooterEnemyHealth;
+		case EnemyType::BOSS:		return config.bossEnemyHealth;
 		}
 	}
 

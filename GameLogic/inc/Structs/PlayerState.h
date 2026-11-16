@@ -16,9 +16,9 @@ namespace GameLogic
 		PlayerState(Vector2 pos, uint8_t lives) :
 			position{ pos }, livesCount{ lives } {}
 
-		void Reset()
+		void Reset(uint8_t lives)
 		{
-			livesCount = Utils::Constants::PLAYER_INITIAL_LIVES;
+			livesCount = lives;
 			position = Utils::Constants::PLAYER_INITIAL_POSITION;
 		}
 	};

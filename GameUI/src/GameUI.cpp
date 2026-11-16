@@ -26,15 +26,9 @@ namespace
 		MainMenuItem::EXIT };
 
 	constexpr std::array<const char*, 2> kMainMenuLabels{ "PLAY", "EXIT" };
-	constexpr int kMainMenuItemCount = static_cast<int>(kMainMenuLabels.size());
 
 	// Level selection
 	constexpr std::array<const char*, 3> kLevelLabels{ "1", "2", "3" };
-	constexpr std::array<GameLogic::LevelID, 3> kLevels{
-		GameLogic::LevelID::LEVEL_1,
-		GameLogic::LevelID::LEVEL_2,
-		GameLogic::LevelID::LEVEL_3 };
-	constexpr int kLevelCount = static_cast<int>(kLevelLabels.size());
 
 	constexpr uint8_t kLevelLabelFontSize = 60;
 
@@ -141,7 +135,7 @@ namespace
 
 	// Vertical list of labels; the selected one sits on a solid green bar with black text.
 	// The bar is sized to the widest label so it never changes size while navigating.
-	void DrawMenuList(std::span<const char* const> labels, int selectedIndex, int firstItemY)
+	void DrawMenuList(std::span<const char* const> labels, size_t selectedIndex, int firstItemY)
 	{
 		constexpr int itemSpacing = 64;
 		constexpr int barPaddingX = 48;
@@ -174,14 +168,14 @@ namespace
 	}
 
 	// Moves a list cursor with wrap-around.
-	int StepSelection(int current, int step, int count)
+	size_t StepSelection(size_t current, int step, size_t count)
 	{
 		return (current + step + count) % count;
 	}
 
 	const char* LevelLabel(size_t level)
 	{
-		for (size_t i = 0; i < kLevels.size(); ++i)
+		for (size_t i = 0; i < kLevelLabels.size(); ++i)
 		{
 			if (i == level)
 			{
@@ -193,7 +187,7 @@ namespace
 
 	// Shared layout of the Game Over and Victory screens.
 	void DrawVerdictScreen(const char* title, const char* subtitle, const char* details, uint32_t score,
-		std::span<const char* const> options, int selectedOption)
+		std::span<const char* const> options, size_t selectedOption)
 	{
 		DrawScreenTitle(title, 120, kTitleFontSize);
 		DrawTextCentered(subtitle, 230, kHintFontSize, kPrimaryGreen);
@@ -463,11 +457,11 @@ void GameUI::HandleMainMenuInput()
 {
 	if (IsUpPressed())
 	{
-		m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItemCount);
+		m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItems.size());
 	}
 	if (IsDownPressed())
 	{
-		m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItemCount);
+		m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItems.size());
 	}
 
 	if (IsBackPressed())
@@ -486,7 +480,7 @@ void GameUI::HandleMainMenuInput()
 			m_gameService.GetLevel() = 0;
 			break;
 		}
-		case MainMenuItem::EXIT:            m_shouldExit = true; break;
+		case MainMenuItem::EXIT: m_shouldExit = true; break;
 		}
 	}
 }
@@ -495,11 +489,11 @@ void GameUI::HandleLevelSelectionInput()
 {
 	if (IsLeftPressed())
 	{
-		m_gameService.GetLevel() = StepSelection(static_cast<int>(m_gameService.GetLevel()), -1, kLevelCount);
+		m_gameService.GetLevel() = StepSelection(m_gameService.GetLevel(), -1, kLevelLabels.size());
 	}
 	if (IsRightPressed())
 	{
-		m_gameService.GetLevel() = StepSelection(static_cast<int>(m_gameService.GetLevel()), +1, kLevelCount);
+		m_gameService.GetLevel() = StepSelection(m_gameService.GetLevel(), 1, kLevelLabels.size());
 	}
 
 	if (IsBackPressed())
@@ -517,10 +511,9 @@ void GameUI::HandleLevelSelectionInput()
 void GameUI::HandleVerdictInput()
 {
 	const auto items = GetVerdictItems(m_currentScreen == ScreenType::VICTORY, m_gameService.GetLevel());
-	const int count = static_cast<int>(items.size());
 
-	if (IsUpPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, count);
-	if (IsDownPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, count);
+	if (IsUpPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, items.size());
+	if (IsDownPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, items.size());
 
 	if (IsConfirmPressed())
 	{
@@ -599,14 +592,15 @@ void GameUI::RenderLevelSelection() const
 	constexpr int boxGap = 60;
 	constexpr int boxY = 300;
 	constexpr float borderThickness = 4.0f;
-	constexpr int rowWidth = kLevelCount * boxSize + (kLevelCount - 1) * boxGap;
+	constexpr int rowWidth = static_cast<int>(kLevelLabels.size()) * boxSize
+		+ static_cast<int>((kLevelLabels.size() - 1)) * boxGap;
 	const int firstBoxX = (screenWidth - rowWidth) / 2;
 
-	for (int i = 0; i < kLevelCount; ++i)
+	for (size_t i = 0; i < kLevelLabels.size(); ++i)
 	{
-		const char* label = kLevelLabels[static_cast<size_t>(i)];
-		const int boxX = firstBoxX + i * (boxSize + boxGap);
-		const bool isSelected = i == m_gameService.GetLevel();
+		const char* label = kLevelLabels[i];
+		const int boxX = firstBoxX + static_cast<int>(i) * (boxSize + boxGap);
+		const bool isSelected = (i == m_gameService.GetLevel());
 
 		if (isSelected)
 		{
@@ -634,7 +628,7 @@ void GameUI::RenderLevelSelection() const
 void GameUI::RenderGameplay()
 {
 	const int livesLeft = m_gameService.GetPlayerState().livesCount;
-	DrawHUD(m_gameService.GetGameProgress().score, LevelLabel(m_gameService.GetLevel()), livesLeft);
+	DrawHUD(m_gameService.GetGameProgress().score, kLevelLabels[m_gameService.GetLevel()], livesLeft);
 
 	const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
 	DrawPlayerShip(playerPosition.x, playerPosition.y);
@@ -657,7 +651,7 @@ void GameUI::RenderGameplay()
 
 void GameUI::RenderGameOver() const
 {
-	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
+	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService.GetLevel()]);
 	const auto labels = GetVerdictLabels(GetVerdictItems(false, m_gameService.GetLevel()));
 
 	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService.GetGameProgress().score,
@@ -666,7 +660,7 @@ void GameUI::RenderGameOver() const
 
 void GameUI::RenderVictory() const
 {
-	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
+	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService.GetLevel()]);
 	const auto labels = GetVerdictLabels(GetVerdictItems(true, m_gameService.GetLevel()));
 
 	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService.GetGameProgress().score,

@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <array>
 #include <span>
+#include <string>
 #include <cstdint>
 #include <iostream>
 
@@ -67,9 +68,8 @@ private:
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
 
     StarField m_starField;
-    int m_selectedMenuItem{};
-    int m_selectedVerdictOption{};
-    int m_selectedVerdictPreview{};
+    size_t m_selectedMenuItem{};
+    size_t m_selectedVerdictOption{};
     bool m_shouldExit{};
     bool m_isInitialized{};
 };

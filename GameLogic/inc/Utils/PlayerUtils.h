@@ -7,5 +7,5 @@
 namespace GameLogic::Utils
 {
 	float ProjectileVelocity(float velocity, GameLogic::ProjectileOwner owner);
-	void UpdateProjectilePosition(GameLogic::ProjectileState& projectile, float dt);
+	void UpdateProjectilesPosition(GameLogic::ProjectileState& projectile, float dt);
 }

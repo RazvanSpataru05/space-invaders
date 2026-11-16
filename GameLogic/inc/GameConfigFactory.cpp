@@ -9,11 +9,12 @@ namespace GameLogic
 
 		config.playerMovementSpeed = 4.0f;
 		config.powerUpChance = 0.10f;
-		config.shootCooldown = 0.25f;
+		config.playerShootCooldown = 0.25f;
+		config.enemyShootCooldown = 0.5f;
 		config.startCooldown = 2.0f;
 
 		config.projectileSpeed = 400.0f;
-		config.projectileDamage = 50u;
+		config.playerProjectileDamage = 50u;
 
 		config.enemyMovementSpeed = 60.0f;
 		config.enemyDropDistance = 150.0f;
@@ -28,7 +29,9 @@ namespace GameLogic
 		config.shooterEnemyScore = 80u;
 		config.bossScore = 500u;
 
+		config.maxEnemyProjectileCount = 10u;
 		config.playerLivesCount = 3u;
+		config.enemyProjectileDamage = 1u;
 
 		LoadLevels(config);
 

@@ -13,7 +13,8 @@ namespace GameLogic
     {
         PlayerState player;
         std::vector<EnemyState> enemies;
-        std::vector<ProjectileState> projectiles;
+        std::vector<ProjectileState> playerProjectiles;
+        std::vector<ProjectileState> enemyProjectiles;
         std::vector<PowerUpState> powerUps;
 
 
@@ -21,7 +22,8 @@ namespace GameLogic
         {
             player.Reset(lives);
             enemies.clear();
-            projectiles.clear();
+            enemyProjectiles.clear();
+            playerProjectiles.clear();
             powerUps.clear();
         }
     };

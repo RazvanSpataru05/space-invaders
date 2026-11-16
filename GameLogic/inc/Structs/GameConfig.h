@@ -12,7 +12,8 @@ namespace GameLogic
 		std::array<LevelConfig, 3> levels{};
 		float playerMovementSpeed{};
 		float powerUpChance{};
-		float shootCooldown{};
+		float playerShootCooldown{};
+		float enemyShootCooldown{};
 		float startCooldown{};
 
 		float projectileSpeed{};
@@ -20,8 +21,6 @@ namespace GameLogic
 		float enemyMovementSpeed{};
 		float enemyDropDistance{};
 
-		uint16_t projectileDamage{};
-		
 		uint16_t normalEnemyHealth{};
 		uint16_t armoredEnemyHealth{};
 		uint16_t shooterEnemyHealth{};
@@ -32,6 +31,9 @@ namespace GameLogic
 		uint16_t shooterEnemyScore{};
 		uint16_t bossScore{};
 
+		uint8_t maxEnemyProjectileCount{};
+		uint8_t enemyProjectileDamage{};
+		uint8_t playerProjectileDamage{};
 		uint8_t playerLivesCount{};
 	};
 }

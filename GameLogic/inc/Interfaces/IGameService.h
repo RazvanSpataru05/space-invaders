@@ -26,12 +26,13 @@ namespace GameLogic
         virtual void Shoot() noexcept = 0;
         virtual void Reset() noexcept = 0;
 
-        [[nodiscard]] virtual GameProgress GetGameProgress()                            const noexcept = 0;
-        [[nodiscard]] virtual PlayerState GetPlayerState()                              const noexcept = 0;
-        [[nodiscard]] virtual std::span<const EnemyState> GetEnemiesState()             const noexcept = 0;
-        [[nodiscard]] virtual std::span<const ProjectileState> GetProjectilesState()    const noexcept = 0;
+        [[nodiscard]] virtual GameProgress GetGameProgress()                                  const noexcept = 0;
+        [[nodiscard]] virtual PlayerState GetPlayerState()                                    const noexcept = 0;
+        [[nodiscard]] virtual std::span<const EnemyState> GetEnemiesState()                   const noexcept = 0;
+        [[nodiscard]] virtual std::span<const ProjectileState> GetPlayerProjectilesState()    const noexcept = 0;
+        [[nodiscard]] virtual std::span<const ProjectileState> GetEnemyProjectilesState()     const noexcept = 0;
 
-        [[nodiscard]] virtual size_t  GetLevel()                                        const noexcept = 0;
-        [[nodiscard]] virtual size_t& GetLevel()                                        noexcept = 0;
+        [[nodiscard]] virtual size_t  GetLevel()                                              const noexcept = 0;
+        [[nodiscard]] virtual size_t& GetLevel()                                              noexcept = 0;
     };
 }

@@ -46,7 +46,7 @@ namespace
 
 	constexpr std::array<const char*, 2> kGameOverOptionLabels{ "RETRY", "MAIN MENU" };
 	constexpr std::array<const char*, 3> kLevelCompletedOptionLabels
-	{ "MAIN MENU",
+	{		"MAIN MENU",
 		   "RETRY",
 		   "NEXT LEVEL"
 	};
@@ -628,9 +628,14 @@ void GameUI::RenderGameplay()
 		DrawEnemyShip(enemy);
 	}
 
-	for (const auto& projectile : m_gameService.GetProjectilesState())
+	for (const auto& projectile : m_gameService.GetPlayerProjectilesState())
 	{
 		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, RED);
+	}
+
+	for (const auto& projectile : m_gameService.GetEnemyProjectilesState())
+	{
+		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, GREEN);
 	}
 }
 
@@ -647,6 +652,7 @@ void GameUI::RenderVictory() const
 	const char* details = TextFormat("LEVEL %s", LevelLabel(m_gameService.GetLevel()));
 
 	std::vector<const char*> victoryLabels{ "MAIN MENU", "RETRY" };
+
 	if (m_gameService.GetLevel() != 2) victoryLabels.emplace_back("NEXT LEVEL");
 
 	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService.GetGameProgress().score,

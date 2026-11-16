@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <random>
 
 class GameSession final : public GameLogic::IGameService
 {
@@ -33,17 +34,19 @@ public:
 	void Shoot() noexcept override;
 	void Reset() noexcept override;
 
-	[[nodiscard]] GameLogic::GameProgress						GetGameProgress()		const noexcept override;
-	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()		const noexcept override;
-	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()		const noexcept override;
-	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetProjectilesState()	const noexcept override;
-	[[nodiscard]] size_t&										GetLevel()				noexcept override;
-	[[nodsicard]] size_t										GetLevel()				const noexcept override;
+	[[nodiscard]] GameLogic::GameProgress						GetGameProgress()			const noexcept override;
+	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()			const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()			const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetEnemyProjectilesState()  const noexcept override;
+
+	[[nodiscard]] size_t&										GetLevel()					noexcept override;
+	[[nodsicard]] size_t										GetLevel()					const noexcept override;
 
 	void SpawnEnemies() noexcept;
 	
 	void UpdateEnemies(float deltaTime);
-	void UpdateProjectile(float deltaTime);
+	void UpdateProjectiles(float deltaTime);
 	void UpdateScore(GameLogic::EnemyType enemyType);
 
 	void CheckCollissions();
@@ -62,6 +65,11 @@ private:
 	void UpdateEnemiesHealth();
 	void UpdateEnemiesPosition(float deltaTime);
 
+	void CheckPlayerProjectilesCollisions();
+	void CheckEnemyProjectilesCollisions();
+
+	void SpawnEnemyProjectile();
+
 private:
 	GameSession(const GameSession&) = delete;
 	GameSession& operator=(const GameSession&) = delete;
@@ -73,11 +81,13 @@ private:
 	GameLogic::GameEntities m_entities;
 	GameLogic::GameProgress m_progress;
 
-	GameLogic::GameConfig m_gameConfig;
+	GameLogic::GameConfig m_config;
 	GameLogic::GameState m_gameState;
 
 	std::vector<GameLogic::IGameEventObserver*> m_observers;
 
 	size_t m_currentLevel{};
+	std::mt19937 m_generator;
+	std::uniform_int_distribution<size_t> m_dist;
 };
 

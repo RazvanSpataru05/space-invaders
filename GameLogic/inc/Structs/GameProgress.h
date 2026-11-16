@@ -15,7 +15,8 @@ namespace GameLogic
     {
         uint32_t score{};
         float elapsedTime{};
-        float shootCoodldown{};
+        float playerShootCooldown{};
+        float enemyShootCooldown{};
 
         float enemyDirection{};
         float baseEnemySpeed{};
@@ -41,7 +42,8 @@ namespace GameLogic
 
             score = 0u;
             elapsedTime = 0.0f;
-            shootCoodldown = 0.0f;
+            playerShootCooldown = 0.0f;
+            enemyShootCooldown = 0.0f;
 
         }
     };

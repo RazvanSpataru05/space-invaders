@@ -8,7 +8,7 @@ namespace GameLogic::Utils
 		return owner == GameLogic::ProjectileOwner::PLAYER ? -velocity : velocity;
 	}
 
-	void UpdateProjectilePosition(GameLogic::ProjectileState& projectile, float dt)
+	void UpdateProjectilesPosition(GameLogic::ProjectileState& projectile, float dt)
 	{
 		projectile.position.y += (projectile.velocity * dt);
 	}

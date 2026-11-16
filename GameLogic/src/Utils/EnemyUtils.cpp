@@ -18,4 +18,20 @@ namespace GameLogic::Utils
 	{
 		enemy.position.y += (progress.dropDistance * dt);
 	}
+
+	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(size_t enemyCount)
+	{
+		if (enemyCount == 0) return std::nullopt;
+
+		return std::uniform_int_distribution<size_t>(0, enemyCount - 1);
+	}
+
+	bool AABBCollision(float xStartObj, float xEndObj, float yEndObj,
+		float xProj, float yProj)
+	{
+		return xStartObj < xProj + Constants::PROJECTILE_WIDTH
+				&& xEndObj > xProj
+				&& yEndObj < yProj + Constants::PROJECTILE_HEIGHT
+				&& yEndObj > yProj;
+	}
 }

@@ -19,7 +19,7 @@ namespace GameLogic
 		void Reset(uint8_t lives)
 		{
 			livesCount = lives;
-			position = Utils::Constants::PLAYER_INITIAL_POSITION;
+			position = Utils::Constants::PLAYER_SPAWN_POSITION;
 		}
 	};
 }

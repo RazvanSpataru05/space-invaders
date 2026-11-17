@@ -9,6 +9,7 @@ namespace GameLogic
         NORMAL,
         ARMORED,
         SHOOTER,
+        UFO,
         BOSS
     };
 }

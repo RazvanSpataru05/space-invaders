@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Enums/LevelID.h"
 #include "Enums/GameState.h"
 
 #include "Interfaces/IGameEventObserver.h"
@@ -36,18 +35,20 @@ public:
 
 	[[nodiscard]] GameLogic::GameProgress						GetGameProgress()			const noexcept override;
 	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()			const noexcept override;
+	[[nodiscard]] std::optional<GameLogic::UFOState>			GetUFOState()				const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()			const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetEnemyProjectilesState()  const noexcept override;
-
 	[[nodiscard]] size_t&										GetLevel()					noexcept override;
-	[[nodsicard]] size_t										GetLevel()					const noexcept override;
-
-	void SpawnEnemies() noexcept;
 	
 	void UpdateEnemies(float deltaTime);
 	void UpdateProjectiles(float deltaTime);
 	void UpdateScore(GameLogic::EnemyType enemyType);
+	
+	void NotifyObservers(const GameLogic::GameEvent& event);
+
+private:
+	void SpawnEnemies() noexcept;
 
 	void CheckCollissions();
 	void CheckLevelCompletion() noexcept;
@@ -58,12 +59,12 @@ public:
 	void GeneratePowerUp();
 	void CollectPowerUp(const GameLogic::PowerUpState& powerUp);
 	void ApplyPowerUp(GameLogic::PowerUpType type);
-	
-	void NotifyObservers(const GameLogic::GameEvent& event);
 
-private:
 	void UpdateEnemiesHealth();
 	void UpdateEnemiesPosition(float deltaTime);
+	void UpdateOffscreenEnemies();
+
+	void UpdateUFOPosition(float dt);
 
 	void CheckPlayerProjectilesCollisions();
 	void CheckEnemyProjectilesCollisions();
@@ -87,6 +88,7 @@ private:
 	std::vector<GameLogic::IGameEventObserver*> m_observers;
 
 	size_t m_currentLevel{};
+	size_t m_ufoScorePtr{};
 	std::mt19937 m_generator;
 	std::uniform_int_distribution<size_t> m_dist;
 };

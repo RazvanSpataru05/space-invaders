@@ -1,13 +1,10 @@
 #pragma once
 
-#include "Enums/LevelID.h"
 #include "Enums/EnemyType.h"
 
 #include "Structs/GameConfig.h"
 
 #include "Utils/Constants.h"
-
-#include <cstdint>
 
 namespace GameLogic
 {

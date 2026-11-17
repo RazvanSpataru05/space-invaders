@@ -18,6 +18,7 @@ namespace GameLogic
 
 		float projectileSpeed{};
 
+		float ufoMovementSpeed{};
 		float enemyMovementSpeed{};
 		float enemyDropDistance{};
 

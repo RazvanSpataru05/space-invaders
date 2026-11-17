@@ -26,12 +26,12 @@ namespace GameLogic::Utils
 		return std::uniform_int_distribution<size_t>(0, enemyCount - 1);
 	}
 
-	bool AABBCollision(float xStartObj, float xEndObj, float yEndObj,
-		float xProj, float yProj)
+	bool AABBCollision(float xStartObj, float xEndObj, float yStartObj,
+		float yEndObj, float xProj, float yProj)
 	{
 		return xStartObj < xProj + Constants::PROJECTILE_WIDTH
 				&& xEndObj > xProj
-				&& yEndObj < yProj + Constants::PROJECTILE_HEIGHT
+				&& yStartObj < yProj + Constants::PROJECTILE_HEIGHT
 				&& yEndObj > yProj;
 	}
 }

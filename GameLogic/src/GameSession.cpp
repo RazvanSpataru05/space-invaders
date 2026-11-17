@@ -28,6 +28,7 @@ void GameSession::StartLevel() noexcept
 
 	SpawnEnemies();
 	m_gameState = GameLogic::GameState::PLAYING;
+	m_entities.ufo.emplace(GameLogic::UFOState());
 }
 
 void GameSession::Update(float deltaTime) noexcept
@@ -40,6 +41,7 @@ void GameSession::Update(float deltaTime) noexcept
 
 	UpdateEnemies(deltaTime);
 	UpdateProjectiles(deltaTime);
+	UpdateUFOPosition(deltaTime);
 
 	SpawnEnemyProjectile();
 
@@ -78,6 +80,11 @@ GameLogic::PlayerState GameSession::GetPlayerState() const noexcept
 	return m_entities.player;
 }
 
+std::optional<GameLogic::UFOState> GameSession::GetUFOState() const noexcept
+{
+	return m_entities.ufo;
+}
+
 std::span<const GameLogic::EnemyState> GameSession::GetEnemiesState() const noexcept
 {
 	return m_entities.enemies;
@@ -94,11 +101,6 @@ std::span<const GameLogic::ProjectileState> GameSession::GetEnemyProjectilesStat
 }
 
 size_t& GameSession::GetLevel() noexcept
-{
-	return m_currentLevel;
-}
-
-size_t GameSession::GetLevel() const noexcept
 {
 	return m_currentLevel;
 }
@@ -124,6 +126,8 @@ void GameSession::Reset() noexcept
 {
 	m_progress.Reset(m_config);
 	m_entities.Reset(m_config.playerLivesCount);
+
+	m_ufoScorePtr = 0;
 }
 
 void GameSession::SpawnEnemies() noexcept
@@ -141,6 +145,7 @@ void GameSession::UpdateEnemies(float deltaTime)
 
 	UpdateEnemiesHealth();
 	UpdateEnemiesPosition(deltaTime);
+	UpdateOffscreenEnemies();
 }
 
 void GameSession::UpdateProjectiles(float deltaTime)
@@ -211,10 +216,8 @@ void GameSession::CheckPlayerDefeat() noexcept
 
 void GameSession::SpawnBoss() noexcept
 {
-	if (!m_config.levels[m_currentLevel].hasBoss) return;
-
 	m_entities.enemies.emplace_back(
-		GameLogic::Utils::Constants::BOSS_POSITION,
+		GameLogic::Utils::Constants::BOSS_SPAWN_POSITION,
 		m_config.bossEnemyHealth,
 		GameLogic::EnemyType::BOSS);
 }
@@ -282,6 +285,23 @@ void GameSession::UpdateEnemiesPosition(float deltaTime)
 	}
 }
 
+void GameSession::UpdateOffscreenEnemies()
+{
+	if (m_gameState != GameLogic::GameState::PLAYING) return;
+
+	std::erase_if(m_entities.enemies, [](const GameLogic::EnemyState& enemy) {
+		return enemy.position.x > GameLogic::Utils::Constants::SCREEN_WIDTH
+			|| enemy.position.y > GameLogic::Utils::Constants::SCREEN_HEIGHT;
+		});
+}
+
+void GameSession::UpdateUFOPosition(float dt)
+{
+	if (!m_entities.ufo) return;
+
+	m_entities.ufo.value().position.x += (m_config.ufoMovementSpeed * dt);
+}
+
 void GameSession::CheckPlayerProjectilesCollisions()
 {
 	auto it = m_entities.playerProjectiles.begin();
@@ -292,11 +312,12 @@ void GameSession::CheckPlayerProjectilesCollisions()
 		for (auto& enemy : m_entities.enemies)
 		{
 			const float xStart = enemy.position.x;
-
 			const float xEnd = enemy.position.x + GameLogic::Utils::Constants::SHIP_WIDTH;
-			const float yEnd = enemy.position.y + GameLogic::Utils::Constants::SHIP_WIDTH;
 
-			if (GameLogic::Utils::AABBCollision(xStart, xEnd, yEnd, projectilePos.x, projectilePos.y))
+			const float yStart = enemy.position.y;
+			const float yEnd = yStart + GameLogic::Utils::Constants::SHIP_WIDTH;
+
+			if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))
 			{
 				enemy.health = static_cast<int16_t>(std::max(0, enemy.health - m_config.playerProjectileDamage));
 				it = m_entities.playerProjectiles.erase(it);
@@ -315,11 +336,12 @@ void GameSession::CheckEnemyProjectilesCollisions()
 		const GameLogic::Vector2 projectilePos = it->position;
 
 		const float xStart = m_entities.player.position.x;
-
 		const float xEnd = m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH;
-		const float yEnd = m_entities.player.position.y;
 
-		if (GameLogic::Utils::AABBCollision(xStart, xEnd, yEnd, projectilePos.x, projectilePos.y))
+		const float yStart = m_entities.player.position.y;
+		const float yEnd = m_entities.player.position.y + GameLogic::Utils::Constants::SHIP_WIDTH; // Intended. height is the same as width for the ship
+
+		if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))
 		{
 			m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
 			it = m_entities.enemyProjectiles.erase(it);
@@ -332,7 +354,8 @@ void GameSession::CheckEnemyProjectilesCollisions()
 
 void GameSession::SpawnEnemyProjectile()
 {
-	if (m_progress.enemyShootCooldown < m_config.enemyShootCooldown
+	if (m_progress.elapsedTime < m_config.startCooldown
+		|| m_progress.enemyShootCooldown < m_config.enemyShootCooldown
 		|| m_entities.enemyProjectiles.size() >= m_config.maxEnemyProjectileCount
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
 

@@ -32,6 +32,6 @@ namespace GameLogic::Utils
 
 	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(size_t enemyCount);
 
-	bool AABBCollision(float xStartObj, float xEndObj, float yEndObj,
+	bool AABBCollision(float xStartObj, float xEndObj, float yStartObj, float yEndObj,
 		float xProj, float yProj);
 }

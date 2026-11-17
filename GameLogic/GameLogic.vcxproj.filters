@@ -81,9 +81,6 @@
     <ClInclude Include="inc\Enums\GameState.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Enums\LevelID.h">
-      <Filter>inc\Enums</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Enums\PowerUpType.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
@@ -104,6 +101,9 @@
     </ClInclude>
     <ClInclude Include="inc\Interfaces\IGameService.h">
       <Filter>inc\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\UFOState.h">
+      <Filter>inc\Structs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

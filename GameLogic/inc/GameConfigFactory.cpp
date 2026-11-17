@@ -16,6 +16,7 @@ namespace GameLogic
 		config.projectileSpeed = 400.0f;
 		config.playerProjectileDamage = 50u;
 
+		config.ufoMovementSpeed = 100.0f;
 		config.enemyMovementSpeed = 60.0f;
 		config.enemyDropDistance = 150.0f;
 

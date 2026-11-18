@@ -2,7 +2,6 @@
 
 #include "Enums/EnemyType.h"
 #include "Enums/GameEventType.h"
-#include "Enums/LevelID.h"
 
 #include "Interfaces/IGameEventObserver.h"
 #include "Interfaces/IGameService.h"
@@ -13,6 +12,7 @@
 #include "Structs/EnemyState.h"
 
 #include "MainMenuItem.h"
+#include "PauseMenuItem.h"
 #include "VerdictMenuItem.h"
 
 #include "ScreenType.h"
@@ -44,11 +44,13 @@ private:
     void HandleLevelSelectionInput();
     void HandleVerdictInput();
     void HandleGameplayInput();
+    void HandlePauseInput();
 
     void Render();
     void RenderMainMenu() const;
     void RenderLevelSelection() const;
     void RenderGameplay();
+    void RenderPause();
     void RenderGameOver() const;
     void RenderVictory() const;
 
@@ -70,6 +72,7 @@ private:
     StarField m_starField;
     size_t m_selectedMenuItem{};
     size_t m_selectedVerdictOption{};
+    size_t m_selectedPauseOption{};
     bool m_shouldExit{};
     bool m_isInitialized{};
 };

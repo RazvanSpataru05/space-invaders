@@ -18,6 +18,9 @@
     <ClInclude Include="inc\StarField.h">
       <Filter>inc</Filter>
     </ClInclude>
+    <ClInclude Include="inc\PauseMenuItem.h">
+      <Filter>inc</Filter>
+    </ClInclude>
     <ClInclude Include="inc\VerdictMenuItem.h">
       <Filter>inc</Filter>
     </ClInclude>

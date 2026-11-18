@@ -43,6 +43,14 @@ namespace
 		return "?";
 	}
 
+	// Pause menu
+	constexpr std::array<PauseMenuItem, 3> kPauseMenuItems{
+		PauseMenuItem::RESUME,
+		PauseMenuItem::RETRY,
+		PauseMenuItem::MAIN_MENU };
+
+	constexpr std::array<const char*, 3> kPauseMenuLabels{ "RESUME", "RETRY", "MAIN MENU" };
+
 	std::vector<VerdictMenuItem> GetVerdictItems(bool isVictory, size_t level)
 	{
 		std::vector<VerdictMenuItem> items;
@@ -448,6 +456,7 @@ void GameUI::HandleInput()
 	case ScreenType::MAIN_MENU:             HandleMainMenuInput(); break;
 	case ScreenType::LEVEL_SELECTION:       HandleLevelSelectionInput(); break;
 	case ScreenType::GAMEPLAY:              HandleGameplayInput(); break;
+	case ScreenType::PAUSED:                HandlePauseInput(); break;
 	case ScreenType::GAME_OVER:
 	case ScreenType::VICTORY:               HandleVerdictInput(); break;
 	}
@@ -528,11 +537,12 @@ void GameUI::HandleVerdictInput()
 
 void GameUI::HandleGameplayInput()
 {
+	// Update() only runs on the GAMEPLAY screen, so switching screens freezes the game.
 	if (IsBackPressed())
 	{
-		m_currentScreen = ScreenType::MAIN_MENU;
-		m_gameService.Reset();
-		std::cout << "Enemies remaining: " << m_gameService.GetEnemiesState().size();
+		m_selectedPauseOption = 0;
+		m_currentScreen = ScreenType::PAUSED;
+		return;
 	}
 
 	if (IsLeftHold())
@@ -550,6 +560,32 @@ void GameUI::HandleGameplayInput()
 	}
 }
 
+void GameUI::HandlePauseInput()
+{
+	if (IsUpPressed()) m_selectedPauseOption = StepSelection(m_selectedPauseOption, -1, kPauseMenuItems.size());
+	if (IsDownPressed()) m_selectedPauseOption = StepSelection(m_selectedPauseOption, 1, kPauseMenuItems.size());
+
+	// Esc toggles back into the game
+	if (IsBackPressed())
+	{
+		m_currentScreen = ScreenType::GAMEPLAY;
+		return;
+	}
+
+	if (IsConfirmPressed())
+	{
+		switch (kPauseMenuItems[m_selectedPauseOption])
+		{
+		case PauseMenuItem::RESUME:     m_currentScreen = ScreenType::GAMEPLAY;  break;
+		case PauseMenuItem::RETRY:      StartSelectedGame();                     break;
+		case PauseMenuItem::MAIN_MENU:
+			m_gameService.Reset();
+			m_currentScreen = ScreenType::MAIN_MENU;
+			break;
+		}
+	}
+}
+
 // ---------------------------------------------------------------- rendering
 
 void GameUI::Render()
@@ -563,6 +599,7 @@ void GameUI::Render()
 	case ScreenType::MAIN_MENU:         RenderMainMenu();         break;
 	case ScreenType::LEVEL_SELECTION:   RenderLevelSelection();   break;
 	case ScreenType::GAMEPLAY:          RenderGameplay();         break;
+	case ScreenType::PAUSED:            RenderPause();            break;
 	case ScreenType::GAME_OVER:         RenderGameOver();         break;
 	case ScreenType::VICTORY:           RenderVictory();          break;
 	}
@@ -647,6 +684,19 @@ void GameUI::RenderGameplay()
 	{
 		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, GREEN);
 	}
+}
+
+void GameUI::RenderPause()
+{
+	// Frozen game stays visible behind a dimmed overlay
+	RenderGameplay();
+	DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Color{ 0, 0, 0, 170 });
+
+	DrawScreenTitle("PAUSED", 160, kTitleFontSize);
+	DrawMenuList(kPauseMenuLabels, m_selectedPauseOption, 360);
+
+	DrawTextCentered("UP/DOWN  SELECT     ENTER  CONFIRM     ESC  RESUME",
+		GetScreenHeight() - 60, kHintFontSize, kDimGreen);
 }
 
 void GameUI::RenderGameOver() const

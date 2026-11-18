@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="inc\GameUI.h" />
     <ClInclude Include="inc\MainMenuItem.h" />
+    <ClInclude Include="inc\PauseMenuItem.h" />
     <ClInclude Include="inc\ScreenType.h" />
     <ClInclude Include="inc\StarField.h" />
     <ClInclude Include="inc\VerdictMenuItem.h" />

@@ -12,3 +12,4 @@ namespace GameLogic
         virtual void OnGameEvent(const GameEvent& event) = 0;
     };
 }
+    

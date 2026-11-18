@@ -50,7 +50,7 @@ public:
 private:
 	void SpawnEnemies() noexcept;
 
-	void CheckCollissions();
+	void CheckCollisions();
 	void CheckLevelCompletion() noexcept;
 	void CheckPlayerDefeat()	noexcept;
 
@@ -64,7 +64,7 @@ private:
 	void UpdateEnemiesPosition(float deltaTime);
 	void UpdateOffscreenEnemies();
 
-	void UpdateUFOPosition(float dt);
+	void UpdateUFOPosition(float deltaTime);
 
 	void CheckPlayerProjectilesCollisions();
 	void CheckEnemyProjectilesCollisions();

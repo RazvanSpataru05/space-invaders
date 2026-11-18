@@ -35,7 +35,7 @@ void GameSession::Update(float deltaTime) noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
-	CheckCollissions();
+	CheckCollisions();
 	CheckLevelCompletion();
 	CheckPlayerDefeat();
 
@@ -183,7 +183,7 @@ void GameSession::UpdateScore(GameLogic::EnemyType type)
 	}
 }
 
-void GameSession::CheckCollissions()
+void GameSession::CheckCollisions()
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;

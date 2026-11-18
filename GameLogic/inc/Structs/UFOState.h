@@ -19,5 +19,10 @@ namespace GameLogic
 			50, 150, 100, 50
 		};
 		Vector2 position{};
+
+		UFOState()
+		{
+			position = GameLogic::Utils::Constants::UFO_SPAWN_POSITION;
+		}
 	};
 }

@@ -162,6 +162,7 @@
     <ClInclude Include="inc\Enums\PowerUpType.h" />
     <ClInclude Include="inc\Enums\ProjectileOwner.h" />
     <ClInclude Include="inc\GameConfigFactory.h" />
+    <ClInclude Include="inc\GameServiceFactory.h" />
     <ClInclude Include="inc\GameSession.h" />
     <ClInclude Include="inc\Interfaces\IGameEventObserver.h" />
     <ClInclude Include="inc\Interfaces\IGameEventSource.h" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp" />
+    <ClCompile Include="src\GameServiceFactory.cpp" />
     <ClCompile Include="src\GameSession.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

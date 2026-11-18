@@ -5,6 +5,7 @@
 #include "Structs/ProjectileState.h"
 #include "Structs/PowerUpState.h"
 #include "Structs/UFOState.h"
+#include "Structs/BossState.h"
 
 #include <vector>
 #include <optional>
@@ -19,6 +20,7 @@ namespace GameLogic
         std::vector<ProjectileState> enemyProjectiles;
         std::vector<PowerUpState> powerUps;
         std::optional<UFOState> ufo{ std::nullopt };
+        std::optional<BossState> boss{ std::nullopt };
 
 
         void Reset(uint8_t lives)
@@ -29,6 +31,7 @@ namespace GameLogic
             playerProjectiles.clear();
             powerUps.clear();
             ufo = std::nullopt;
+            boss = std::nullopt;
         }
     };
 }

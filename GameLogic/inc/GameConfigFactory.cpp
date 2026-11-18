@@ -23,6 +23,8 @@ namespace GameLogic
 		config.enemyMovementSpeed = 60.0f;
 		config.enemyDropDistance = 150.0f;
 
+		config.bossDropDistance = 50.0f;
+
 		config.normalEnemyHealth = 100u;
 		config.armoredEnemyHealth = 250u;
 		config.shooterEnemyHealth = 150u;

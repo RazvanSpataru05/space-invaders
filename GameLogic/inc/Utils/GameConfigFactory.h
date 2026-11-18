@@ -61,7 +61,6 @@ namespace GameLogic
 					if (type == "NORMAL")		config.type = EnemyType::NORMAL;
 					else if (type == "ARMORED")	config.type = EnemyType::ARMORED;
 					else if (type == "SHOOTER")	config.type = EnemyType::SHOOTER;
-					else if (type == "BOSS")	config.type = EnemyType::BOSS;
 					else						config.type = EnemyType::NORMAL;
 
 					config.health = Utils::GetEnemyHealth(config.type, gameConfig);

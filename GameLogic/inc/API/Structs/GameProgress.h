@@ -22,6 +22,8 @@ namespace GameLogic
         float dropDistance{};
         
         bool bossSpawned{};
+        bool ufoApproaching{};
+        bool ufoLeaving{};
 
         GameProgress(const GameConfig& config)
         {
@@ -49,6 +51,8 @@ namespace GameLogic
             ufoSpawnTimer = 0.0f;
 
             bossSpawned = false;
+            ufoApproaching = false;
+            ufoLeaving = false;
 
         }
     };

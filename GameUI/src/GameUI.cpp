@@ -415,6 +415,8 @@ void GameUI::Initialize()
 	SetExitKey(KEY_NULL);
 	SetTargetFPS(kTargetFps);
 
+	m_audio.Initialize();
+
 	g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
 	g_ufoShipTexture = LoadPixelTexture(kUfoTexturePath);
 
@@ -447,6 +449,7 @@ void GameUI::Run()
 			m_gameService->Update(deltaTime);
 		}
 
+		UpdateAudio(deltaTime);
 		Render();
 	}
 }
@@ -455,11 +458,43 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 {
 	switch (event.type)
 	{
-	case GameLogic::EventType::LEVEL_COMPLETED:     m_currentScreen = ScreenType::VICTORY;       break;
-	case GameLogic::EventType::GAME_OVER:           m_currentScreen = ScreenType::GAME_OVER;     break;
-	case GameLogic::EventType::BOSS_SPAWNED:		DrawBoss(m_gameService->GetBossPosition());  break;
-	default:                                                                                     break;
+	case GameLogic::EventType::LEVEL_COMPLETED:
+		m_audio.StopUfoSiren();
+		m_currentScreen = ScreenType::VICTORY;
+		break;
+	case GameLogic::EventType::GAME_OVER:
+		m_audio.StopUfoSiren();
+		m_currentScreen = ScreenType::GAME_OVER;
+		break;
+	case GameLogic::EventType::BOSS_SPAWNED:			DrawBoss(m_gameService->GetBossPosition());		break;
+
+	case GameLogic::EventType::PLAYER_SHOT:				m_audio.Play(SoundCue::PLAYER_SHOT);			break;
+	case GameLogic::EventType::PLAYER_HIT:				m_audio.Play(SoundCue::PLAYER_HIT);				break;
+	case GameLogic::EventType::ENEMY_HIT:				m_audio.Play(SoundCue::ENEMY_HIT);				break;
+	case GameLogic::EventType::ENEMY_DESTROYED:			m_audio.Play(SoundCue::ENEMY_DESTROYED);		break;
+
+	case GameLogic::EventType::UFO_APPROACHING:			m_audio.StartUfoApproach();						break;
+	case GameLogic::EventType::UFO_APPROACH_CANCELLED:	m_audio.FadeOutUfoSiren();						break;
+	case GameLogic::EventType::UFO_SPAWNED:				m_audio.OnUfoSpawned();							break;
+	case GameLogic::EventType::UFO_LEAVING:				m_audio.StartUfoLeaving();						break;
+	case GameLogic::EventType::UFO_DESPAWNED:			m_audio.StopUfoSiren();							break;
 	}
+}
+
+void GameUI::UpdateAudio(float deltaTime)
+{
+	// The siren freezes with the game: Update() only runs on the GAMEPLAY screen.
+	m_audio.SetUfoSirenPaused(m_currentScreen != ScreenType::GAMEPLAY);
+
+	if (const auto ufo = m_gameService->GetUFOState(); ufo.has_value())
+	{
+		const float x = ufo.value().position.x;
+		m_audio.SetUfoDistanceToExit(ufo.value().direction > 0.0f
+			? GameLogic::Utils::Constants::SCREEN_WIDTH - x
+			: x);
+	}
+
+	m_audio.Update(deltaTime);
 }
 
 void GameUI::ShowVerdict(ScreenType verdictScreen)
@@ -470,6 +505,7 @@ void GameUI::ShowVerdict(ScreenType verdictScreen)
 
 void GameUI::StartSelectedGame()
 {
+	m_audio.StopUfoSiren();
 	m_gameService->StartLevel();
 	m_currentScreen = ScreenType::GAMEPLAY;
 }
@@ -494,10 +530,12 @@ void GameUI::HandleMainMenuInput()
 	if (IsUpPressed())
 	{
 		m_selectedMenuItem = StepSelection(m_selectedMenuItem, -1, kMainMenuItems.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
 	}
 	if (IsDownPressed())
 	{
 		m_selectedMenuItem = StepSelection(m_selectedMenuItem, +1, kMainMenuItems.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
 	}
 
 	if (IsBackPressed())
@@ -508,6 +546,8 @@ void GameUI::HandleMainMenuInput()
 
 	if (IsConfirmPressed())
 	{
+		m_audio.Play(SoundCue::MENU_CONFIRM);
+
 		switch (kMainMenuItems[static_cast<size_t>(m_selectedMenuItem)])
 		{
 		case MainMenuItem::PLAY:
@@ -526,10 +566,12 @@ void GameUI::HandleLevelSelectionInput()
 	if (IsLeftPressed())
 	{
 		m_gameService->GetLevel() = StepSelection(m_gameService->GetLevel(), -1, kLevelLabels.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
 	}
 	if (IsRightPressed())
 	{
 		m_gameService->GetLevel() = StepSelection(m_gameService->GetLevel(), 1, kLevelLabels.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
 	}
 
 	if (IsBackPressed())
@@ -540,6 +582,7 @@ void GameUI::HandleLevelSelectionInput()
 
 	if (IsConfirmPressed())
 	{
+		m_audio.Play(SoundCue::MENU_CONFIRM);
 		StartSelectedGame();
 	}
 }
@@ -548,11 +591,21 @@ void GameUI::HandleVerdictInput()
 {
 	const auto items = GetVerdictItems(m_currentScreen == ScreenType::VICTORY, m_gameService->GetLevel());
 
-	if (IsUpPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, items.size());
-	if (IsDownPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, items.size());
+	if (IsUpPressed())
+	{
+		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, items.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
+	}
+	if (IsDownPressed())
+	{
+		m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, items.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
+	}
 
 	if (IsConfirmPressed())
 	{
+		m_audio.Play(SoundCue::MENU_CONFIRM);
+
 		switch (items[static_cast<size_t>(m_selectedVerdictOption)])
 		{
 		case VerdictMenuItem::NEXT_LEVEL:	++m_gameService->GetLevel(); StartSelectedGame();     break;
@@ -589,8 +642,16 @@ void GameUI::HandleGameplayInput()
 
 void GameUI::HandlePauseInput()
 {
-	if (IsUpPressed()) m_selectedPauseOption = StepSelection(m_selectedPauseOption, -1, kPauseMenuItems.size());
-	if (IsDownPressed()) m_selectedPauseOption = StepSelection(m_selectedPauseOption, 1, kPauseMenuItems.size());
+	if (IsUpPressed())
+	{
+		m_selectedPauseOption = StepSelection(m_selectedPauseOption, -1, kPauseMenuItems.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
+	}
+	if (IsDownPressed())
+	{
+		m_selectedPauseOption = StepSelection(m_selectedPauseOption, 1, kPauseMenuItems.size());
+		m_audio.Play(SoundCue::MENU_MOVE);
+	}
 
 	// Esc toggles back into the game
 	if (IsBackPressed())
@@ -601,11 +662,14 @@ void GameUI::HandlePauseInput()
 
 	if (IsConfirmPressed())
 	{
+		m_audio.Play(SoundCue::MENU_CONFIRM);
+
 		switch (kPauseMenuItems[m_selectedPauseOption])
 		{
 		case PauseMenuItem::RESUME:     m_currentScreen = ScreenType::GAMEPLAY;  break;
 		case PauseMenuItem::RETRY:      StartSelectedGame();                     break;
 		case PauseMenuItem::MAIN_MENU:
+			m_audio.StopUfoSiren();
 			m_gameService->Reset();
 			m_currentScreen = ScreenType::MAIN_MENU;
 			break;

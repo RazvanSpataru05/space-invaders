@@ -12,6 +12,7 @@
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 
+#include "GameAudio.h"
 #include "MainMenuItem.h"
 #include "PauseMenuItem.h"
 #include "VerdictMenuItem.h"
@@ -56,6 +57,7 @@ private:
     void RenderVictory() const;
 
     void ShowVerdict(ScreenType verdictScreen);
+    void UpdateAudio(float deltaTime);
     void StartSelectedGame();
 
 private:
@@ -71,6 +73,7 @@ private:
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
 
     StarField m_starField;
+    GameAudio m_audio;
     size_t m_selectedMenuItem{};
     size_t m_selectedVerdictOption{};
     size_t m_selectedPauseOption{};

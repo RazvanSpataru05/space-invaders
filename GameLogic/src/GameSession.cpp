@@ -125,6 +125,8 @@ void GameSession::Shoot() noexcept
 
 	m_progress.playerShootCooldown = 0.0f;
 	++m_progress.projectileCount;
+
+	NotifyObservers({ GameLogic::EventType::PLAYER_SHOT });
 }
 
 void GameSession::Reset() noexcept
@@ -145,13 +147,35 @@ void GameSession::SpawnEnemies() noexcept
 
 void GameSession::SpawnUFO() noexcept
 {
-	if (m_progress.ufoSpawnTimer < m_config.ufoSpawnCooldown
-		|| m_entities.enemies.size() < m_config.countUFOSpawn
-		|| m_entities.ufo) return;
+	const bool canSpawn = m_entities.enemies.size() >= m_config.countUFOSpawn && !m_entities.ufo;
+
+	if (!canSpawn)
+	{
+		// Enemies dropped below countUFOSpawn during the warning window: the UFO will not come
+		if (m_progress.ufoApproaching)
+		{
+			m_progress.ufoApproaching = false;
+			NotifyObservers({ GameLogic::EventType::UFO_APPROACH_CANCELLED });
+		}
+		return;
+	}
+
+	if (!m_progress.ufoApproaching
+		&& m_progress.ufoSpawnTimer >= m_config.ufoSpawnCooldown - GameLogic::Utils::Constants::UFO_WARNING_TIME)
+	{
+		m_progress.ufoApproaching = true;
+		NotifyObservers({ GameLogic::EventType::UFO_APPROACHING });
+	}
+
+	if (m_progress.ufoSpawnTimer < m_config.ufoSpawnCooldown) return;
 
 	const float direction = (m_progress.projectileCount % 2) ? 1.0f : -1.0f;
 	m_entities.ufo.emplace(GameLogic::UFOState(direction));
 	m_progress.ufoSpawnTimer = 0.0f;
+	m_progress.ufoApproaching = false;
+	m_progress.ufoLeaving = false;
+
+	NotifyObservers({ GameLogic::EventType::UFO_SPAWNED });
 }
 
 void GameSession::UpdateEnemies(float deltaTime)
@@ -279,6 +303,7 @@ void GameSession::UpdateEnemiesHealth()
 		if (it->health == 0u)
 		{
 			UpdateScore(it->type);
+			NotifyObservers({ GameLogic::EventType::ENEMY_DESTROYED });
 			it = m_entities.enemies.erase(it);
 			continue;
 		}
@@ -327,11 +352,23 @@ void GameSession::UpdateUFOPosition(float dt)
 
 	m_entities.ufo.value().position.x += (m_config.ufoMovementSpeed * m_entities.ufo.value().direction * dt);
 
+	const float x = m_entities.ufo.value().position.x;
+	const float distanceToExit = m_entities.ufo.value().direction > 0
+		? GameLogic::Utils::Constants::SCREEN_WIDTH - x
+		: x;
+
+	if (!m_progress.ufoLeaving && distanceToExit <= GameLogic::Utils::Constants::UFO_LEAVING_DISTANCE)
+	{
+		m_progress.ufoLeaving = true;
+		NotifyObservers({ GameLogic::EventType::UFO_LEAVING });
+	}
+
 	// Check if UFO is still on screen
-	if (m_entities.ufo.value().position.x > GameLogic::Utils::Constants::SCREEN_WIDTH ||
-		m_entities.ufo.value().position.x < 0)
+	if (x > GameLogic::Utils::Constants::SCREEN_WIDTH || x < 0)
 	{
 		m_entities.ufo = std::nullopt;
+		m_progress.ufoLeaving = false;
+		NotifyObservers({ GameLogic::EventType::UFO_DESPAWNED });
 	}
 }
 
@@ -358,6 +395,10 @@ void GameSession::CheckPlayerProjectilesCollisions()
 			if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))
 			{
 				enemy.health = static_cast<int16_t>(std::max(0, enemy.health - m_config.playerProjectileDamage));
+				if (enemy.health > 0)
+				{
+					NotifyObservers({ GameLogic::EventType::ENEMY_HIT });
+				}
 				it = m_entities.playerProjectiles.erase(it);
 				break;
 			}
@@ -402,6 +443,7 @@ void GameSession::CheckEnemyProjectilesCollisions()
 		{
 			m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
 			it = m_entities.enemyProjectiles.erase(it);
+			NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
 			continue;
 		}
 

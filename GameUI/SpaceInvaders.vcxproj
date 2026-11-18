@@ -157,14 +157,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\GameAudio.h" />
     <ClInclude Include="inc\GameUI.h" />
     <ClInclude Include="inc\MainMenuItem.h" />
     <ClInclude Include="inc\PauseMenuItem.h" />
     <ClInclude Include="inc\ScreenType.h" />
+    <ClInclude Include="inc\SoundCue.h" />
     <ClInclude Include="inc\StarField.h" />
+    <ClInclude Include="inc\UfoSirenPhase.h" />
     <ClInclude Include="inc\VerdictMenuItem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\GameAudio.cpp" />
     <ClCompile Include="src\GameUI.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\StarField.cpp" />

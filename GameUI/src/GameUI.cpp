@@ -256,10 +256,14 @@ namespace
 
 	// Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
 	constexpr float kHitboxSize = 40.0f;
-	constexpr float kBossBoxSize = 150.0f; // UI-only choice: the logic has no boss size yet
+	constexpr float kUfoBoxSize = 50.0f;
+	constexpr float kBossBoxSize = 150.0f; 
 
 	constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
 	Texture2D g_playerShipTexture{};
+
+	constexpr const char* kUfoTexturePath = "Assets/Sprites/ufo.png";
+	Texture2D g_ufoShipTexture{};
 
 	struct EnemySprite
 	{
@@ -315,6 +319,16 @@ namespace
 			return;
 		}
 		DrawTextureInBox(g_playerShipTexture, x, y, kHitboxSize, true);
+	}
+
+	void DrawUFO(float x, float y)
+	{
+		if (g_ufoShipTexture.id == 0)
+		{
+			DrawFallbackSquare(x, y, kUfoBoxSize, MAGENTA);
+			return;
+		}
+		DrawTextureInBox(g_ufoShipTexture, x, y, kUfoBoxSize, false);
 	}
 
 	void DrawEnemyShip(const GameLogic::EnemyState& enemy)
@@ -391,6 +405,7 @@ void GameUI::Initialize()
 	SetTargetFPS(kTargetFps);
 
 	g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
+	g_ufoShipTexture = LoadPixelTexture(kUfoTexturePath);
 
 	for (EnemySprite& sprite : g_enemySprites)
 	{
@@ -665,10 +680,15 @@ void GameUI::RenderLevelSelection() const
 void GameUI::RenderGameplay()
 {
 	const int livesLeft = m_gameService->GetPlayerState().livesCount;
-	DrawHUD(m_gameService->GetGameProgress().score, kLevelLabels[m_gameService->GetLevel()], livesLeft);
+	DrawHUD(m_gameService->GetScore(), kLevelLabels[m_gameService->GetLevel()], livesLeft);
 
 	const Vector2 playerPosition{ m_gameService->GetPlayerState().position.x, m_gameService->GetPlayerState().position.y };
 	DrawPlayerShip(playerPosition.x, playerPosition.y);
+
+	if (const auto& ufo = m_gameService->GetUFOState(); ufo.has_value())
+	{
+		DrawUFO(ufo.value().position.x, ufo.value().position.y);
+	}
 
 	for (const auto& enemy : m_gameService->GetEnemiesState())
 	{
@@ -704,7 +724,7 @@ void GameUI::RenderGameOver() const
 	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService->GetLevel()]);
 	const auto labels = GetVerdictLabels(GetVerdictItems(false, m_gameService->GetLevel()));
 
-	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService->GetGameProgress().score,
+	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService->GetScore(),
 		labels, m_selectedVerdictOption);
 }
 
@@ -713,7 +733,7 @@ void GameUI::RenderVictory() const
 	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService->GetLevel()]);
 	const auto labels = GetVerdictLabels(GetVerdictItems(true, m_gameService->GetLevel()));
 
-	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService->GetGameProgress().score,
+	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService->GetScore(),
 		labels, m_selectedVerdictOption);
 
 }

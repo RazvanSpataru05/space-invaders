@@ -12,6 +12,9 @@ namespace GameLogic
 		config.playerShootCooldown = 0.25f;
 		config.enemyShootCooldown = 0.5f;
 		config.startCooldown = 2.0f;
+		config.ufoSpawnCooldown = 25.0f;
+
+		config.countUFOSpawn = 8;
 
 		config.projectileSpeed = 400.0f;
 		config.playerProjectileDamage = 50u;

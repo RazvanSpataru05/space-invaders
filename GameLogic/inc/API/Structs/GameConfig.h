@@ -15,12 +15,15 @@ namespace GameLogic
 		float playerShootCooldown{};
 		float enemyShootCooldown{};
 		float startCooldown{};
+		float ufoSpawnCooldown{};
 
 		float projectileSpeed{};
 
 		float ufoMovementSpeed{};
 		float enemyMovementSpeed{};
 		float enemyDropDistance{};
+
+		size_t countUFOSpawn{};
 
 		uint16_t normalEnemyHealth{};
 		uint16_t armoredEnemyHealth{};

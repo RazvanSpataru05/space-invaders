@@ -11,9 +11,11 @@ namespace GameLogic
     struct GameProgress
     {
         uint32_t score{};
+        uint32_t projectileCount{};
         float elapsedTime{};
         float playerShootCooldown{};
         float enemyShootCooldown{};
+        float ufoSpawnTimer{};
 
         float enemyDirection{};
         float baseEnemySpeed{};
@@ -37,10 +39,12 @@ namespace GameLogic
             baseEnemySpeed = config.enemyMovementSpeed;
             dropDistance = config.enemyDropDistance;
 
+            projectileCount = 0u;
             score = 0u;
             elapsedTime = 0.0f;
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
+            ufoSpawnTimer = 0.0f;
 
         }
     };

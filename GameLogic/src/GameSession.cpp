@@ -28,7 +28,6 @@ void GameSession::StartLevel() noexcept
 
 	SpawnEnemies();
 	m_gameState = GameLogic::GameState::PLAYING;
-	m_entities.ufo.emplace(GameLogic::UFOState());
 }
 
 void GameSession::Update(float deltaTime) noexcept
@@ -39,17 +38,20 @@ void GameSession::Update(float deltaTime) noexcept
 	CheckLevelCompletion();
 	CheckPlayerDefeat();
 
+	SpawnEnemyProjectile();
+	SpawnUFO();
+
 	UpdateEnemies(deltaTime);
 	UpdateProjectiles(deltaTime);
 	UpdateUFOPosition(deltaTime);
 
-	SpawnEnemyProjectile();
-
 	m_progress.elapsedTime += deltaTime;
+
 	m_progress.playerShootCooldown += deltaTime;
 	m_progress.enemyShootCooldown += deltaTime;
-
-	std::cout << "enemy projectile count " << m_entities.enemyProjectiles.size() << '\n';
+	m_progress.ufoSpawnTimer += deltaTime;
+	
+	std::cout << "ufo timer: " << m_progress.ufoSpawnTimer << '\n';
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
@@ -68,11 +70,6 @@ void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
 			GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::WIDTH_OFFSET
 			- GameLogic::Utils::Constants::SHIP_WIDTH);
 	}
-}
-
-GameLogic::GameProgress GameSession::GetGameProgress() const noexcept
-{
-	return m_progress;
 }
 
 GameLogic::PlayerState GameSession::GetPlayerState() const noexcept
@@ -105,6 +102,11 @@ size_t& GameSession::GetLevel() noexcept
 	return m_currentLevel;
 }
 
+uint32_t GameSession::GetScore() const noexcept
+{
+	return m_progress.score;
+}
+
 void GameSession::Shoot() noexcept
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
@@ -119,7 +121,7 @@ void GameSession::Shoot() noexcept
 	);
 
 	m_progress.playerShootCooldown = 0.0f;
-	std::cout << "projectile count: " << m_entities.playerProjectiles.size() << '\n';
+	++m_progress.projectileCount;
 }
 
 void GameSession::Reset() noexcept
@@ -136,6 +138,17 @@ void GameSession::SpawnEnemies() noexcept
 	{
 		m_entities.enemies.emplace_back(enemyConfig.position, enemyConfig.health, enemyConfig.type);
 	}
+}
+
+void GameSession::SpawnUFO() noexcept
+{
+	if (m_progress.ufoSpawnTimer < m_config.ufoSpawnCooldown
+		|| m_entities.enemies.size() < m_config.countUFOSpawn
+		|| m_entities.ufo) return;
+
+	const float direction = (m_progress.projectileCount % 2) ? 1.0f : -1.0f;
+	m_entities.ufo.emplace(GameLogic::UFOState(direction));
+	m_progress.ufoSpawnTimer = 0.0f;
 }
 
 void GameSession::UpdateEnemies(float deltaTime)
@@ -299,7 +312,14 @@ void GameSession::UpdateUFOPosition(float dt)
 {
 	if (!m_entities.ufo) return;
 
-	m_entities.ufo.value().position.x += (m_config.ufoMovementSpeed * dt);
+	m_entities.ufo.value().position.x += (m_config.ufoMovementSpeed * m_entities.ufo.value().direction * dt);
+
+	// Check if UFO is still on screen
+	if (m_entities.ufo.value().position.x > GameLogic::Utils::Constants::SCREEN_WIDTH ||
+		m_entities.ufo.value().position.x < 0)
+	{
+		m_entities.ufo = std::nullopt;
+	}
 }
 
 void GameSession::CheckPlayerProjectilesCollisions()
@@ -317,10 +337,30 @@ void GameSession::CheckPlayerProjectilesCollisions()
 			const float yStart = enemy.position.y;
 			const float yEnd = yStart + GameLogic::Utils::Constants::SHIP_WIDTH;
 
+			// Collision between projectile and enemy ship
 			if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))
 			{
 				enemy.health = static_cast<int16_t>(std::max(0, enemy.health - m_config.playerProjectileDamage));
 				it = m_entities.playerProjectiles.erase(it);
+				break;
+			}
+
+			// Collision between projectile and UFO
+			if (m_entities.ufo.has_value())
+			{
+				const float xUFOStart = m_entities.ufo.value().position.x;
+				const float xUFOEnd = m_entities.ufo.value().position.x + GameLogic::Utils::Constants::UFO_WIDTH;
+
+				const float yUFOStart = m_entities.ufo.value().position.y;
+				const float yUFOEnd = m_entities.ufo.value().position.y + GameLogic::Utils::Constants::UFO_WIDTH;
+
+				if (GameLogic::Utils::AABBCollision(xUFOStart, xUFOEnd, yUFOStart, yUFOEnd, projectilePos.x, projectilePos.y))
+				{
+					const size_t scoreSize = m_entities.ufo.value().scores.size();
+					m_progress.score += m_entities.ufo.value().scores[(++m_ufoScorePtr)% scoreSize];
+					it = m_entities.playerProjectiles.erase(it);
+					break;
+				}
 			}
 		}
 

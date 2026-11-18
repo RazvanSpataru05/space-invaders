@@ -11,7 +11,7 @@ namespace GameLogic
 {
 	struct UFOState
 	{
-		const std::array <uint16_t, 16> scores 
+		const std::array <uint16_t, 16> scores
 		{
 			100, 50, 50, 100,
 			150, 100, 100, 50,
@@ -19,10 +19,13 @@ namespace GameLogic
 			50, 150, 100, 50
 		};
 		Vector2 position{};
+		float direction{};
 
-		UFOState()
+		UFOState(float d)
 		{
-			position = GameLogic::Utils::Constants::UFO_SPAWN_POSITION;
+			direction = d;
+			if (direction > 0) position = Utils::Constants::UFO_LEFT_SPAWN_POSITION;
+			else               position = Utils::Constants::UFO_RIGHT_SPAWN_POSITION;
 		}
 	};
 }

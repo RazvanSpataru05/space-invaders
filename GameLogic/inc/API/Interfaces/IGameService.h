@@ -28,6 +28,7 @@ namespace GameLogic
         virtual void Reset() noexcept = 0;
 
         [[nodiscard]] virtual PlayerState GetPlayerState()                                    const noexcept = 0;
+        [[nodiscard]] virtual Vector2 GetBossPosition()                                       const noexcept = 0;
         [[nodiscard]] virtual std::optional<UFOState> GetUFOState()                           const noexcept = 0;
         [[nodiscard]] virtual std::span<const EnemyState> GetEnemiesState()                   const noexcept = 0;
         [[nodiscard]] virtual std::span<const ProjectileState> GetPlayerProjectilesState()    const noexcept = 0;

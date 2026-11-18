@@ -4,9 +4,10 @@
 
 namespace GameLogic
 {
-    enum class GameEventType : uint8_t
+    enum class EventType : uint8_t
     {
         LEVEL_COMPLETED,
         GAME_OVER,
+        BOSS_SPAWNED
     };
 }

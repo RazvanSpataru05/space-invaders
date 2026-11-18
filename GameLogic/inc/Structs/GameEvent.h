@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Enums/GameEventType.h"
+#include "Enums/EventType.h"
 
 namespace GameLogic
 {
 	struct GameEvent
 	{
-		GameEventType type{};
+		EventType type{};
 	};
 }

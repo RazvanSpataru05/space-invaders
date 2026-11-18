@@ -331,6 +331,17 @@ namespace
 		DrawTextureInBox(g_ufoShipTexture, x, y, kUfoBoxSize, false);
 	}
 
+	void DrawBoss(GameLogic::Vector2 position)
+	{
+		const EnemySprite& sprite = g_enemySprites[g_enemySprites.size() - 1];
+		if (sprite.texture.id == 0)
+		{
+			DrawFallbackSquare(position.x, position.y, kBossBoxSize, RED);
+			return;
+		}
+		DrawTextureInBox(sprite.texture, position.x, position.y, sprite.boxSize, false);
+	}
+
 	void DrawEnemyShip(const GameLogic::EnemyState& enemy)
 	{
 		const size_t index = static_cast<size_t>(enemy.type);
@@ -444,9 +455,10 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 {
 	switch (event.type)
 	{
-	case GameLogic::GameEventType::LEVEL_COMPLETED:     m_currentScreen = ScreenType::VICTORY;       break;
-	case GameLogic::GameEventType::GAME_OVER:           m_currentScreen = ScreenType::GAME_OVER;     break;
-	default:                                                                                         break;
+	case GameLogic::EventType::LEVEL_COMPLETED:     m_currentScreen = ScreenType::VICTORY;       break;
+	case GameLogic::EventType::GAME_OVER:           m_currentScreen = ScreenType::GAME_OVER;     break;
+	case GameLogic::EventType::BOSS_SPAWNED:		DrawBoss(m_gameService->GetBossPosition());  break;
+	default:                                                                                     break;
 	}
 }
 
@@ -692,6 +704,11 @@ void GameUI::RenderGameplay()
 
 	for (const auto& enemy : m_gameService->GetEnemiesState())
 	{
+		if (enemy.type == GameLogic::EnemyType::BOSS)
+		{
+			DrawBoss(m_gameService->GetBossPosition());
+		}
+
 		DrawEnemyShip(enemy);
 	}
 

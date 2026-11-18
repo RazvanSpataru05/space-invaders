@@ -31,6 +31,7 @@ public:
 	void Reset() noexcept override;
 
 	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()			const noexcept override;
+	[[nodiscard]] GameLogic::Vector2						    GetBossPosition()			const noexcept override;
 	[[nodiscard]] std::optional<GameLogic::UFOState>			GetUFOState()				const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()			const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;

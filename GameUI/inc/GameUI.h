@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Enums/EnemyType.h"
-#include "Enums/GameEventType.h"
+#include "Enums/EventType.h"
 
 #include "API/Interfaces/IGameEventObserver.h"
 #include "API/Interfaces/IGameService.h"

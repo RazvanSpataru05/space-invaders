@@ -69,7 +69,7 @@
     <ClInclude Include="inc\Enums\EnemyType.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Enums\GameEventType.h">
+    <ClInclude Include="inc\Enums\EventType.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
     <ClInclude Include="inc\Enums\PowerUpType.h">

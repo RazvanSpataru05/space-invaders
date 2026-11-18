@@ -13,6 +13,7 @@ namespace GameLogic::Utils::Constants
 
 	constexpr float SHIP_WIDTH{ 40.0f };
 	constexpr float UFO_WIDTH{ 50.0f };
+	constexpr float BOSS_WIDTH{ 150.0f };
 
 	constexpr float SCREEN_HEIGHT{ 720.0f };
 	constexpr float SCREEN_WIDTH{ 960.0f };

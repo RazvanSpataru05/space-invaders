@@ -20,6 +20,8 @@ namespace GameLogic
         float enemyDirection{};
         float baseEnemySpeed{};
         float dropDistance{};
+        
+        bool bossSpawned{};
 
         GameProgress(const GameConfig& config)
         {
@@ -45,6 +47,8 @@ namespace GameLogic
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
             ufoSpawnTimer = 0.0f;
+
+            bossSpawned = false;
 
         }
     };

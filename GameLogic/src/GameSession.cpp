@@ -50,8 +50,6 @@ void GameSession::Update(float deltaTime) noexcept
 	m_progress.playerShootCooldown += deltaTime;
 	m_progress.enemyShootCooldown += deltaTime;
 	m_progress.ufoSpawnTimer += deltaTime;
-	
-	std::cout << "ufo timer: " << m_progress.ufoSpawnTimer << '\n';
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
@@ -75,6 +73,11 @@ void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
 GameLogic::PlayerState GameSession::GetPlayerState() const noexcept
 {
 	return m_entities.player;
+}
+
+GameLogic::Vector2 GameSession::GetBossPosition() const noexcept
+{
+	return m_entities.enemies[0].position;
 }
 
 std::optional<GameLogic::UFOState> GameSession::GetUFOState() const noexcept
@@ -209,10 +212,20 @@ void GameSession::CheckLevelCompletion() noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
+	if (m_entities.enemies.empty() && m_config.levels[m_currentLevel].hasBoss
+		&& !m_progress.bossSpawned)
+	{
+		std::cout << "Boss has spawned\n";
+		m_progress.bossSpawned = true;
+		SpawnBoss();
+		NotifyObservers({ GameLogic::EventType::BOSS_SPAWNED });
+		return;
+	}
+
 	if (m_entities.enemies.empty())
 	{
 		m_gameState = GameLogic::GameState::VICTORY;
-		NotifyObservers({ GameLogic::GameEventType::LEVEL_COMPLETED });
+		NotifyObservers({ GameLogic::EventType::LEVEL_COMPLETED });
 	}
 }
 
@@ -223,7 +236,7 @@ void GameSession::CheckPlayerDefeat() noexcept
 	if (m_entities.player.livesCount == 0u)
 	{
 		m_gameState = GameLogic::GameState::GAME_OVER;
-		NotifyObservers({ GameLogic::GameEventType::GAME_OVER });
+		NotifyObservers({ GameLogic::EventType::GAME_OVER });
 	}
 }
 
@@ -332,10 +345,14 @@ void GameSession::CheckPlayerProjectilesCollisions()
 		for (auto& enemy : m_entities.enemies)
 		{
 			const float xStart = enemy.position.x;
-			const float xEnd = enemy.position.x + GameLogic::Utils::Constants::SHIP_WIDTH;
+			const float xEnd = enemy.type == GameLogic::EnemyType::BOSS
+				? enemy.position.x + GameLogic::Utils::Constants::BOSS_WIDTH
+				: enemy.position.x + GameLogic::Utils::Constants::SHIP_WIDTH;
 
 			const float yStart = enemy.position.y;
-			const float yEnd = yStart + GameLogic::Utils::Constants::SHIP_WIDTH;
+			const float yEnd = enemy.type == GameLogic::EnemyType::BOSS
+				? yStart + GameLogic::Utils::Constants::BOSS_WIDTH
+				: yStart + GameLogic::Utils::Constants::SHIP_WIDTH;
 
 			// Collision between projectile and enemy ship
 			if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))

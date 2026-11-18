@@ -164,7 +164,7 @@
     <ClInclude Include="inc\API\Structs\GameProgress.h" />
     <ClInclude Include="inc\API\Structs\Vector2.h" />
     <ClInclude Include="inc\Enums\EnemyType.h" />
-    <ClInclude Include="inc\Enums\GameEventType.h" />
+    <ClInclude Include="inc\Enums\EventType.h" />
     <ClInclude Include="inc\Enums\PowerUpType.h" />
     <ClInclude Include="inc\Enums\ProjectileOwner.h" />
     <ClInclude Include="inc\GameConfigFactory.h" />

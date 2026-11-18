@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interfaces/IGameService.h"
+#include "API/Interfaces/IGameService.h"
 
 #include "GameSession.h"
 

@@ -10,9 +10,6 @@
     <Filter Include="inc\Enums">
       <UniqueIdentifier>{f1c3666b-f76a-471c-8b21-d8c21a8c9d19}</UniqueIdentifier>
     </Filter>
-    <Filter Include="inc\Interfaces">
-      <UniqueIdentifier>{8591b6ab-9202-45c1-b41f-c749d2cb3bfb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="inc\Structs">
       <UniqueIdentifier>{789e332b-ab69-4636-9342-132fb10b8a31}</UniqueIdentifier>
     </Filter>
@@ -22,6 +19,18 @@
     <Filter Include="src\Utils">
       <UniqueIdentifier>{89bbc331-4412-450a-b094-0a5ca397c97e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="inc\API">
+      <UniqueIdentifier>{132de78d-172c-47eb-8ad8-511a52377c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\API\Enums">
+      <UniqueIdentifier>{1a5168bf-65c0-4938-94d3-8c471f5b86ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\API\Structs">
+      <UniqueIdentifier>{ea6de071-9180-473f-b62d-d8cded7e1c10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\API\Interfaces">
+      <UniqueIdentifier>{3c730cb9-7076-478d-ba0d-17c70d3edf1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\GameSession.h">
@@ -30,25 +39,13 @@
     <ClInclude Include="inc\Utils\Constants.h">
       <Filter>inc\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Structs\DifficultyConfig.h">
-      <Filter>inc\Structs</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Structs\EnemyConfig.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\EnemyState.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Structs\GameConfig.h">
-      <Filter>inc\Structs</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameEntities.h">
-      <Filter>inc\Structs</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Structs\GameEvent.h">
-      <Filter>inc\Structs</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Structs\GameProgress.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\LevelConfig.h">
@@ -63,9 +60,6 @@
     <ClInclude Include="inc\Structs\ProjectileState.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Structs\Vector2.h">
-      <Filter>inc\Structs</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utils\EnemyUtils.h">
       <Filter>inc\Utils</Filter>
     </ClInclude>
@@ -78,35 +72,44 @@
     <ClInclude Include="inc\Enums\GameEventType.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Enums\GameState.h">
-      <Filter>inc\Enums</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Enums\PowerUpType.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
     <ClInclude Include="inc\Enums\ProjectileOwner.h">
       <Filter>inc\Enums</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Enums\Direction.h">
-      <Filter>inc\Enums</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utils\PlayerUtils.h">
       <Filter>inc\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Interfaces\IGameEventObserver.h">
-      <Filter>inc\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Interfaces\IGameEventSource.h">
-      <Filter>inc\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Interfaces\IGameService.h">
-      <Filter>inc\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\UFOState.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
     <ClInclude Include="inc\GameServiceFactory.h">
       <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Enums\GameState.h">
+      <Filter>inc\API\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Interfaces\IGameEventObserver.h">
+      <Filter>inc\API\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Interfaces\IGameService.h">
+      <Filter>inc\API\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Structs\GameConfig.h">
+      <Filter>inc\API\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Structs\GameEntities.h">
+      <Filter>inc\API\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Structs\GameProgress.h">
+      <Filter>inc\API\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Structs\Vector2.h">
+      <Filter>inc\API\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\API\Enums\Direction.h">
+      <Filter>inc\API\Enums</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

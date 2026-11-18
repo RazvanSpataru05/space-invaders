@@ -2,7 +2,7 @@
 
 #include "Enums/EnemyType.h"
 
-#include "Structs/GameConfig.h"
+#include "API/Structs/GameConfig.h"
 
 #include "Utils/Constants.h"
 

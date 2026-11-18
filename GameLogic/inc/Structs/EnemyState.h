@@ -2,7 +2,7 @@
 
 #include "Enums/EnemyType.h"
 
-#include "Structs/Vector2.h"
+#include "API/Structs/Vector2.h"
 
 #include <cstdint>
 

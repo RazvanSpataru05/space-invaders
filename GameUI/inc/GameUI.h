@@ -3,11 +3,12 @@
 #include "Enums/EnemyType.h"
 #include "Enums/GameEventType.h"
 
-#include "Interfaces/IGameEventObserver.h"
-#include "Interfaces/IGameService.h"
+#include "API/Interfaces/IGameEventObserver.h"
+#include "API/Interfaces/IGameService.h"
+
+#include "API/Structs/GameProgress.h"
 
 #include "Structs/GameEvent.h"
-#include "Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 
@@ -30,7 +31,7 @@
 class GameUI final : public GameLogic::IGameEventObserver
 {
 public:
-    explicit GameUI(GameLogic::IGameService& gameService);
+    explicit GameUI(std::unique_ptr<GameLogic::IGameService> gameService);
 
     ~GameUI() override;
 
@@ -66,7 +67,7 @@ private:
 
 private:
 
-    GameLogic::IGameService& m_gameService;
+    std::unique_ptr<GameLogic::IGameService> m_gameService;
     ScreenType m_currentScreen = ScreenType::MAIN_MENU;
 
     StarField m_starField;

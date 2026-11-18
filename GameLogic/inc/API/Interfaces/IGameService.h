@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Enums/Direction.h"
-#include "Enums/GameState.h"
+#include "API/Enums/Direction.h"
+#include "API/Enums/GameState.h"
 
-#include "Interfaces/IGameEventSource.h"
+#include "API/Interfaces/IGameEventSource.h"
 
-#include "Structs/GameProgress.h"
+#include "API/Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 #include "Structs/ProjectileState.h"

@@ -1,10 +1,9 @@
 #include "GameUI.h"
-#include "GameSession.h"
+#include "GameServiceFactory.h"
 
 int main()
 {
-	GameSession gameSession;
-	GameUI gameUI{ gameSession };
+	GameUI gameUI = GameUI(GameServiceFactory::CreateGameService());
 
 	gameUI.Initialize();
 	gameUI.Run();

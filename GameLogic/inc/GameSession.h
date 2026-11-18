@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Enums/GameState.h"
+#include "API/Enums/GameState.h"
 
-#include "Interfaces/IGameEventObserver.h"
-#include "Interfaces/IGameService.h"
+#include "API/Interfaces/IGameEventObserver.h"
+#include "API/Interfaces/IGameService.h"
 
-#include "Structs/GameConfig.h"
-#include "Structs/GameEntities.h"
-#include "Structs/GameProgress.h"
-#include "Structs/Vector2.h"
+#include "API/Structs/GameConfig.h"
+#include "API/Structs/GameEntities.h"
+#include "API/Structs/GameProgress.h"
+#include "API/Structs/Vector2.h"
 
 #include "Utils/GameConfigFactory.h"
 #include "Utils/PlayerUtils.h"

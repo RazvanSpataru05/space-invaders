@@ -357,15 +357,15 @@ namespace
 	}
 }
 
-GameUI::GameUI(GameLogic::IGameService& gameService)
-	: m_gameService{ gameService }
+GameUI::GameUI(std::unique_ptr<GameLogic::IGameService> gameService)
+	: m_gameService{ std::move(gameService)}
 {
-	m_gameService.Subscribe(this);
+	m_gameService->Subscribe(this);
 }
 
 GameUI::~GameUI()
 {
-	m_gameService.Unsubscribe(this);
+	m_gameService->Unsubscribe(this);
 
 	if (m_isInitialized && IsWindowReady())
 	{
@@ -418,7 +418,7 @@ void GameUI::Run()
 
 		if (m_currentScreen == ScreenType::GAMEPLAY)
 		{
-			m_gameService.Update(deltaTime);
+			m_gameService->Update(deltaTime);
 		}
 
 		Render();
@@ -443,7 +443,7 @@ void GameUI::ShowVerdict(ScreenType verdictScreen)
 
 void GameUI::StartSelectedGame()
 {
-	m_gameService.StartLevel();
+	m_gameService->StartLevel();
 	m_currentScreen = ScreenType::GAMEPLAY;
 }
 
@@ -486,7 +486,7 @@ void GameUI::HandleMainMenuInput()
 		case MainMenuItem::PLAY:
 		{
 			m_currentScreen = ScreenType::LEVEL_SELECTION;
-			m_gameService.GetLevel() = 0;
+			m_gameService->GetLevel() = 0;
 			break;
 		}
 		case MainMenuItem::EXIT: m_shouldExit = true; break;
@@ -498,11 +498,11 @@ void GameUI::HandleLevelSelectionInput()
 {
 	if (IsLeftPressed())
 	{
-		m_gameService.GetLevel() = StepSelection(m_gameService.GetLevel(), -1, kLevelLabels.size());
+		m_gameService->GetLevel() = StepSelection(m_gameService->GetLevel(), -1, kLevelLabels.size());
 	}
 	if (IsRightPressed())
 	{
-		m_gameService.GetLevel() = StepSelection(m_gameService.GetLevel(), 1, kLevelLabels.size());
+		m_gameService->GetLevel() = StepSelection(m_gameService->GetLevel(), 1, kLevelLabels.size());
 	}
 
 	if (IsBackPressed())
@@ -519,7 +519,7 @@ void GameUI::HandleLevelSelectionInput()
 
 void GameUI::HandleVerdictInput()
 {
-	const auto items = GetVerdictItems(m_currentScreen == ScreenType::VICTORY, m_gameService.GetLevel());
+	const auto items = GetVerdictItems(m_currentScreen == ScreenType::VICTORY, m_gameService->GetLevel());
 
 	if (IsUpPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, -1, items.size());
 	if (IsDownPressed()) m_selectedVerdictOption = StepSelection(m_selectedVerdictOption, 1, items.size());
@@ -528,7 +528,7 @@ void GameUI::HandleVerdictInput()
 	{
 		switch (items[static_cast<size_t>(m_selectedVerdictOption)])
 		{
-		case VerdictMenuItem::NEXT_LEVEL:	++m_gameService.GetLevel(); StartSelectedGame();     break;
+		case VerdictMenuItem::NEXT_LEVEL:	++m_gameService->GetLevel(); StartSelectedGame();     break;
 		case VerdictMenuItem::RETRY:        StartSelectedGame();								 break;
 		case VerdictMenuItem::MAIN_MENU:    m_currentScreen = ScreenType::MAIN_MENU;			 break;
 		}
@@ -547,16 +547,16 @@ void GameUI::HandleGameplayInput()
 
 	if (IsLeftHold())
 	{
-		m_gameService.MovePlayer(GameLogic::Direction::LEFT);
+		m_gameService->MovePlayer(GameLogic::Direction::LEFT);
 	}
 	if (IsRightHold())
 	{
-		m_gameService.MovePlayer(GameLogic::Direction::RIGHT);
+		m_gameService->MovePlayer(GameLogic::Direction::RIGHT);
 	}
 
 	if (IsSpacePressed())
 	{
-		m_gameService.Shoot();
+		m_gameService->Shoot();
 	}
 }
 
@@ -579,7 +579,7 @@ void GameUI::HandlePauseInput()
 		case PauseMenuItem::RESUME:     m_currentScreen = ScreenType::GAMEPLAY;  break;
 		case PauseMenuItem::RETRY:      StartSelectedGame();                     break;
 		case PauseMenuItem::MAIN_MENU:
-			m_gameService.Reset();
+			m_gameService->Reset();
 			m_currentScreen = ScreenType::MAIN_MENU;
 			break;
 		}
@@ -637,7 +637,7 @@ void GameUI::RenderLevelSelection() const
 	{
 		const char* label = kLevelLabels[i];
 		const int boxX = firstBoxX + static_cast<int>(i) * (boxSize + boxGap);
-		const bool isSelected = (i == m_gameService.GetLevel());
+		const bool isSelected = (i == m_gameService->GetLevel());
 
 		if (isSelected)
 		{
@@ -664,23 +664,23 @@ void GameUI::RenderLevelSelection() const
 
 void GameUI::RenderGameplay()
 {
-	const int livesLeft = m_gameService.GetPlayerState().livesCount;
-	DrawHUD(m_gameService.GetGameProgress().score, kLevelLabels[m_gameService.GetLevel()], livesLeft);
+	const int livesLeft = m_gameService->GetPlayerState().livesCount;
+	DrawHUD(m_gameService->GetGameProgress().score, kLevelLabels[m_gameService->GetLevel()], livesLeft);
 
-	const Vector2 playerPosition{ m_gameService.GetPlayerState().position.x, m_gameService.GetPlayerState().position.y };
+	const Vector2 playerPosition{ m_gameService->GetPlayerState().position.x, m_gameService->GetPlayerState().position.y };
 	DrawPlayerShip(playerPosition.x, playerPosition.y);
 
-	for (const auto& enemy : m_gameService.GetEnemiesState())
+	for (const auto& enemy : m_gameService->GetEnemiesState())
 	{
 		DrawEnemyShip(enemy);
 	}
 
-	for (const auto& projectile : m_gameService.GetPlayerProjectilesState())
+	for (const auto& projectile : m_gameService->GetPlayerProjectilesState())
 	{
 		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, RED);
 	}
 
-	for (const auto& projectile : m_gameService.GetEnemyProjectilesState())
+	for (const auto& projectile : m_gameService->GetEnemyProjectilesState())
 	{
 		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, GREEN);
 	}
@@ -701,19 +701,19 @@ void GameUI::RenderPause()
 
 void GameUI::RenderGameOver() const
 {
-	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService.GetLevel()]);
-	const auto labels = GetVerdictLabels(GetVerdictItems(false, m_gameService.GetLevel()));
+	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService->GetLevel()]);
+	const auto labels = GetVerdictLabels(GetVerdictItems(false, m_gameService->GetLevel()));
 
-	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService.GetGameProgress().score,
+	DrawVerdictScreen("GAME OVER", "THE INVADERS HAVE LANDED", details, m_gameService->GetGameProgress().score,
 		labels, m_selectedVerdictOption);
 }
 
 void GameUI::RenderVictory() const
 {
-	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService.GetLevel()]);
-	const auto labels = GetVerdictLabels(GetVerdictItems(true, m_gameService.GetLevel()));
+	const char* details = TextFormat("LEVEL %s", kLevelLabels[m_gameService->GetLevel()]);
+	const auto labels = GetVerdictLabels(GetVerdictItems(true, m_gameService->GetLevel()));
 
-	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService.GetGameProgress().score,
+	DrawVerdictScreen("VICTORY", "EARTH IS SAFE", details, m_gameService->GetGameProgress().score,
 		labels, m_selectedVerdictOption);
 
 }

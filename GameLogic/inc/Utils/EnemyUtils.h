@@ -1,10 +1,11 @@
 #pragma once
 
+#include "API/Structs/GameProgress.h"
+#include "API/Structs/GameConfig.h"
+
 #include "Enums/EnemyType.h"
 
 #include "Structs/EnemyState.h"
-#include "Structs/GameProgress.h"
-#include "Structs/GameConfig.h"
 
 #include "Utils/Constants.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Structs/GameConfig.h"
+#include "API/Structs/GameConfig.h"
 
 #include "Utils/EnemyUtils.h"
 	

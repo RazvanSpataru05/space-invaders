@@ -203,7 +203,6 @@ namespace
 	constexpr int kHudTextY = 20;
 	constexpr int kHudMarginX = 30;
 	constexpr int kHudDividerY = 60;
-	constexpr int kGroundY = 676;
 
 	// Pixel heart used for the lives counter ('#' = pixel).
 	constexpr std::array<const char*, 7> kHeartSprite{
@@ -243,12 +242,17 @@ namespace
 	}
 
 	// Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
+	constexpr float kCellHitboxSize = 5.0f;
+	constexpr float kPowerUpHitboxSize = 30.0f;
 	constexpr float kHitboxSize = 40.0f;
-	constexpr float kUfoBoxSize = 50.0f;
-	constexpr float kBossBoxSize = 150.0f; 
+	constexpr float kUfoHitboxSize = 50.0f;
+	constexpr float kBossHitboxSize = 150.0f; 
 
 	constexpr int kProjectileWidth = 2;
 	constexpr int kProjectileHeight = 10;
+
+	constexpr int kWallRows = 16;
+	constexpr int kWallCols = 22;
 
 	struct Sprite
 	{
@@ -260,8 +264,8 @@ namespace
 	};
 
 	Sprite g_playerSprite{ "Assets/Sprites/player_ship.png", kHitboxSize, kPrimaryGreen, {}, true };
-	Sprite g_ufoSprite{ "Assets/Sprites/ufo.png", kUfoBoxSize, MAGENTA };
-	Sprite g_bossSprite{ "Assets/Sprites/boss.png", kBossBoxSize, RED };
+	Sprite g_ufoSprite{ "Assets/Sprites/ufo.png", kUfoHitboxSize, MAGENTA };
+	Sprite g_bossSprite{ "Assets/Sprites/boss.png", kBossHitboxSize, RED };
 
 	std::array<Sprite, 3> g_enemySprites{ {
 
@@ -270,6 +274,15 @@ namespace
 	{ "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
 	} };
 
+	std::array<Sprite, 4> g_powerUpsSprites{ {
+
+	{ "Assets/PowerUps/extra_life.png",		kPowerUpHitboxSize,  WHITE, {} },
+	{ "Assets/PowerUps/bonus_score.png",	kPowerUpHitboxSize,  WHITE, {} },
+	{ "Assets/PowerUps/rapid_fire.png",		kPowerUpHitboxSize,  WHITE, {} },
+	{ "Assets/PowerUps/multi_shot.png",		kPowerUpHitboxSize,  WHITE, {} },
+	} };
+
+
 	void ForEachSprite(auto&& fn)
 	{
 		fn(g_playerSprite);
@@ -277,6 +290,11 @@ namespace
 		fn(g_bossSprite);
 
 		for (Sprite& sprite : g_enemySprites)
+		{
+			fn(sprite);
+		}
+
+		for (Sprite& sprite : g_powerUpsSprites)
 		{
 			fn(sprite);
 		}
@@ -355,12 +373,39 @@ namespace
 		}
 	}
 
+	void DrawPowerUps(std::span<const GameLogic::PowerUpPickup> powerUps)
+	{
+		for (const auto& powerUp : powerUps)
+		{
+			DrawSprite(g_powerUpsSprites[static_cast<size_t>(powerUp.type)], powerUp.position);
+		}
+	}
+
+	void DrawWalls(std::span<const GameLogic::WallState> wallsState)
+	{
+		for (const auto& wall : wallsState)
+		{
+			for (size_t row = 0; row < kWallRows; ++row)
+			{
+				for (size_t col = 0; col < kWallCols; ++col)
+				{
+					if (wall.cells[row * kWallCols + col])
+					{
+						const float x = wall.position.x + col * kCellHitboxSize;
+						const float y = wall.position.y + row * kCellHitboxSize;
+						DrawRectangle(static_cast<int>(x), static_cast<int>(y), kCellHitboxSize, kCellHitboxSize, GREEN);
+					}
+				}
+			}
+		}
+	}
+
 	void DrawBoss(GameLogic::Vector2 position)
 	{
 		const Sprite& sprite = g_enemySprites[g_enemySprites.size() - 1];
 		if (sprite.texture.id == 0)
 		{
-			DrawFallbackSquare(position.x, position.y, kBossBoxSize, RED);
+			DrawFallbackSquare(position.x, position.y, kBossHitboxSize, RED);
 			return;
 		}
 		DrawTextureInBox(sprite.texture, position.x, position.y, sprite.boxSize, false);
@@ -402,7 +447,6 @@ namespace
 		}
 
 		DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
-		DrawRectangle(0, kGroundY, screenWidth, 4, kPrimaryGreen);
 	}
 }
 
@@ -776,14 +820,12 @@ void GameUI::RenderGameplay()
 		DrawSprite(g_bossSprite, boss->position);
 	}
 
-	for (const auto& powerUp : m_gameService->GetPowerUpPickups())
-	{
-		DrawRectangle(powerUp.position.x, powerUp.position.y, 30, 30, WHITE);
-	}
-
+	
 	DrawEnemies(m_gameService->GetEnemiesState());
+	DrawWalls(m_gameService->GetWallsState());
 	DrawProjectiles(m_gameService->GetPlayerProjectilesState(), RED);
 	DrawProjectiles(m_gameService->GetEnemyProjectilesState(), GREEN);
+	DrawPowerUps(m_gameService->GetPowerUpPickups());
 }
 
 void GameUI::RenderPause()

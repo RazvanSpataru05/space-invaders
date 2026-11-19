@@ -53,6 +53,7 @@ void GameSession::Update(float deltaTime) noexcept
 	m_progress.playerShootCooldown += deltaTime;
 	m_progress.enemyShootCooldown += deltaTime;
 	m_progress.ufoSpawnTimer += deltaTime;
+	m_progress.playerHitCooldown += deltaTime;
 }
 
 void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
@@ -106,6 +107,11 @@ std::span<const GameLogic::ProjectileState> GameSession::GetEnemyProjectilesStat
 std::span<const GameLogic::PowerUpPickup> GameSession::GetPowerUpPickups() const noexcept
 {
 	return m_entities.powerUpPickups;
+}
+
+std::span<const GameLogic::WallState> GameSession::GetWallsState() const noexcept
+{
+	return m_entities.wallsState;
 }
 
 size_t& GameSession::GetLevel() noexcept
@@ -163,6 +169,7 @@ void GameSession::Reset() noexcept
 {
 	m_progress.Reset(m_config);
 	m_entities.Reset(m_config.playerLivesCount);
+	InitializeWalls();
 
 	m_ufoScorePtr = 0;
 }
@@ -206,6 +213,39 @@ void GameSession::SpawnUFO() noexcept
 	m_progress.ufoLeaving = false;
 
 	NotifyObservers({ GameLogic::EventType::UFO_SPAWNED });
+}
+
+void GameSession::InitializeWalls()
+{
+	using namespace GameLogic;
+
+	Vector2 wallPos = Utils::Constants::FIRST_WALL_POSITION;
+
+	for (auto& wall : m_entities.wallsState)
+	{
+		wall.position = wallPos;
+		for (size_t row = 0; row < Utils::Constants::WALL_ROWS; ++row)
+		{
+			for (size_t col = 0; col < Utils::Constants::WALL_COLS; ++col)
+			{
+				wall.cells[row * Utils::Constants::WALL_COLS + col] = Utils::Constants::WALL_TEMPLATE[row][col] == '#';
+			}
+		}
+		wallPos.x += (Utils::Constants::WALL_COLS * Utils::Constants::CELL_SIZE) + Utils::Constants::WALLS_GAP;
+	}
+}
+
+void GameSession::DestroyCells(GameLogic::WallState& wall, size_t row, size_t col)
+{
+	using namespace GameLogic;
+	using namespace Utils::Constants;
+
+	wall.cells[row * WALL_COLS + col] = false;
+
+	if (Utils::IsValidIndex(row - 1, col, WALL_ROWS, WALL_COLS)) wall.cells[(row - 1) * WALL_COLS + col] = false;
+	if (Utils::IsValidIndex(row + 1, col, WALL_ROWS, WALL_COLS)) wall.cells[(row + 1) * WALL_COLS + col] = false;
+	if (Utils::IsValidIndex(row, col - 1, WALL_ROWS, WALL_COLS)) wall.cells[row * WALL_COLS + (col - 1)] = false;
+	if (Utils::IsValidIndex(row, col + 1, WALL_ROWS, WALL_COLS)) wall.cells[row * WALL_COLS + (col + 1)] = false;
 }
 
 void GameSession::UpdateEnemies(float deltaTime)
@@ -487,6 +527,24 @@ void GameSession::CheckPlayerProjectilesCollisions()
 				}
 			}
 
+			for (auto& wall : m_entities.wallsState)
+			{
+				for (size_t row = 0; row < Constants::WALL_ROWS; ++row)
+				{
+					for (size_t col = 0; col < Constants::WALL_COLS; ++col)
+					{
+						if (wall.cells[row * Constants::WALL_COLS + col])
+						{
+							const float x = wall.position.x + col * Constants::CELL_SIZE;
+							const float y = wall.position.y + row * Constants::CELL_SIZE;
+							const Bounds bounds = GetBounds(GameLogic::Vector2(x, y), Constants::CELL_SIZE);
+
+							if (bounds.Overlaps(projectile.position)) return true;
+						}
+					}
+				}
+			}
+
 			if (m_entities.ufo
 				&& GetBounds(m_entities.ufo->position, Constants::UFO_WIDTH).Overlaps(projectile.position))
 			{
@@ -513,15 +571,43 @@ void GameSession::CheckPlayerProjectilesCollisions()
 
 void GameSession::CheckEnemyProjectilesCollisions()
 {
-	const auto playerBounds = GetBounds(m_entities.player.position, GameLogic::Utils::Constants::SHIP_WIDTH);
+	using namespace GameLogic::Utils;
+
+	const auto playerBounds = GetBounds(m_entities.player.position, Constants::SHIP_WIDTH);
 
 	std::erase_if(m_entities.enemyProjectiles, [&](const GameLogic::ProjectileState& projectile)
 		{
-			if (!playerBounds.Overlaps(projectile.position)) return false;
+			if (playerBounds.Overlaps(projectile.position)
+				&& m_progress.playerHitCooldown < m_config.playerHitCooldown)
+			{
+				m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
+				m_progress.playerHitCooldown = 0.0f;
+				NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
+				return true;
+			}
 
-			m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
-			NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
-			return true;
+			for (auto& wall : m_entities.wallsState)
+			{
+				for (size_t row = 0; row < Constants::WALL_ROWS; ++row)
+				{
+					for (size_t col = 0; col < Constants::WALL_COLS; ++col)
+					{
+						if (wall.cells[row * Constants::WALL_COLS + col])
+						{
+							const float x = wall.position.x + col * Constants::CELL_SIZE;
+							const float y = wall.position.y + row * Constants::CELL_SIZE;
+							const Bounds bounds = GetBounds(GameLogic::Vector2(x, y), Constants::CELL_SIZE);
+
+							if (bounds.Overlaps(projectile.position))
+							{
+								DestroyCells(wall, row, col);
+								return true;
+							}
+						}
+					}
+				}
+			}
+			return false;
 		});
 }
 
@@ -539,68 +625,76 @@ void GameSession::CheckPlayerPowerUpCollisions()
 		});
 }
 
-void GameSession::SpawnEnemyProjectile()
+void GameSession::SpawnEnemyProjectile() noexcept
 {
+	using namespace GameLogic;
+
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_progress.enemyShootCooldown < m_config.enemyShootCooldown
 		|| m_entities.enemyProjectiles.size() >= m_config.maxEnemyProjectileCount
 		|| m_entities.enemies.empty()
-		|| m_gameState != GameLogic::GameState::PLAYING) return;
+		|| m_gameState != GameState::PLAYING) return;
 
-	if (const auto result = GameLogic::Utils::GetUniformEnemyDistribution(m_entities.enemies.size());
+	if (const auto result = Utils::GetUniformEnemyDistribution(m_entities.enemies.size());
 		result.has_value())
 	{
 		auto rd = result.value();
 		const size_t index = rd(m_generator);
+		
+		const float x = m_entities.enemies[index].position.x;
+		const float y = m_entities.enemies[index].position.y;
 
-		switch (m_entities.enemies[index].type)
+		m_entities.enemyProjectiles.emplace_back(
+			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.5f, y + Utils::Constants::SHIP_WIDTH),
+			Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
+			GameLogic::ProjectileOwner::ENEMY,
+			m_config.enemyProjectileDamage);
+
+		if (m_entities.enemies[index].type == EnemyType::SHOOTER)
 		{
-		case GameLogic::EnemyType::NORMAL:
-		case GameLogic::EnemyType::ARMORED:
-		case GameLogic::EnemyType::SHOOTER: SpawnNormalEnemyProjectile(index); break;
+			m_entities.enemyProjectiles.emplace_back(
+				Vector2(x, y + Utils::Constants::SHIP_WIDTH),
+				Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
+				GameLogic::ProjectileOwner::ENEMY,
+				m_config.enemyProjectileDamage);
+
+			m_entities.enemyProjectiles.emplace_back(
+				Vector2(x + Utils::Constants::SHIP_WIDTH, y + Utils::Constants::SHIP_WIDTH),
+				Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
+				GameLogic::ProjectileOwner::ENEMY,
+				m_config.enemyProjectileDamage);
 		}
 	}
 
 	m_progress.enemyShootCooldown = 0.0f;
 }
 
-void GameSession::SpawnNormalEnemyProjectile(size_t index)
+void GameSession::SpawnBossProjectile() noexcept
 {
-	m_entities.enemyProjectiles.emplace_back(
-		GameLogic::Vector2(m_entities.enemies[index].position.x +
-			GameLogic::Utils::Constants::SHIP_WIDTH * 0.5f,
-			m_entities.enemies[index].position.y + GameLogic::Utils::Constants::SHIP_WIDTH),
-		GameLogic::Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-		GameLogic::ProjectileOwner::ENEMY,
-		m_config.enemyProjectileDamage);
-}
+	using namespace GameLogic;
 
-void GameSession::SpawnBossProjectile()
-{
 	if (m_progress.enemyShootCooldown < m_config.enemyShootCooldown) return;
 
-	const GameLogic::Vector2 position = m_entities.boss.value().position;
+	const GameLogic::Vector2 position = m_entities.boss->position;
 
 	m_entities.enemyProjectiles.emplace_back(
-		GameLogic::Vector2(position.x + GameLogic::Utils::Constants::BOSS_WIDTH * 0.5f,
-			position.y + GameLogic::Utils::Constants::BOSS_WIDTH),
-		GameLogic::Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-		GameLogic::ProjectileOwner::ENEMY,
+		Vector2(position.x + Utils::Constants::BOSS_WIDTH * 0.5f, position.y + Utils::Constants::BOSS_WIDTH),
+		Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
+		ProjectileOwner::ENEMY,
 		m_config.enemyProjectileDamage);
 
-	if (m_entities.boss.value().health < static_cast<int16_t>(m_config.bossEnemyHealth * 0.5f))
+	if (m_entities.boss->health < static_cast<int16_t>(m_config.bossEnemyHealth * 0.5f))
 	{
 		m_entities.enemyProjectiles.emplace_back(
-			GameLogic::Vector2(position.x, position.y + GameLogic::Utils::Constants::BOSS_WIDTH),
-			GameLogic::Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-			GameLogic::ProjectileOwner::ENEMY,
+			Vector2(position.x, position.y + Utils::Constants::BOSS_WIDTH),
+			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
+			ProjectileOwner::ENEMY,
 			m_config.enemyProjectileDamage);
 
 		m_entities.enemyProjectiles.emplace_back(
-			GameLogic::Vector2(position.x + GameLogic::Utils::Constants::BOSS_WIDTH,
-				position.y + GameLogic::Utils::Constants::BOSS_WIDTH),
-			GameLogic::Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-			GameLogic::ProjectileOwner::ENEMY,
+			Vector2(position.x + Utils::Constants::BOSS_WIDTH, position.y + Utils::Constants::BOSS_WIDTH),
+			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
+			ProjectileOwner::ENEMY,
 			m_config.enemyProjectileDamage);
 	}
 

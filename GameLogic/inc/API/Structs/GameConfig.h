@@ -15,6 +15,7 @@ namespace GameLogic
 		float enemyShootCooldown{};
 		float startCooldown{};
 		float ufoSpawnCooldown{};
+		float playerHitCooldown{};
 		float powerUpDuration{};
 
 		float playerMovementSpeed{};

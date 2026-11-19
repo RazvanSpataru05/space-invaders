@@ -16,6 +16,7 @@ namespace GameLogic
         float playerShootCooldown{};
         float enemyShootCooldown{};
         float ufoSpawnTimer{};
+        float playerHitCooldown{};
 
         float enemyDirection{};
         float baseEnemySpeed{};
@@ -52,6 +53,7 @@ namespace GameLogic
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
             ufoSpawnTimer = 0.0f;
+            playerHitCooldown = 0.0f;
             fireRateMultiplier = 1.0f;
             bossDefeated = false;
             ufoApproaching = false;

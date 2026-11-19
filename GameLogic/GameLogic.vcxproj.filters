@@ -120,6 +120,9 @@
     <ClInclude Include="inc\Structs\ActivePowerUp.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Structs\WallState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp">

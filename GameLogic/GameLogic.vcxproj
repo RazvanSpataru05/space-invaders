@@ -181,6 +181,7 @@
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Bounds.h" />
     <ClInclude Include="inc\Structs\UFOState.h" />
+    <ClInclude Include="inc\Structs\WallState.h" />
     <ClInclude Include="inc\Utils\Constants.h" />
     <ClInclude Include="inc\Utils\EnemyUtils.h" />
     <ClInclude Include="inc\Utils\PlayerUtils.h" />

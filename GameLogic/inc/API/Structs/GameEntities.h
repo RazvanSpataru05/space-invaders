@@ -7,7 +7,9 @@
 #include "Structs/PowerUpPickup.h"
 #include "Structs/UFOState.h"
 #include "Structs/BossState.h"
+#include "Structs/WallState.h"
 
+#include <array>
 #include <vector>
 #include <optional>
 
@@ -21,9 +23,9 @@ namespace GameLogic
         std::vector<ProjectileState> enemyProjectiles;
         std::vector<PowerUpPickup> powerUpPickups;
         std::vector<ActivePowerUp> activePowerUps;
+        std::array<WallState, Utils::Constants::WALL_COUNT> wallsState;
         std::optional<UFOState> ufo{ std::nullopt };
         std::optional<BossState> boss{ std::nullopt };
-
 
         void Reset(uint8_t lives)
         {

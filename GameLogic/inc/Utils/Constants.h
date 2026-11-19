@@ -3,6 +3,7 @@
 #include "API/Structs/Vector2.h"
 
 #include <cstdint>
+#include <string_view>
 
 namespace GameLogic::Utils::Constants
 {
@@ -15,17 +16,44 @@ namespace GameLogic::Utils::Constants
 	constexpr float POWER_UP_WIDTH{ 30.0f };
 	constexpr float UFO_WIDTH{ 50.0f };
 	constexpr float BOSS_WIDTH{ 150.0f };
+	constexpr float CELL_SIZE{ 5.0f };
 
 	constexpr float SCREEN_HEIGHT{ 720.0f };
 	constexpr float SCREEN_WIDTH{ 960.0f };
 	constexpr float WIDTH_OFFSET{ 40.0f };
 
-	const Vector2 PLAYER_SPAWN_POSITION{ Vector2(480.0f, 615.0f) };
+	inline constexpr std::array<const std::string_view, 16> WALL_TEMPLATE{
+	"....##############....",
+	"...################...",
+	"..##################..",
+	".####################.",
+	"######################",
+	"######################",
+	"######################",
+	"######################",
+	"######################",
+	"######################",
+	"######################",
+	"######################",
+	"#######........#######",
+	"######..........######",
+	"#####............#####",
+	"#####............#####",
+	};
+
+	inline constexpr size_t WALL_ROWS = WALL_TEMPLATE.size();
+	inline constexpr size_t WALL_COLS = WALL_TEMPLATE[0].size();
+	inline constexpr float WALL_CELL_SIZE{ 5.0f };
+	constexpr size_t WALL_COUNT{ 4 };
+	constexpr float WALLS_GAP{ 120.0f };
+
+	const Vector2 PLAYER_SPAWN_POSITION{ Vector2(480.0f, 660.0f) };
 	const Vector2 UFO_LEFT_SPAWN_POSITION{ Vector2(0.0f, 75.0f) };
 	const Vector2 UFO_RIGHT_SPAWN_POSITION{ Vector2(960.0f, 75.0f) };
+	const Vector2 FIRST_WALL_POSITION{ Vector2(80.0f, 560.0f) };
 
-	constexpr float UFO_WARNING_TIME{ 3.0f };		
-	constexpr float UFO_LEAVING_DISTANCE{ 150.0f };	
+	constexpr float UFO_WARNING_TIME{ 3.0f };
+	constexpr float UFO_LEAVING_DISTANCE{ 150.0f };
 
 	const Vector2 BOSS_SPAWN_POSITION{ Vector2(320.0f, 80.0f) };
 

@@ -37,10 +37,14 @@ public:
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetEnemyProjectilesState()  const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::PowerUpPickup>		GetPowerUpPickups()			const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::WallState>			GetWallsState()				const noexcept override;
 	[[nodiscard]] size_t&										GetLevel()					noexcept override;
 	[[nodiscard]] uint32_t										GetScore()					const noexcept override;
 
 private:
+	void InitializeWalls();
+	void DestroyCells(GameLogic::WallState& wall, size_t row, size_t col);
+
 	void UpdateEnemies(float deltaTime);
 	void UpdateProjectiles(float deltaTime);
 	void UpdateActivePowerUpsDuration(float deltaTime);
@@ -61,7 +65,6 @@ private:
 	void CheckPlayerDefeat()	noexcept;
 
 	void ActivatePowerUp(GameLogic::PowerUpType type);
-	void ApplyPowerUp() noexcept;
 
 	void UpdateEnemiesHealth();
 	void UpdateEnemiesPosition(float deltaTime);
@@ -75,11 +78,8 @@ private:
 	void CheckEnemyProjectilesCollisions();
 	void CheckPlayerPowerUpCollisions();
 
-	void SpawnEnemyProjectile();
-	
-	/* Helper spawn projectile methods*/
-	void SpawnNormalEnemyProjectile(size_t index);
-	void SpawnBossProjectile();
+	void SpawnEnemyProjectile() noexcept;
+	void SpawnBossProjectile() noexcept;
 
 private:
 	GameSession(const GameSession&) = delete;

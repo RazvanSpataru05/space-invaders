@@ -34,4 +34,12 @@ namespace GameLogic::Utils
 				&& yStartObj < yProj + Constants::PROJECTILE_HEIGHT
 				&& yEndObj > yProj;
 	}
+
+	bool IsValidIndex(size_t row, size_t col, size_t rowCount, size_t colCount)
+	{
+		return row >= 0
+			&& row < rowCount
+			&& col >= 0
+			&& col < colCount;
+	}
 }

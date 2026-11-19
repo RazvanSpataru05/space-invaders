@@ -35,4 +35,6 @@ namespace GameLogic::Utils
 
 	bool AABBCollision(float xStartObj, float xEndObj, float yStartObj, float yEndObj,
 		float xProj, float yProj);
+
+	bool IsValidIndex(size_t row, size_t col, size_t rowCount, size_t colCount);
 }

@@ -181,18 +181,6 @@ namespace
 		return (current + step + count) % count;
 	}
 
-	const char* LevelLabel(size_t level)
-	{
-		for (size_t i = 0; i < kLevelLabels.size(); ++i)
-		{
-			if (i == level)
-			{
-				return kLevelLabels[i];
-			}
-		}
-		return "?";
-	}
-
 	// Shared layout of the Game Over and Victory screens.
 	void DrawVerdictScreen(const char* title, const char* subtitle, const char* details, uint32_t score,
 		std::span<const char* const> options, size_t selectedOption)
@@ -259,27 +247,40 @@ namespace
 	constexpr float kUfoBoxSize = 50.0f;
 	constexpr float kBossBoxSize = 150.0f; 
 
-	constexpr const char* kPlayerShipTexturePath = "Assets/Sprites/player_ship.png";
-	Texture2D g_playerShipTexture{};
+	constexpr int kProjectileWidth = 2;
+	constexpr int kProjectileHeight = 10;
 
-	constexpr const char* kUfoTexturePath = "Assets/Sprites/ufo.png";
-	Texture2D g_ufoShipTexture{};
-
-	struct EnemySprite
+	struct Sprite
 	{
-		const char* path{ nullptr };   // nullptr: no sprite, the fallback square is drawn
-		float boxSize{};      // the sprite is scaled to this width
-		Color fallbackColor;
-		Texture2D texture;
+		const char* path{ nullptr };   
+		float boxSize{};     
+		Color fallbackColor{};
+		Texture2D texture{};
+		bool sitOnBottom{ false };
 	};
 
-	std::array<EnemySprite, 4> g_enemySprites{ {
+	Sprite g_playerSprite{ "Assets/Sprites/player_ship.png", kHitboxSize, kPrimaryGreen, {}, true };
+	Sprite g_ufoSprite{ "Assets/Sprites/ufo.png", kUfoBoxSize, MAGENTA };
+	Sprite g_bossSprite{ "Assets/Sprites/boss.png", kBossBoxSize, RED };
 
-		{ "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
-		{ "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
-		{ "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
-		{ "Assets/Sprites/boss.png",          kBossBoxSize, RED,    {} },
+	std::array<Sprite, 3> g_enemySprites{ {
+
+	{ "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
+	{ "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
+	{ "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
 	} };
+
+	void ForEachSprite(auto&& fn)
+	{
+		fn(g_playerSprite);
+		fn(g_ufoSprite);
+		fn(g_bossSprite);
+
+		for (Sprite& sprite : g_enemySprites)
+		{
+			fn(sprite);
+		}
+	}
 
 	Texture2D LoadPixelTexture(const char* path)
 	{
@@ -289,6 +290,23 @@ namespace
 			SetTextureFilter(texture, TEXTURE_FILTER_POINT);
 		}
 		return texture;
+	}
+
+	void LoadSprite(Sprite& sprite)
+	{
+		if (sprite.path)
+		{
+			sprite.texture = LoadPixelTexture(sprite.path);
+		}
+	}
+
+	void UnloadSprite(Sprite& sprite)
+	{
+		if (sprite.texture.id != 0)
+		{
+			UnloadTexture(sprite.texture);
+		}
+		sprite.texture = Texture2D{};
 	}
 
 	void DrawTextureInBox(const Texture2D& texture, float x, float y, float boxSize, bool sitOnBottom)
@@ -310,30 +328,36 @@ namespace
 			static_cast<int>(boxSize), static_cast<int>(boxSize), color);
 	}
 
-	// position is the top-left of the hitbox.
-	void DrawPlayerShip(float x, float y)
+	void DrawSprite(const Sprite& sprite, GameLogic::Vector2 position)
 	{
-		if (g_playerShipTexture.id == 0)
+		if (sprite.texture.id == 0)
 		{
-			DrawFallbackSquare(x, y, kHitboxSize, kPrimaryGreen);
+			DrawFallbackSquare(position.x, position.y, sprite.boxSize, sprite.fallbackColor);
 			return;
 		}
-		DrawTextureInBox(g_playerShipTexture, x, y, kHitboxSize, true);
+		DrawTextureInBox(sprite.texture, position.x, position.y, sprite.boxSize, sprite.sitOnBottom);
 	}
 
-	void DrawUFO(float x, float y)
+	void DrawEnemies(std::span<const GameLogic::EnemyState> enemies)
 	{
-		if (g_ufoShipTexture.id == 0)
+		for (const auto& enemy : enemies)
 		{
-			DrawFallbackSquare(x, y, kUfoBoxSize, MAGENTA);
-			return;
+			DrawSprite(g_enemySprites[static_cast<size_t>(enemy.type)], enemy.position);
 		}
-		DrawTextureInBox(g_ufoShipTexture, x, y, kUfoBoxSize, false);
+	}
+
+	void DrawProjectiles(std::span<const GameLogic::ProjectileState> projectiles, Color color)
+	{
+		for (const auto& projectile : projectiles)
+		{
+			DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y),
+				kProjectileWidth, kProjectileHeight, color);
+		}
 	}
 
 	void DrawBoss(GameLogic::Vector2 position)
 	{
-		const EnemySprite& sprite = g_enemySprites[g_enemySprites.size() - 1];
+		const Sprite& sprite = g_enemySprites[g_enemySprites.size() - 1];
 		if (sprite.texture.id == 0)
 		{
 			DrawFallbackSquare(position.x, position.y, kBossBoxSize, RED);
@@ -346,7 +370,7 @@ namespace
 	{
 		const size_t index = static_cast<size_t>(enemy.type);
 
-		const EnemySprite& sprite = g_enemySprites[index];
+		const Sprite& sprite = g_enemySprites[index];
 		if (sprite.texture.id == 0)
 		{
 			DrawFallbackSquare(enemy.position.x, enemy.position.y, sprite.boxSize, sprite.fallbackColor);
@@ -394,15 +418,7 @@ GameUI::~GameUI()
 
 	if (m_isInitialized && IsWindowReady())
 	{
-		UnloadTexture(g_playerShipTexture);
-		g_playerShipTexture = Texture2D{};
-
-		for (EnemySprite& sprite : g_enemySprites)
-		{
-			UnloadTexture(sprite.texture);
-			sprite.texture = Texture2D{};
-		}
-
+		ForEachSprite(UnloadSprite);
 		CloseWindow();
 	}
 }
@@ -417,16 +433,7 @@ void GameUI::Initialize()
 
 	m_audio.Initialize();
 
-	g_playerShipTexture = LoadPixelTexture(kPlayerShipTexturePath);
-	g_ufoShipTexture = LoadPixelTexture(kUfoTexturePath);
-
-	for (EnemySprite& sprite : g_enemySprites)
-	{
-		if (sprite.path)
-		{
-			sprite.texture = LoadPixelTexture(sprite.path);
-		}
-	}
+	ForEachSprite(LoadSprite);
 
 	m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
 	m_currentScreen = ScreenType::MAIN_MENU;
@@ -466,7 +473,7 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 		m_audio.StopUfoSiren();
 		m_currentScreen = ScreenType::GAME_OVER;
 		break;
-	case GameLogic::EventType::BOSS_SPAWNED:			DrawBoss(m_gameService->GetBossPosition());		break;
+	case GameLogic::EventType::BOSS_SPAWNED:														break;
 
 	case GameLogic::EventType::PLAYER_SHOT:				m_audio.Play(SoundCue::PLAYER_SHOT);			break;
 	case GameLogic::EventType::PLAYER_HIT:				m_audio.Play(SoundCue::PLAYER_HIT);				break;
@@ -486,7 +493,7 @@ void GameUI::UpdateAudio(float deltaTime)
 	// The siren freezes with the game: Update() only runs on the GAMEPLAY screen.
 	m_audio.SetUfoSirenPaused(m_currentScreen != ScreenType::GAMEPLAY);
 
-	if (const auto ufo = m_gameService->GetUFOState(); ufo.has_value())
+	if (const auto& ufo = m_gameService->GetUFOState(); ufo.has_value())
 	{
 		const float x = ufo.value().position.x;
 		m_audio.SetUfoDistanceToExit(ufo.value().direction > 0.0f
@@ -755,36 +762,24 @@ void GameUI::RenderLevelSelection() const
 
 void GameUI::RenderGameplay()
 {
-	const int livesLeft = m_gameService->GetPlayerState().livesCount;
-	DrawHUD(m_gameService->GetScore(), kLevelLabels[m_gameService->GetLevel()], livesLeft);
+	const auto player = m_gameService->GetPlayerState();
 
-	const Vector2 playerPosition{ m_gameService->GetPlayerState().position.x, m_gameService->GetPlayerState().position.y };
-	DrawPlayerShip(playerPosition.x, playerPosition.y);
+	DrawHUD(m_gameService->GetScore(), kLevelLabels[m_gameService->GetLevel()], player.livesCount);
+	DrawSprite(g_playerSprite, player.position);
 
-	if (const auto& ufo = m_gameService->GetUFOState(); ufo.has_value())
+	if (const auto ufo = m_gameService->GetUFOState())
 	{
-		DrawUFO(ufo.value().position.x, ufo.value().position.y);
+		DrawSprite(g_ufoSprite, ufo->position);
 	}
 
-	for (const auto& enemy : m_gameService->GetEnemiesState())
+	if (const auto boss = m_gameService->GetBossState())
 	{
-		if (enemy.type == GameLogic::EnemyType::BOSS)
-		{
-			DrawBoss(m_gameService->GetBossPosition());
-		}
-
-		DrawEnemyShip(enemy);
+		DrawSprite(g_bossSprite, boss->position);
 	}
 
-	for (const auto& projectile : m_gameService->GetPlayerProjectilesState())
-	{
-		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, RED);
-	}
-
-	for (const auto& projectile : m_gameService->GetEnemyProjectilesState())
-	{
-		DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y), 2, 10, GREEN);
-	}
+	DrawEnemies(m_gameService->GetEnemiesState());
+	DrawProjectiles(m_gameService->GetPlayerProjectilesState(), RED);
+	DrawProjectiles(m_gameService->GetEnemyProjectilesState(), GREEN);
 }
 
 void GameUI::RenderPause()

@@ -6,6 +6,7 @@
 #include "Enums/EnemyType.h"
 
 #include "Structs/EnemyState.h"
+#include "Structs/Bounds.h"
 
 #include "Utils/Constants.h"
 
@@ -22,7 +23,6 @@ namespace GameLogic::Utils
 		case EnemyType::NORMAL:		return config.normalEnemyHealth;
 		case EnemyType::ARMORED:	return config.armoredEnemyHealth;
 		case EnemyType::SHOOTER:	return config.shooterEnemyHealth;
-		case EnemyType::BOSS:		return config.bossEnemyHealth;
 		}
 	}
 

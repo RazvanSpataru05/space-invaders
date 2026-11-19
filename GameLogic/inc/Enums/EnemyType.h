@@ -9,6 +9,5 @@ namespace GameLogic
         NORMAL,
         ARMORED,
         SHOOTER,
-        BOSS
     };
 }

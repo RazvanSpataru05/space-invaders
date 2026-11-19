@@ -22,7 +22,9 @@ namespace GameLogic
 		float ufoMovementSpeed{};
 		float enemyMovementSpeed{};
 		float enemyDropDistance{};
-
+		
+		float bossDropDistance{};
+		
 		size_t countUFOSpawn{};
 
 		uint16_t normalEnemyHealth{};

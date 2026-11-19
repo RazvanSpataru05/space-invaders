@@ -31,21 +31,24 @@ public:
 	void Reset() noexcept override;
 
 	[[nodiscard]] GameLogic::PlayerState						GetPlayerState()			const noexcept override;
-	[[nodiscard]] GameLogic::Vector2						    GetBossPosition()			const noexcept override;
-	[[nodiscard]] std::optional<GameLogic::UFOState>			GetUFOState()				const noexcept override;
+	[[nodiscard]] const std::optional<GameLogic::BossState>&	GetBossState()				const noexcept override;
+	[[nodiscard]] const std::optional<GameLogic::UFOState>&		GetUFOState()				const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()			const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetEnemyProjectilesState()  const noexcept override;
 	[[nodiscard]] size_t&										GetLevel()					noexcept override;
 	[[nodiscard]] uint32_t										GetScore()					const noexcept override;
-	
+
+private:
 	void UpdateEnemies(float deltaTime);
 	void UpdateProjectiles(float deltaTime);
 	void UpdateScore(GameLogic::EnemyType enemyType);
-	
+
+	void UpdateBoss(float deltaTime);
+	void UpdateBossPosition(float deltaTime);
+
 	void NotifyObservers(const GameLogic::GameEvent& event);
 
-private:
 	void SpawnEnemies() noexcept;
 	void SpawnUFO() noexcept;
 	void SpawnBoss() noexcept;
@@ -68,6 +71,10 @@ private:
 	void CheckEnemyProjectilesCollisions();
 
 	void SpawnEnemyProjectile();
+	
+	/* Helper spawn projectile methods*/
+	void SpawnNormalEnemyProjectile(size_t index);
+	void SpawnBossProjectile();
 
 private:
 	GameSession(const GameSession&) = delete;

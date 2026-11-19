@@ -170,6 +170,7 @@
     <ClInclude Include="inc\GameConfigFactory.h" />
     <ClInclude Include="inc\GameServiceFactory.h" />
     <ClInclude Include="inc\GameSession.h" />
+    <ClInclude Include="inc\Structs\BossState.h" />
     <ClInclude Include="inc\Structs\EnemyConfig.h" />
     <ClInclude Include="inc\Structs\EnemyState.h" />
     <ClInclude Include="inc\Structs\GameEvent.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="inc\Structs\PlayerState.h" />
     <ClInclude Include="inc\Structs\PowerUpState.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
+    <ClInclude Include="inc\Structs\Bounds.h" />
     <ClInclude Include="inc\Structs\UFOState.h" />
     <ClInclude Include="inc\Utils\Constants.h" />
     <ClInclude Include="inc\Utils\EnemyUtils.h" />

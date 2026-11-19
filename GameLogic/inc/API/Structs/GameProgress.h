@@ -20,8 +20,8 @@ namespace GameLogic
         float enemyDirection{};
         float baseEnemySpeed{};
         float dropDistance{};
-        
-        bool bossSpawned{};
+
+        bool bossDefeated{};
         bool ufoApproaching{};
         bool ufoLeaving{};
 
@@ -49,11 +49,9 @@ namespace GameLogic
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
             ufoSpawnTimer = 0.0f;
-
-            bossSpawned = false;
+            bossDefeated = false;
             ufoApproaching = false;
             ufoLeaving = false;
-
         }
     };
 }

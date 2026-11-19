@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Structs/PlayerState.h"
+#include "Structs/ActivePowerUp.h"
 #include "Structs/EnemyState.h"
+#include "Structs/PlayerState.h"
 #include "Structs/ProjectileState.h"
 #include "Structs/PowerUpPickup.h"
 #include "Structs/UFOState.h"
@@ -19,6 +20,7 @@ namespace GameLogic
         std::vector<ProjectileState> playerProjectiles;
         std::vector<ProjectileState> enemyProjectiles;
         std::vector<PowerUpPickup> powerUpPickups;
+        std::vector<ActivePowerUp> activePowerUps;
         std::optional<UFOState> ufo{ std::nullopt };
         std::optional<BossState> boss{ std::nullopt };
 
@@ -29,6 +31,7 @@ namespace GameLogic
             enemies.clear();
             enemyProjectiles.clear();
             playerProjectiles.clear();
+            activePowerUps.clear();
             powerUpPickups.clear();
             ufo = std::nullopt;
             boss = std::nullopt;

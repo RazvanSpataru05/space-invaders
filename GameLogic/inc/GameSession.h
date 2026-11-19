@@ -43,6 +43,7 @@ public:
 private:
 	void UpdateEnemies(float deltaTime);
 	void UpdateProjectiles(float deltaTime);
+	void UpdateActivePowerUpsDuration(float deltaTime);
 	void UpdateScore(GameLogic::EnemyType enemyType);
 
 	void UpdateBoss(float deltaTime);
@@ -53,13 +54,14 @@ private:
 	void SpawnEnemies() noexcept;
 	void SpawnUFO() noexcept;
 	void SpawnBoss() noexcept;
+	void SpawnPowerUpPickup(GameLogic::Vector2 position) noexcept;
 
 	void CheckCollisions();
 	void CheckLevelCompletion() noexcept;
 	void CheckPlayerDefeat()	noexcept;
 
-	void SpawnPowerUpPickup(GameLogic::Vector2 position);
-	void CollectPowerUp(const GameLogic::PowerUpPickup& powerUp);
+	void ActivatePowerUp(GameLogic::PowerUpType type);
+	void ApplyPowerUp() noexcept;
 
 	void UpdateEnemiesHealth();
 	void UpdateEnemiesPosition(float deltaTime);

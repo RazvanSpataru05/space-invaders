@@ -10,21 +10,20 @@ namespace GameLogic
 	struct GameConfig
 	{
 		std::array<LevelConfig, 3> levels{};
-		float playerMovementSpeed{};
 		float powerUpChance{};
 		float playerShootCooldown{};
 		float enemyShootCooldown{};
 		float startCooldown{};
 		float ufoSpawnCooldown{};
+		float powerUpDuration{};
 
+		float playerMovementSpeed{};
 		float projectileSpeed{};
-
 		float ufoMovementSpeed{};
 		float enemyMovementSpeed{};
 		float enemyDropDistance{};
 		
 		float bossDropDistance{};
-
 		float powerUpDropDistance{};
 		
 		size_t countUFOSpawn{};
@@ -38,6 +37,7 @@ namespace GameLogic
 		uint16_t armoredEnemyScore{};
 		uint16_t shooterEnemyScore{};
 		uint16_t bossScore{};
+		uint16_t powerUpBonusScore{};
 
 		uint8_t maxEnemyProjectileCount{};
 		uint8_t enemyProjectileDamage{};

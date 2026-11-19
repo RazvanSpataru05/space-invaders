@@ -21,9 +21,12 @@ namespace GameLogic
         float baseEnemySpeed{};
         float dropDistance{};
 
+        float fireRateMultiplier{};
+
         bool bossDefeated{};
         bool ufoApproaching{};
         bool ufoLeaving{};
+        bool multiShot{};
 
         GameProgress(const GameConfig& config)
         {
@@ -49,9 +52,11 @@ namespace GameLogic
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
             ufoSpawnTimer = 0.0f;
+            fireRateMultiplier = 1.0f;
             bossDefeated = false;
             ufoApproaching = false;
             ufoLeaving = false;
+            multiShot = false;
         }
     };
 }

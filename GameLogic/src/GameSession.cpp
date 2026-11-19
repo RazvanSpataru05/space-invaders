@@ -45,6 +45,7 @@ void GameSession::Update(float deltaTime) noexcept
 	UpdateProjectiles(deltaTime);
 	UpdateUFOPosition(deltaTime);
 	UpdatePowerUpPosition(deltaTime);
+	UpdateActivePowerUpsDuration(deltaTime);
 	UpdateBoss(deltaTime);
 
 	m_progress.elapsedTime += deltaTime;
@@ -119,21 +120,43 @@ uint32_t GameSession::GetScore() const noexcept
 
 void GameSession::Shoot() noexcept
 {
+	using namespace GameLogic;
+
 	if (m_progress.elapsedTime < m_config.startCooldown
-		|| m_progress.playerShootCooldown < m_config.playerShootCooldown
-		|| m_gameState != GameLogic::GameState::PLAYING) return;
+		|| m_progress.playerShootCooldown < m_config.playerShootCooldown / m_progress.fireRateMultiplier
+		|| m_gameState != GameState::PLAYING) return;
+
+	const float x = m_entities.player.position.x;
+	const float y = m_entities.player.position.y;
 
 	m_entities.playerProjectiles.emplace_back(
-		GameLogic::Vector2(m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH * 0.5f, m_entities.player.position.y),
-		GameLogic::Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::PLAYER),
-		GameLogic::ProjectileOwner::PLAYER,
+		Vector2(x + Utils::Constants::SHIP_WIDTH * 0.5f, y),
+		Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
+		ProjectileOwner::PLAYER,
 		m_config.playerProjectileDamage
 	);
+
+	if (m_progress.multiShot)
+	{
+		m_entities.playerProjectiles.emplace_back(
+			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.33f, y + Utils::Constants::SHIP_WIDTH * 0.33f),
+			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
+			ProjectileOwner::PLAYER,
+			m_config.playerProjectileDamage
+		);
+
+		m_entities.playerProjectiles.emplace_back(
+			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.66f, y + Utils::Constants::SHIP_WIDTH * 0.33f),
+			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
+			ProjectileOwner::PLAYER,
+			m_config.playerProjectileDamage
+		);
+	}
 
 	m_progress.playerShootCooldown = 0.0f;
 	++m_progress.projectileCount;
 
-	NotifyObservers({ GameLogic::EventType::PLAYER_SHOT });
+	NotifyObservers({ EventType::PLAYER_SHOT });
 }
 
 void GameSession::Reset() noexcept
@@ -216,6 +239,30 @@ void GameSession::UpdateProjectiles(float deltaTime)
 
 	std::erase_if(m_entities.enemyProjectiles, [](const GameLogic::ProjectileState& p) {
 		return (p.position.y < 0 || p.position.y > GameLogic::Utils::Constants::SCREEN_HEIGHT);
+		});
+}
+
+void GameSession::UpdateActivePowerUpsDuration(float deltaTime)
+{
+	m_progress.fireRateMultiplier = 1.0f;
+	m_progress.multiShot = false;
+
+	if (m_entities.activePowerUps.empty()) return;
+
+	for (auto& powerUp : m_entities.activePowerUps)
+	{
+		powerUp.duration -= deltaTime;
+		switch (powerUp.type)
+		{
+		case GameLogic::PowerUpType::RAPID_FIRE: m_progress.fireRateMultiplier = 2.0f; break;
+		case GameLogic::PowerUpType::MULTI_SHOT: m_progress.multiShot = true; break;
+		}
+ 	}
+
+	std::erase_if(m_entities.activePowerUps, [](const GameLogic::ActivePowerUp p)
+		{
+
+		return p.duration <= 0.0f;
 		});
 }
 
@@ -302,10 +349,11 @@ void GameSession::SpawnBoss() noexcept
 	m_entities.boss.emplace(GameLogic::BossState(m_config.bossEnemyHealth));
 }
 
-void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position)
+void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position) noexcept
 {
 	using namespace GameLogic;
 	std::uniform_real_distribution<float> realDist(0, 1.0f);
+
 	if (realDist(m_generator) >= m_config.powerUpChance) return;
 
 	std::uniform_int_distribution<int> dist(0, Utils::Constants::POWER_UP_TYPES - 1);
@@ -315,9 +363,15 @@ void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position)
 	m_entities.powerUpPickups.emplace_back(position, type);
 }
 
-void GameSession::CollectPowerUp(const GameLogic::PowerUpPickup& powerUp)
+void GameSession::ActivatePowerUp(const GameLogic::PowerUpType type)
 {
-
+	switch (type)
+	{
+	case GameLogic::PowerUpType::BONUS_SCORE: m_progress.score += m_config.powerUpBonusScore; break;
+	case GameLogic::PowerUpType::EXTRA_LIFE:  m_entities.player.livesCount = std::min(3, m_entities.player.livesCount + 1); break;
+	case GameLogic::PowerUpType::MULTI_SHOT:
+	case GameLogic::PowerUpType::RAPID_FIRE: m_entities.activePowerUps.emplace_back(m_config.powerUpDuration, type); break;
+	}
 }
 
 void GameSession::NotifyObservers(const GameLogic::GameEvent& event)
@@ -445,7 +499,7 @@ void GameSession::CheckPlayerProjectilesCollisions()
 				&& GetBounds(m_entities.boss->position, Constants::BOSS_WIDTH).Overlaps(projectile.position))
 			{
 				m_entities.boss->health = static_cast<int16_t>(std::max(0, m_entities.boss->health - m_config.playerProjectileDamage));
-				std::cout << "health: " << m_entities.boss->health << '\n';
+
 				if (m_entities.boss->health > 0)
 				{
 					NotifyObservers({ GameLogic::EventType::ENEMY_HIT });
@@ -480,7 +534,7 @@ void GameSession::CheckPlayerPowerUpCollisions()
 			const auto powerUpBounds = GetBounds(powerUp.position, GameLogic::Utils::Constants::POWER_UP_WIDTH);
 			if (!playerBounds.Overlaps(powerUpBounds)) return false;
 
-			// TODO: Activate powerup
+			ActivatePowerUp(powerUp.type);
 			return true;
 		});
 }

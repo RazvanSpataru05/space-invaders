@@ -33,7 +33,7 @@ namespace GameLogic
 		config.normalEnemyScore = 30u;
 		config.armoredEnemyScore = 50u;
 		config.shooterEnemyScore = 80u;
-		config.bossScore = 500u;
+		config.bossScore = 1000u;
 
 		config.maxEnemyProjectileCount = 10u;
 		config.playerLivesCount = 3u;

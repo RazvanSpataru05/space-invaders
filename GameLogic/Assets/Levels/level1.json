@@ -1,0 +1,26 @@
+{
+    "hasBoss": false,
+    "enemies": [
+        {
+            "position": {
+                "x": 140,
+                "y": 120
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 120
+            },
+            "type": "NORMAL"
+        },
+        {
+            "position": {
+                "x": 280,
+                "y": 120
+            },
+            "type": "NORMAL"
+        }
+    ]
+}

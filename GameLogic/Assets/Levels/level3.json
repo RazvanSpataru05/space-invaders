@@ -1,0 +1,12 @@
+{
+    "hasBoss": true,
+    "enemies": [
+        {
+            "position": {
+                "x": 140,
+                "y": 120
+            },
+            "type": "SHOOTER"
+        }
+    ]
+}

@@ -195,6 +195,13 @@ void GameSession::UpdateBoss(float deltaTime)
 
 	UpdateBossPosition(deltaTime);
 	SpawnBossProjectile();
+
+	if (m_entities.boss->health == 0u)
+	{
+		m_entities.boss = std::nullopt;
+		m_progress.score += m_config.bossScore;
+		m_progress.bossDefeated = true;
+	}
 }
 
 void GameSession::UpdateBossPosition(float deltaTime)
@@ -234,7 +241,7 @@ void GameSession::CheckLevelCompletion() noexcept
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
 	if (m_entities.enemies.empty() && m_config.levels[m_currentLevel].hasBoss
-		&& !m_entities.boss)
+		&& !m_entities.boss && !m_progress.bossDefeated)
 	{
 		std::cout << "Boss has spawned\n";
 
@@ -380,6 +387,7 @@ void GameSession::CheckPlayerProjectilesCollisions()
 				&& GetBounds(m_entities.boss->position, Constants::BOSS_WIDTH).Overlaps(projectile.position))
 			{
 				m_entities.boss->health = static_cast<int16_t>(std::max(0, m_entities.boss->health - m_config.playerProjectileDamage));
+				std::cout << "health: " << m_entities.boss->health << '\n';
 				return true;
 			}
 
@@ -449,7 +457,6 @@ void GameSession::SpawnNormalEnemyProjectile(size_t index)
 
 void GameSession::SpawnBossProjectile()
 {
-	std::cout << "enemy shoot cooldown: " << m_progress.enemyShootCooldown << '\n';
 	if (m_progress.enemyShootCooldown < m_config.enemyShootCooldown) return;
 
 	const GameLogic::Vector2 position = m_entities.boss.value().position;

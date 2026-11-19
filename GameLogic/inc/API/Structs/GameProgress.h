@@ -21,6 +21,8 @@ namespace GameLogic
         float baseEnemySpeed{};
         float dropDistance{};
 
+        bool bossDefeated{};
+
         GameProgress(const GameConfig& config)
         {
             enemyDirection = Utils::Constants::INITIAL_ENEMY_DIRECTION;
@@ -45,6 +47,7 @@ namespace GameLogic
             playerShootCooldown = 0.0f;
             enemyShootCooldown = 0.0f;
             ufoSpawnTimer = 0.0f;
+            bossDefeated = false;
         }
     };
 }

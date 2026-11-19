@@ -578,7 +578,7 @@ void GameSession::CheckEnemyProjectilesCollisions()
 	std::erase_if(m_entities.enemyProjectiles, [&](const GameLogic::ProjectileState& projectile)
 		{
 			if (playerBounds.Overlaps(projectile.position)
-				&& m_progress.playerHitCooldown < m_config.playerHitCooldown)
+				&& m_progress.playerHitCooldown >= m_config.playerHitCooldown)
 			{
 				m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
 				m_progress.playerHitCooldown = 0.0f;

@@ -473,7 +473,6 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 		m_audio.StopUfoSiren();
 		m_currentScreen = ScreenType::GAME_OVER;
 		break;
-	case GameLogic::EventType::BOSS_SPAWNED:														break;
 
 	case GameLogic::EventType::PLAYER_SHOT:				m_audio.Play(SoundCue::PLAYER_SHOT);			break;
 	case GameLogic::EventType::PLAYER_HIT:				m_audio.Play(SoundCue::PLAYER_HIT);				break;
@@ -767,14 +766,19 @@ void GameUI::RenderGameplay()
 	DrawHUD(m_gameService->GetScore(), kLevelLabels[m_gameService->GetLevel()], player.livesCount);
 	DrawSprite(g_playerSprite, player.position);
 
-	if (const auto ufo = m_gameService->GetUFOState())
+	if (const auto& ufo = m_gameService->GetUFOState())
 	{
 		DrawSprite(g_ufoSprite, ufo->position);
 	}
 
-	if (const auto boss = m_gameService->GetBossState())
+	if (const auto& boss = m_gameService->GetBossState())
 	{
 		DrawSprite(g_bossSprite, boss->position);
+	}
+
+	for (const auto& powerUp : m_gameService->GetPowerUpPickups())
+	{
+		DrawRectangle(powerUp.position.x, powerUp.position.y, 30, 30, WHITE);
 	}
 
 	DrawEnemies(m_gameService->GetEnemiesState());
@@ -784,7 +788,6 @@ void GameUI::RenderGameplay()
 
 void GameUI::RenderPause()
 {
-	// Frozen game stays visible behind a dimmed overlay
 	RenderGameplay();
 	DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Color{ 0, 0, 0, 170 });
 

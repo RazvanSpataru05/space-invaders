@@ -8,7 +8,7 @@ namespace GameLogic
 		GameConfig config;
 
 		config.playerMovementSpeed = 4.0f;
-		config.powerUpChance = 0.10f;
+		config.powerUpChance = 1.00f;
 		config.playerShootCooldown = 0.25f;
 		config.enemyShootCooldown = 0.5f;
 		config.startCooldown = 2.0f;
@@ -24,6 +24,8 @@ namespace GameLogic
 		config.enemyDropDistance = 150.0f;
 
 		config.bossDropDistance = 50.0f;
+
+		config.powerUpDropDistance = 40.0f;
 
 		config.normalEnemyHealth = 100u;
 		config.armoredEnemyHealth = 250u;

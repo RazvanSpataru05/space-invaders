@@ -3,7 +3,7 @@
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 #include "Structs/ProjectileState.h"
-#include "Structs/PowerUpState.h"
+#include "Structs/PowerUpPickup.h"
 #include "Structs/UFOState.h"
 #include "Structs/BossState.h"
 
@@ -18,7 +18,7 @@ namespace GameLogic
         std::vector<EnemyState> enemies;
         std::vector<ProjectileState> playerProjectiles;
         std::vector<ProjectileState> enemyProjectiles;
-        std::vector<PowerUpState> powerUps;
+        std::vector<PowerUpPickup> powerUpPickups;
         std::optional<UFOState> ufo{ std::nullopt };
         std::optional<BossState> boss{ std::nullopt };
 
@@ -29,7 +29,7 @@ namespace GameLogic
             enemies.clear();
             enemyProjectiles.clear();
             playerProjectiles.clear();
-            powerUps.clear();
+            powerUpPickups.clear();
             ufo = std::nullopt;
             boss = std::nullopt;
         }

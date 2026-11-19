@@ -12,6 +12,7 @@ namespace GameLogic::Utils::Constants
 	constexpr float PROJECTILE_HEIGHT{ 10.0f };
 
 	constexpr float SHIP_WIDTH{ 40.0f };
+	constexpr float POWER_UP_WIDTH{ 30.0f };
 	constexpr float UFO_WIDTH{ 50.0f };
 	constexpr float BOSS_WIDTH{ 150.0f };
 
@@ -27,4 +28,6 @@ namespace GameLogic::Utils::Constants
 	constexpr float UFO_LEAVING_DISTANCE{ 150.0f };	// pixels before the exit edge when UFO_LEAVING is sent
 
 	const Vector2 BOSS_SPAWN_POSITION{ Vector2(320.0f, 80.0f) };
+
+	constexpr uint8_t POWER_UP_TYPES{ 4u };
 }

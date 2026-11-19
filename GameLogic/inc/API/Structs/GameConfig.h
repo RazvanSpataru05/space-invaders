@@ -24,6 +24,8 @@ namespace GameLogic
 		float enemyDropDistance{};
 		
 		float bossDropDistance{};
+
+		float powerUpDropDistance{};
 		
 		size_t countUFOSpawn{};
 

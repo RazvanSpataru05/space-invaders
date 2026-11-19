@@ -36,6 +36,7 @@ public:
 	[[nodiscard]] std::span<const GameLogic::EnemyState>		GetEnemiesState()			const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetPlayerProjectilesState()	const noexcept override;
 	[[nodiscard]] std::span<const GameLogic::ProjectileState>	GetEnemyProjectilesState()  const noexcept override;
+	[[nodiscard]] std::span<const GameLogic::PowerUpPickup>		GetPowerUpPickups()			const noexcept override;
 	[[nodiscard]] size_t&										GetLevel()					noexcept override;
 	[[nodiscard]] uint32_t										GetScore()					const noexcept override;
 
@@ -57,9 +58,8 @@ private:
 	void CheckLevelCompletion() noexcept;
 	void CheckPlayerDefeat()	noexcept;
 
-	void GeneratePowerUp();
-	void CollectPowerUp(const GameLogic::PowerUpState& powerUp);
-	void ApplyPowerUp(GameLogic::PowerUpType type);
+	void SpawnPowerUpPickup(GameLogic::Vector2 position);
+	void CollectPowerUp(const GameLogic::PowerUpPickup& powerUp);
 
 	void UpdateEnemiesHealth();
 	void UpdateEnemiesPosition(float deltaTime);
@@ -67,8 +67,11 @@ private:
 
 	void UpdateUFOPosition(float deltaTime);
 
+	void UpdatePowerUpPosition(float deltaTime);
+
 	void CheckPlayerProjectilesCollisions();
 	void CheckEnemyProjectilesCollisions();
+	void CheckPlayerPowerUpCollisions();
 
 	void SpawnEnemyProjectile();
 	

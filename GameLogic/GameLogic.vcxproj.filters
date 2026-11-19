@@ -54,7 +54,7 @@
     <ClInclude Include="inc\Structs\PlayerState.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Structs\PowerUpState.h">
+    <ClInclude Include="inc\Structs\PowerUpPickup.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
     <ClInclude Include="inc\Structs\ProjectileState.h">

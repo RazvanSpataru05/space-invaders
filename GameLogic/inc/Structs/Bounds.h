@@ -12,6 +12,14 @@ struct Bounds
 		x{ x }, y{ y }, width{ w }, height{ h } {
 	}
 
+	bool Overlaps(const Bounds& other) const noexcept
+	{
+		return x < other.x + other.width
+			&& x + width > other.x
+			&& y < other.y + other.height
+			&& y + height > other.y;
+	}
+
 	bool Overlaps(GameLogic::Vector2 p) const noexcept
 	{
 		return x < p.x + GameLogic::Utils::Constants::PROJECTILE_WIDTH

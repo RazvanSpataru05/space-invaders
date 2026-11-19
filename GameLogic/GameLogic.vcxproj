@@ -176,7 +176,7 @@
     <ClInclude Include="inc\Structs\GameEvent.h" />
     <ClInclude Include="inc\Structs\LevelConfig.h" />
     <ClInclude Include="inc\Structs\PlayerState.h" />
-    <ClInclude Include="inc\Structs\PowerUpState.h" />
+    <ClInclude Include="inc\Structs\PowerUpPickup.h" />
     <ClInclude Include="inc\Structs\ProjectileState.h" />
     <ClInclude Include="inc\Structs\Bounds.h" />
     <ClInclude Include="inc\Structs\UFOState.h" />

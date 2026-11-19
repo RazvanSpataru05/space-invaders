@@ -6,7 +6,7 @@
 
 namespace
 {
-	constexpr float kMasterVolume = 0.8f;
+	constexpr float kMasterVolume = 0.5f;
 
 	constexpr const char* kUfoSirenPath = "Assets/Audio/ufo_siren_loop.wav";
 
@@ -58,12 +58,11 @@ GameAudio::~GameAudio()
 
 void GameAudio::Initialize()
 {
-	static_assert(kAllSoundCues.size() == kSoundCount, "every SoundCue needs a slot in m_sounds");
-
 	if (m_isInitialized) return;
 
 	InitAudioDevice();
-	if (!IsAudioDeviceReady()) return;	// no audio output: every call stays a no-op
+
+	if (!IsAudioDeviceReady()) return;	
 
 	SetMasterVolume(kMasterVolume);
 
@@ -129,8 +128,8 @@ void GameAudio::StartUfoApproach()
 
 void GameAudio::OnUfoSpawned()
 {
-	// Normally already playing from the approach; start it here if that event was missed.
 	if (m_ufoPhase == UfoSirenPhase::SILENT && !StartUfoSiren()) return;
+
 	m_ufoPhase = UfoSirenPhase::ACTIVE;
 }
 

@@ -44,6 +44,7 @@ void GameSession::Update(float deltaTime) noexcept
 	UpdateEnemies(deltaTime);
 	UpdateProjectiles(deltaTime);
 	UpdateUFOPosition(deltaTime);
+	UpdatePowerUpPosition(deltaTime);
 	UpdateBoss(deltaTime);
 
 	m_progress.elapsedTime += deltaTime;
@@ -99,6 +100,11 @@ std::span<const GameLogic::ProjectileState> GameSession::GetPlayerProjectilesSta
 std::span<const GameLogic::ProjectileState> GameSession::GetEnemyProjectilesState() const noexcept
 {
 	return m_entities.enemyProjectiles;
+}
+
+std::span<const GameLogic::PowerUpPickup> GameSession::GetPowerUpPickups() const noexcept
+{
+	return m_entities.powerUpPickups;
 }
 
 size_t& GameSession::GetLevel() noexcept
@@ -259,6 +265,7 @@ void GameSession::CheckCollisions()
 
 	CheckPlayerProjectilesCollisions();
 	CheckEnemyProjectilesCollisions();
+	CheckPlayerPowerUpCollisions();
 }
 
 void GameSession::CheckLevelCompletion() noexcept
@@ -268,10 +275,7 @@ void GameSession::CheckLevelCompletion() noexcept
 	if (m_entities.enemies.empty() && m_config.levels[m_currentLevel].hasBoss
 		&& !m_entities.boss && !m_progress.bossDefeated)
 	{
-		std::cout << "Boss has spawned\n";
-
 		SpawnBoss();
-		NotifyObservers({ GameLogic::EventType::BOSS_SPAWNED });
 		return;
 	}
 
@@ -298,17 +302,20 @@ void GameSession::SpawnBoss() noexcept
 	m_entities.boss.emplace(GameLogic::BossState(m_config.bossEnemyHealth));
 }
 
-void GameSession::GeneratePowerUp()
+void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position)
 {
+	using namespace GameLogic;
+	std::uniform_real_distribution<float> realDist(0, 1.0f);
+	if (realDist(m_generator) >= m_config.powerUpChance) return;
 
+	std::uniform_int_distribution<int> dist(0, Utils::Constants::POWER_UP_TYPES - 1);
+
+	const PowerUpType type = static_cast<PowerUpType>(dist(m_generator));
+
+	m_entities.powerUpPickups.emplace_back(position, type);
 }
 
-void GameSession::CollectPowerUp(const GameLogic::PowerUpState& powerUp)
-{
-
-}
-
-void GameSession::ApplyPowerUp(GameLogic::PowerUpType type)
+void GameSession::CollectPowerUp(const GameLogic::PowerUpPickup& powerUp)
 {
 
 }
@@ -329,6 +336,7 @@ void GameSession::UpdateEnemiesHealth()
 		if (it->health == 0u)
 		{
 			UpdateScore(it->type);
+			SpawnPowerUpPickup(it->position);
 			NotifyObservers({ GameLogic::EventType::ENEMY_DESTROYED });
 			it = m_entities.enemies.erase(it);
 			continue;
@@ -398,6 +406,14 @@ void GameSession::UpdateUFOPosition(float dt)
 	}
 }
 
+void GameSession::UpdatePowerUpPosition(float deltaTime)
+{
+	for (auto& powerUp : m_entities.powerUpPickups)
+	{
+		powerUp.position.y += (m_config.powerUpDropDistance * deltaTime);
+	}
+}
+
 void GameSession::CheckPlayerProjectilesCollisions()
 {
 	using namespace GameLogic::Utils;
@@ -443,27 +459,30 @@ void GameSession::CheckPlayerProjectilesCollisions()
 
 void GameSession::CheckEnemyProjectilesCollisions()
 {
-	auto it = m_entities.enemyProjectiles.begin();
-	while (it != m_entities.enemyProjectiles.end())
-	{
-		const GameLogic::Vector2 projectilePos = it->position;
+	const auto playerBounds = GetBounds(m_entities.player.position, GameLogic::Utils::Constants::SHIP_WIDTH);
 
-		const float xStart = m_entities.player.position.x;
-		const float xEnd = m_entities.player.position.x + GameLogic::Utils::Constants::SHIP_WIDTH;
-
-		const float yStart = m_entities.player.position.y;
-		const float yEnd = m_entities.player.position.y + GameLogic::Utils::Constants::SHIP_WIDTH; // Intended. height is the same as width for the ship
-
-		if (GameLogic::Utils::AABBCollision(xStart, xEnd, yStart, yEnd, projectilePos.x, projectilePos.y))
+	std::erase_if(m_entities.enemyProjectiles, [&](const GameLogic::ProjectileState& projectile)
 		{
-			m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
-			it = m_entities.enemyProjectiles.erase(it);
-			NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
-			continue;
-		}
+			if (!playerBounds.Overlaps(projectile.position)) return false;
 
-		if (it != m_entities.enemyProjectiles.end()) it++;
-	}
+			m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
+			NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
+			return true;
+		});
+}
+
+void GameSession::CheckPlayerPowerUpCollisions()
+{
+	const auto playerBounds = GetBounds(m_entities.player.position, GameLogic::Utils::Constants::SHIP_WIDTH);
+
+	std::erase_if(m_entities.powerUpPickups, [&](const GameLogic::PowerUpPickup& powerUp)
+		{
+			const auto powerUpBounds = GetBounds(powerUp.position, GameLogic::Utils::Constants::POWER_UP_WIDTH);
+			if (!playerBounds.Overlaps(powerUpBounds)) return false;
+
+			// TODO: Activate powerup
+			return true;
+		});
 }
 
 void GameSession::SpawnEnemyProjectile()

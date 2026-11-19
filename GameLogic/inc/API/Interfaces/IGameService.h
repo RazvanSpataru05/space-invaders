@@ -11,6 +11,7 @@
 #include "Structs/ProjectileState.h"
 #include "Structs/UFOState.h"
 #include "Structs/BossState.h"
+#include "Structs/PowerUpPickup.h"
 
 #include <span>
 #include <optional>
@@ -34,6 +35,7 @@ namespace GameLogic
         [[nodiscard]] virtual std::span<const EnemyState> GetEnemiesState()                   const noexcept = 0;
         [[nodiscard]] virtual std::span<const ProjectileState> GetPlayerProjectilesState()    const noexcept = 0;
         [[nodiscard]] virtual std::span<const ProjectileState> GetEnemyProjectilesState()     const noexcept = 0;
+        [[nodiscard]] virtual std::span<const PowerUpPickup> GetPowerUpPickups()              const noexcept = 0;
         [[nodiscard]] virtual size_t& GetLevel()                                              noexcept = 0;
         [[nodiscard]] virtual uint32_t GetScore()                                             const noexcept = 0;
     };

@@ -8,7 +8,6 @@ namespace GameLogic
     {
         LEVEL_COMPLETED,
         GAME_OVER,
-        BOSS_SPAWNED,
 
         PLAYER_SHOT,
         PLAYER_HIT,

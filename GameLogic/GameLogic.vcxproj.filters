@@ -111,6 +111,12 @@
     <ClInclude Include="inc\API\Enums\Direction.h">
       <Filter>inc\API\Enums</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Structs\BossState.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Structs\Bounds.h">
+      <Filter>inc\Structs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp">

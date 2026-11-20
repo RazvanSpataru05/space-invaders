@@ -433,6 +433,51 @@ namespace
 
 		DrawRectangle(0, kHudDividerY, screenWidth, 2, kDimGreen);
 	}
+
+	// Boss health bar: floats above the boss sprite and follows it.
+	constexpr int kBossBarHeight = 8;
+	constexpr int kBossBarGap = 6;
+	constexpr int kBossBarBorder = 1;
+	constexpr Color kBossBarGreen{ 34, 197, 34, 255 };
+	constexpr Color kBossBarYellow{ 250, 204, 21, 255 };
+	constexpr Color kBossBarRed{ 239, 68, 68, 255 };
+
+	uint8_t LerpChannel(uint8_t from, uint8_t to, float t)
+	{
+		return static_cast<uint8_t>(static_cast<float>(from) + (static_cast<float>(to) - static_cast<float>(from)) * t);
+	}
+
+	Color LerpColor(Color from, Color to, float t)
+	{
+		return Color{ LerpChannel(from.r, to.r, t), LerpChannel(from.g, to.g, t), LerpChannel(from.b, to.b, t), 255 };
+	}
+
+	// Full health is green, half is yellow, empty is red, blending smoothly in between.
+	Color BossBarColor(float fraction)
+	{
+		return fraction > 0.5f
+			? LerpColor(kBossBarYellow, kBossBarGreen, (fraction - 0.5f) * 2.0f)
+			: LerpColor(kBossBarRed, kBossBarYellow, fraction * 2.0f);
+	}
+
+	void DrawBossHealthBar(GameLogic::Vector2 bossPosition, int health, int maxHealth)
+	{
+		if (maxHealth <= 0) return;
+
+		const float fraction = std::clamp(static_cast<float>(health) / static_cast<float>(maxHealth), 0.0f, 1.0f);
+
+		const int barX = static_cast<int>(bossPosition.x);
+		const int barY = static_cast<int>(bossPosition.y) - kBossBarHeight - kBossBarGap;
+		const int barWidth = static_cast<int>(kBossBoxSize);
+
+		DrawRectangle(barX, barY, barWidth, kBossBarHeight, kBackgroundColor);
+		DrawRectangleLines(barX, barY, barWidth, kBossBarHeight, kDimGreen);
+
+		const int innerWidth = barWidth - 2 * kBossBarBorder - 2;
+		const int fillWidth = static_cast<int>(static_cast<float>(innerWidth) * fraction);
+		DrawRectangle(barX + kBossBarBorder + 1, barY + kBossBarBorder + 1, fillWidth,
+			kBossBarHeight - 2 * kBossBarBorder - 2, BossBarColor(fraction));
+	}
 }
 
 GameUI::GameUI(std::unique_ptr<GameLogic::IGameService> gameService)
@@ -803,6 +848,7 @@ void GameUI::RenderGameplay()
 	if (const auto& boss = m_gameService->GetBossState())
 	{
 		DrawSprite(g_bossSprite, boss->position);
+		DrawBossHealthBar(boss->position, boss->health, boss->maxHealth);
 	}
 
 	DrawEnemies(m_gameService->GetEnemiesState());

@@ -153,21 +153,21 @@
                 "x": 210,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 280,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 350,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
@@ -188,21 +188,21 @@
                 "x": 560,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 630,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 700,
                 "y": 250
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
@@ -363,14 +363,14 @@
                 "x": 210,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 280,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
@@ -384,14 +384,14 @@
                 "x": 420,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 490,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
@@ -405,14 +405,14 @@
                 "x": 630,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {
                 "x": 700,
                 "y": 445
             },
-            "type": "ARMORED"
+            "type": "NORMAL"
         },
         {
             "position": {

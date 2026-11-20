@@ -267,7 +267,6 @@ void GameService::DestroyCells(GameLogic::WallState& wall, size_t row, size_t co
 
 	wall.cells[row * WALL_COLS + col] = false;
 
-	if (Utils::IsValidIndex(row - 1, col, WALL_ROWS, WALL_COLS)) wall.cells[(row - 1) * WALL_COLS + col] = false;
 	if (Utils::IsValidIndex(row + 1, col, WALL_ROWS, WALL_COLS)) wall.cells[(row + 1) * WALL_COLS + col] = false;
 	if (Utils::IsValidIndex(row, col - 1, WALL_ROWS, WALL_COLS)) wall.cells[row * WALL_COLS + (col - 1)] = false;
 	if (Utils::IsValidIndex(row, col + 1, WALL_ROWS, WALL_COLS)) wall.cells[row * WALL_COLS + (col + 1)] = false;

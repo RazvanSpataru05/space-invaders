@@ -11,10 +11,10 @@ namespace GameLogic
 		config.powerUpChance = 0.25f;
 		config.playerShootCooldown = 0.20f;
 		config.enemyShootCooldown = 0.50f;
-		config.startCooldown = 2.5f;
+		config.startCooldown = 2.0f;
 		config.ufoSpawnCooldown = 25.0f;
 		config.powerUpDuration = 10.0f;
-		config.playerRespawnTimer = 2.5f;
+		config.playerRespawnTimer = 2.0f;
 
 		config.countUFOSpawn = 8;
 

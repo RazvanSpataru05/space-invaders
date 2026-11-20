@@ -11,17 +11,11 @@ namespace GameLogic
 		Vector2 position{};
 		float direction{};
 		int16_t health{};
+		int16_t maxHealth{};	// health at spawn; lets the UI show a fraction
 		bool isVisible{};
 
 		BossState(Vector2 p, int16_t h) :
-			health{ h }, position{ p }, direction{ 1.0f } {}
-		int16_t maxHealth{};	// health at spawn; lets the UI show a fraction
-
-		BossState(int16_t h) :
-			health{ h }, maxHealth{ h }, direction{ 1.0f }
-		{
-			position = Utils::Constants::BOSS_SPAWN_POSITION;
-		}
+			position{ p }, direction{ 1.0f }, health{ h }, maxHealth{ h } {}
 
 		void ChangeDirection()
 		{

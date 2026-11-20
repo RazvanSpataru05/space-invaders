@@ -468,7 +468,7 @@ namespace
 
 		const int barX = static_cast<int>(bossPosition.x);
 		const int barY = static_cast<int>(bossPosition.y) - kBossBarHeight - kBossBarGap;
-		const int barWidth = static_cast<int>(kBossBoxSize);
+		const int barWidth = static_cast<int>(Constants::BOSS_WIDTH);
 
 		DrawRectangle(barX, barY, barWidth, kBossBarHeight, kBackgroundColor);
 		DrawRectangleLines(barX, barY, barWidth, kBossBarHeight, kDimGreen);

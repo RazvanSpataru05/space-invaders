@@ -17,11 +17,13 @@ namespace GameLogic
 		float ufoSpawnCooldown{};
 		float playerHitCooldown{};
 		float powerUpDuration{};
+		float playerRespawnTimer{};
 
 		float playerMovementSpeed{};
 		float projectileSpeed{};
 		float ufoMovementSpeed{};
 		float enemyMovementSpeed{};
+		float bossMovementSpeed{};
 		float enemyDropDistance{};
 		
 		float bossDropDistance{};

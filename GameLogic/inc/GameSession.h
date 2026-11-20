@@ -7,6 +7,8 @@
 #include "API/Structs/GameEntities.h"
 #include "API/Structs/Vector2.h"
 
+#include "Enums/EventType.h"
+
 #include "Utils/GameConfigFactory.h"
 #include "Utils/PlayerUtils.h"
 
@@ -53,7 +55,7 @@ private:
 	void UpdateBoss(float deltaTime);
 	void UpdateBossPosition(float deltaTime);
 
-	void NotifyObservers(const GameLogic::GameEvent& event);
+	void NotifyObservers(GameLogic::EventType event);
 
 	void SpawnEnemies() noexcept;
 	void SpawnUFO() noexcept;
@@ -70,6 +72,8 @@ private:
 	void UpdateEnemiesPosition(float deltaTime);
 	void UpdateOffscreenEnemies();
 
+	void OnPlayerHit();
+
 	void UpdateUFOPosition(float deltaTime);
 
 	void UpdatePowerUpPosition(float deltaTime);
@@ -77,6 +81,8 @@ private:
 	void CheckPlayerProjectilesCollisions();
 	void CheckEnemyProjectilesCollisions();
 	void CheckPlayerPowerUpCollisions();
+	void CheckWallEnemyCollisions();
+	void CheckPlayerEnemyCollisions();
 
 	void SpawnEnemyProjectile() noexcept;
 	void SpawnBossProjectile() noexcept;

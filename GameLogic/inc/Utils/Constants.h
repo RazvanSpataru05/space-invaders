@@ -9,6 +9,8 @@ namespace GameLogic::Utils::Constants
 {
 	constexpr float INITIAL_ENEMY_DIRECTION{ 1.0f }; // 1: enemies move to right, -1: enemies move to the left
 
+	constexpr int TWO_ROWS_COUNT{ 12 };
+
 	constexpr float PROJECTILE_WIDTH{ 2.0f };
 	constexpr float PROJECTILE_HEIGHT{ 10.0f };
 

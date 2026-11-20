@@ -10,7 +10,7 @@ namespace GameLogic
 	{
 		Vector2 position{};
 		uint8_t livesCount{};
-		bool isAlive{};
+		bool isVisible{};
 
 		PlayerState() = default;
 		PlayerState(Vector2 pos, uint8_t lives) :
@@ -20,6 +20,7 @@ namespace GameLogic
 		{
 			livesCount = lives;
 			position = Utils::Constants::PLAYER_SPAWN_POSITION;
+			isVisible = true;
 		}
 	};
 }

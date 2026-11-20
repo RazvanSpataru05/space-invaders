@@ -8,13 +8,14 @@ namespace GameLogic
 		GameConfig config;
 
 		config.playerMovementSpeed = 4.0f;
-		config.powerUpChance = 0.10f;
-		config.playerShootCooldown = 0.33f;
-		config.enemyShootCooldown = 0.5f;
+		config.powerUpChance = 0.25f;
+		config.playerShootCooldown = 0.20f;
+		config.enemyShootCooldown = 0.50f;
 		config.startCooldown = 2.0f;
 		config.ufoSpawnCooldown = 25.0f;
 		config.playerHitCooldown = 3.0f;
 		config.powerUpDuration = 10.0f;
+		config.playerRespawnTimer = 2.5f;
 
 		config.countUFOSpawn = 8;
 
@@ -23,10 +24,11 @@ namespace GameLogic
 
 		config.ufoMovementSpeed = 100.0f;
 		config.enemyMovementSpeed = 60.0f;
+		config.bossMovementSpeed = 80.0f;
 		config.enemyDropDistance = 150.0f;
 
 		config.bossDropDistance = 50.0f;
-		config.powerUpDropDistance = 40.0f;
+		config.powerUpDropDistance = 75.0f;
 
 		config.normalEnemyHealth = 150u;
 		config.armoredEnemyHealth = 300u;
@@ -46,8 +48,6 @@ namespace GameLogic
 		LoadLevels(config);
 
 		return config;
-
-
 	}
 }
 

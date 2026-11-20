@@ -34,6 +34,18 @@ void GameSession::Update(float deltaTime) noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
+	if (m_progress.isPlayerRespawning)
+	{
+		m_progress.playerRespawnTimer += deltaTime;
+		if (m_progress.playerRespawnTimer >= m_config.playerRespawnTimer)
+		{
+			m_progress.isPlayerRespawning = false;
+			m_entities.player.isVisible = true;
+			m_entities.player.position = GameLogic::Utils::Constants::PLAYER_SPAWN_POSITION;
+		}
+		return;
+	}
+
 	CheckCollisions();
 	CheckLevelCompletion();
 	CheckPlayerDefeat();
@@ -59,7 +71,8 @@ void GameSession::Update(float deltaTime) noexcept
 void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
-		|| m_gameState != GameLogic::GameState::PLAYING) return;
+		|| m_gameState != GameLogic::GameState::PLAYING
+		|| m_progress.isPlayerRespawning) return;
 
 	if (direction == GameLogic::Direction::LEFT)
 	{
@@ -130,15 +143,15 @@ void GameSession::Shoot() noexcept
 
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_progress.playerShootCooldown < m_config.playerShootCooldown / m_progress.fireRateMultiplier
-		|| m_gameState != GameState::PLAYING) return;
+		|| m_gameState != GameState::PLAYING
+		|| m_progress.isPlayerRespawning) return;
 
 	const float x = m_entities.player.position.x;
 	const float y = m_entities.player.position.y;
 
 	m_entities.playerProjectiles.emplace_back(
 		Vector2(x + Utils::Constants::SHIP_WIDTH * 0.5f, y),
-		Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
-		ProjectileOwner::PLAYER,
+		-m_config.projectileSpeed,
 		m_config.playerProjectileDamage
 	);
 
@@ -146,15 +159,13 @@ void GameSession::Shoot() noexcept
 	{
 		m_entities.playerProjectiles.emplace_back(
 			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.33f, y + Utils::Constants::SHIP_WIDTH * 0.33f),
-			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
-			ProjectileOwner::PLAYER,
+			-m_config.projectileSpeed,
 			m_config.playerProjectileDamage
 		);
 
 		m_entities.playerProjectiles.emplace_back(
 			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.66f, y + Utils::Constants::SHIP_WIDTH * 0.33f),
-			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::PLAYER),
-			ProjectileOwner::PLAYER,
+			-m_config.projectileSpeed,
 			m_config.playerProjectileDamage
 		);
 	}
@@ -162,7 +173,7 @@ void GameSession::Shoot() noexcept
 	m_progress.playerShootCooldown = 0.0f;
 	++m_progress.projectileCount;
 
-	NotifyObservers({ EventType::PLAYER_SHOT });
+	NotifyObservers(EventType::PLAYER_SHOT);
 }
 
 void GameSession::Reset() noexcept
@@ -192,7 +203,7 @@ void GameSession::SpawnUFO() noexcept
 		if (m_progress.ufoApproaching)
 		{
 			m_progress.ufoApproaching = false;
-			NotifyObservers({ GameLogic::EventType::UFO_APPROACH_CANCELLED });
+			NotifyObservers(GameLogic::EventType::UFO_APPROACH_CANCELLED);
 		}
 		return;
 	}
@@ -201,7 +212,7 @@ void GameSession::SpawnUFO() noexcept
 		&& m_progress.ufoSpawnTimer >= m_config.ufoSpawnCooldown - GameLogic::Utils::Constants::UFO_WARNING_TIME)
 	{
 		m_progress.ufoApproaching = true;
-		NotifyObservers({ GameLogic::EventType::UFO_APPROACHING });
+		NotifyObservers(GameLogic::EventType::UFO_APPROACHING);
 	}
 
 	if (m_progress.ufoSpawnTimer < m_config.ufoSpawnCooldown) return;
@@ -212,7 +223,7 @@ void GameSession::SpawnUFO() noexcept
 	m_progress.ufoApproaching = false;
 	m_progress.ufoLeaving = false;
 
-	NotifyObservers({ GameLogic::EventType::UFO_SPAWNED });
+	NotifyObservers(GameLogic::EventType::UFO_SPAWNED);
 }
 
 void GameSession::InitializeWalls()
@@ -318,21 +329,21 @@ void GameSession::UpdateBoss(float deltaTime)
 		m_entities.boss = std::nullopt;
 		m_progress.score += m_config.bossScore;
 		m_progress.bossDefeated = true;
-		NotifyObservers({ GameLogic::EventType::ENEMY_DESTROYED });
+		NotifyObservers(GameLogic::EventType::ENEMY_DESTROYED);
 	}
 }
 
 void GameSession::UpdateBossPosition(float deltaTime)
 {
-	if (m_entities.boss.value().position.x < 0
-		|| m_entities.boss.value().position.x > GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::BOSS_WIDTH)
+	if (m_entities.boss->position.x < 0
+		|| m_entities.boss->position.x > GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::BOSS_WIDTH)
 	{
-		m_entities.boss.value().ChangeDirection();
-		m_entities.boss.value().position.y += m_config.bossDropDistance;
+		m_entities.boss->ChangeDirection();
+		m_entities.boss->position.y += m_config.bossDropDistance;
 	}
 	
-	const float direction = m_entities.boss.value().direction;
-	m_entities.boss.value().position.x += (m_config.enemyMovementSpeed * direction * deltaTime);
+	const float speed = m_config.bossMovementSpeed * std::min(3.0f, (static_cast<float>(m_config.bossEnemyHealth) / static_cast<float>(m_entities.boss->health)));
+	m_entities.boss->position.x += (speed * m_entities.boss->direction * deltaTime);
 }
 
 void GameSession::UpdateScore(GameLogic::EnemyType type)
@@ -352,6 +363,8 @@ void GameSession::CheckCollisions()
 
 	CheckPlayerProjectilesCollisions();
 	CheckEnemyProjectilesCollisions();
+	CheckWallEnemyCollisions();
+	CheckPlayerEnemyCollisions();
 	CheckPlayerPowerUpCollisions();
 }
 
@@ -369,7 +382,7 @@ void GameSession::CheckLevelCompletion() noexcept
 	if (m_entities.enemies.empty() && !m_entities.boss)
 	{
 		m_gameState = GameLogic::GameState::VICTORY;
-		NotifyObservers({ GameLogic::EventType::LEVEL_COMPLETED });
+		NotifyObservers(GameLogic::EventType::LEVEL_COMPLETED);
 	}
 }
 
@@ -380,7 +393,7 @@ void GameSession::CheckPlayerDefeat() noexcept
 	if (m_entities.player.livesCount == 0u)
 	{
 		m_gameState = GameLogic::GameState::GAME_OVER;
-		NotifyObservers({ GameLogic::EventType::GAME_OVER });
+		NotifyObservers(GameLogic::EventType::GAME_OVER);
 	}
 }
 
@@ -414,7 +427,7 @@ void GameSession::ActivatePowerUp(const GameLogic::PowerUpType type)
 	}
 }
 
-void GameSession::NotifyObservers(const GameLogic::GameEvent& event)
+void GameSession::NotifyObservers(GameLogic::EventType event)
 {
 	for (const auto& observer : m_observers)
 	{
@@ -431,7 +444,7 @@ void GameSession::UpdateEnemiesHealth()
 		{
 			UpdateScore(it->type);
 			SpawnPowerUpPickup(it->position);
-			NotifyObservers({ GameLogic::EventType::ENEMY_DESTROYED });
+			NotifyObservers(GameLogic::EventType::ENEMY_DESTROYED);
 			it = m_entities.enemies.erase(it);
 			continue;
 		}
@@ -445,7 +458,7 @@ void GameSession::UpdateEnemiesPosition(float deltaTime)
 
 	for (auto& enemy : m_entities.enemies)
 	{
-		GameLogic::Utils::UpdateEnemyHorizontalPosition(enemy, m_progress, deltaTime);
+		GameLogic::Utils::UpdateEnemyHorizontalPosition(enemy, m_progress, m_entities.enemies.size(), m_config.levels[m_currentLevel].enemies.size(), deltaTime);
 
 		if (GameLogic::Utils::CheckEdge(enemy, m_progress.enemyDirection))
 		{
@@ -474,21 +487,34 @@ void GameSession::UpdateOffscreenEnemies()
 		});
 }
 
+void GameSession::OnPlayerHit()
+{
+	m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
+	NotifyObservers(GameLogic::EventType::PLAYER_HIT);
+
+	if (m_entities.player.livesCount != 0)
+	{
+		m_progress.isPlayerRespawning = true;
+		m_entities.player.isVisible = false;
+		m_progress.playerRespawnTimer = 0.0f;
+	}
+}
+
 void GameSession::UpdateUFOPosition(float dt)
 {
 	if (!m_entities.ufo) return;
 
-	m_entities.ufo.value().position.x += (m_config.ufoMovementSpeed * m_entities.ufo.value().direction * dt);
+	m_entities.ufo->position.x += (m_config.ufoMovementSpeed * m_entities.ufo->direction * dt);
 
-	const float x = m_entities.ufo.value().position.x;
-	const float distanceToExit = m_entities.ufo.value().direction > 0
+	const float x = m_entities.ufo->position.x;
+	const float distanceToExit = m_entities.ufo->direction > 0
 		? GameLogic::Utils::Constants::SCREEN_WIDTH - x
 		: x;
 
 	if (!m_progress.ufoLeaving && distanceToExit <= GameLogic::Utils::Constants::UFO_LEAVING_DISTANCE)
 	{
 		m_progress.ufoLeaving = true;
-		NotifyObservers({ GameLogic::EventType::UFO_LEAVING });
+		NotifyObservers(GameLogic::EventType::UFO_LEAVING);
 	}
 
 	// Check if UFO is still on screen
@@ -496,7 +522,7 @@ void GameSession::UpdateUFOPosition(float dt)
 	{
 		m_entities.ufo = std::nullopt;
 		m_progress.ufoLeaving = false;
-		NotifyObservers({ GameLogic::EventType::UFO_DESPAWNED });
+		NotifyObservers(GameLogic::EventType::UFO_DESPAWNED);
 	}
 }
 
@@ -521,27 +547,9 @@ void GameSession::CheckPlayerProjectilesCollisions()
 					enemy.health = static_cast<int16_t>(std::max(0, enemy.health - m_config.playerProjectileDamage));
 					if (enemy.health > 0)
 					{
-						NotifyObservers({ GameLogic::EventType::ENEMY_HIT });
+						NotifyObservers(GameLogic::EventType::ENEMY_HIT);
 					}
 					return true;
-				}
-			}
-
-			for (auto& wall : m_entities.wallsState)
-			{
-				for (size_t row = 0; row < Constants::WALL_ROWS; ++row)
-				{
-					for (size_t col = 0; col < Constants::WALL_COLS; ++col)
-					{
-						if (wall.cells[row * Constants::WALL_COLS + col])
-						{
-							const float x = wall.position.x + col * Constants::CELL_SIZE;
-							const float y = wall.position.y + row * Constants::CELL_SIZE;
-							const Bounds bounds = GetBounds(GameLogic::Vector2(x, y), Constants::CELL_SIZE);
-
-							if (bounds.Overlaps(projectile.position)) return true;
-						}
-					}
 				}
 			}
 
@@ -560,7 +568,7 @@ void GameSession::CheckPlayerProjectilesCollisions()
 
 				if (m_entities.boss->health > 0)
 				{
-					NotifyObservers({ GameLogic::EventType::ENEMY_HIT });
+					NotifyObservers(GameLogic::EventType::ENEMY_HIT);
 				}
 				return true;
 			}
@@ -577,12 +585,9 @@ void GameSession::CheckEnemyProjectilesCollisions()
 
 	std::erase_if(m_entities.enemyProjectiles, [&](const GameLogic::ProjectileState& projectile)
 		{
-			if (playerBounds.Overlaps(projectile.position)
-				&& m_progress.playerHitCooldown >= m_config.playerHitCooldown)
+			if (playerBounds.Overlaps(projectile.position))
 			{
-				m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
-				m_progress.playerHitCooldown = 0.0f;
-				NotifyObservers({ GameLogic::EventType::PLAYER_HIT });
+				OnPlayerHit();
 				return true;
 			}
 
@@ -625,6 +630,53 @@ void GameSession::CheckPlayerPowerUpCollisions()
 		});
 }
 
+void GameSession::CheckWallEnemyCollisions()
+{
+	using namespace GameLogic;
+
+	for (const auto& enemy : m_entities.enemies)
+	{
+		const Bounds enemyBounds = GetBounds(enemy.position, Utils::Constants::SHIP_WIDTH);
+		for (auto& wall : m_entities.wallsState)
+		{
+			for (size_t row = 0; row < Utils::Constants::WALL_ROWS; ++row)
+			{
+				for (size_t col = 0; col < Utils::Constants::WALL_COLS; ++col)
+				{
+					if (wall.cells[row * Utils::Constants::WALL_COLS + col])
+					{
+						const float x = wall.position.x + col * Utils::Constants::CELL_SIZE;
+						const float y = wall.position.y + row * Utils::Constants::CELL_SIZE;
+						const Bounds bounds = GetBounds(Vector2(x, y), Utils::Constants::CELL_SIZE);
+
+						if (enemyBounds.Overlaps(bounds))
+						{
+							wall.cells[row * Utils::Constants::WALL_COLS + col] = false;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void GameSession::CheckPlayerEnemyCollisions()
+{
+	using namespace GameLogic;
+
+	const Bounds playerBounds = GetBounds(m_entities.player.position, Utils::Constants::SHIP_WIDTH);
+
+	for (const auto& enemy : m_entities.enemies)
+	{
+		const Bounds enemyBounds = GetBounds(enemy.position, Utils::Constants::SHIP_WIDTH);
+		if (playerBounds.Overlaps(enemyBounds))
+		{
+			OnPlayerHit();
+			break;
+		}
+	}
+}
+
 void GameSession::SpawnEnemyProjectile() noexcept
 {
 	using namespace GameLogic;
@@ -635,7 +687,7 @@ void GameSession::SpawnEnemyProjectile() noexcept
 		|| m_entities.enemies.empty()
 		|| m_gameState != GameState::PLAYING) return;
 
-	if (const auto result = Utils::GetUniformEnemyDistribution(m_entities.enemies.size());
+	if (const auto result = Utils::GetUniformEnemyDistribution(static_cast<int>(m_entities.enemies.size()));
 		result.has_value())
 	{
 		auto rd = result.value();
@@ -646,22 +698,19 @@ void GameSession::SpawnEnemyProjectile() noexcept
 
 		m_entities.enemyProjectiles.emplace_back(
 			Vector2(x + Utils::Constants::SHIP_WIDTH * 0.5f, y + Utils::Constants::SHIP_WIDTH),
-			Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-			GameLogic::ProjectileOwner::ENEMY,
+			m_config.projectileSpeed,
 			m_config.enemyProjectileDamage);
 
 		if (m_entities.enemies[index].type == EnemyType::SHOOTER)
 		{
 			m_entities.enemyProjectiles.emplace_back(
 				Vector2(x, y + Utils::Constants::SHIP_WIDTH),
-				Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-				GameLogic::ProjectileOwner::ENEMY,
+				m_config.projectileSpeed,
 				m_config.enemyProjectileDamage);
 
 			m_entities.enemyProjectiles.emplace_back(
 				Vector2(x + Utils::Constants::SHIP_WIDTH, y + Utils::Constants::SHIP_WIDTH),
-				Utils::ProjectileVelocity(m_config.projectileSpeed, GameLogic::ProjectileOwner::ENEMY),
-				GameLogic::ProjectileOwner::ENEMY,
+				m_config.projectileSpeed,
 				m_config.enemyProjectileDamage);
 		}
 	}
@@ -679,22 +728,19 @@ void GameSession::SpawnBossProjectile() noexcept
 
 	m_entities.enemyProjectiles.emplace_back(
 		Vector2(position.x + Utils::Constants::BOSS_WIDTH * 0.5f, position.y + Utils::Constants::BOSS_WIDTH),
-		Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
-		ProjectileOwner::ENEMY,
+		m_config.projectileSpeed,
 		m_config.enemyProjectileDamage);
 
 	if (m_entities.boss->health < static_cast<int16_t>(m_config.bossEnemyHealth * 0.5f))
 	{
 		m_entities.enemyProjectiles.emplace_back(
 			Vector2(position.x, position.y + Utils::Constants::BOSS_WIDTH),
-			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
-			ProjectileOwner::ENEMY,
+			m_config.projectileSpeed,
 			m_config.enemyProjectileDamage);
 
 		m_entities.enemyProjectiles.emplace_back(
 			Vector2(position.x + Utils::Constants::BOSS_WIDTH, position.y + Utils::Constants::BOSS_WIDTH),
-			Utils::ProjectileVelocity(m_config.projectileSpeed, ProjectileOwner::ENEMY),
-			ProjectileOwner::ENEMY,
+			m_config.projectileSpeed,
 			m_config.enemyProjectileDamage);
 	}
 

@@ -505,9 +505,9 @@ void GameUI::Run()
 	}
 }
 
-void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
+void GameUI::OnGameEvent(GameLogic::EventType event)
 {
-	switch (event.type)
+	switch (event)
 	{
 	case GameLogic::EventType::LEVEL_COMPLETED:
 		m_audio.StopUfoSiren();
@@ -533,13 +533,12 @@ void GameUI::OnGameEvent(const GameLogic::GameEvent& event)
 
 void GameUI::UpdateAudio(float deltaTime)
 {
-	// The siren freezes with the game: Update() only runs on the GAMEPLAY screen.
 	m_audio.SetUfoSirenPaused(m_currentScreen != ScreenType::GAMEPLAY);
 
 	if (const auto& ufo = m_gameService->GetUFOState(); ufo.has_value())
 	{
-		const float x = ufo.value().position.x;
-		m_audio.SetUfoDistanceToExit(ufo.value().direction > 0.0f
+		const float x = ufo->position.x;
+		m_audio.SetUfoDistanceToExit(ufo->direction > 0.0f
 			? GameLogic::Utils::Constants::SCREEN_WIDTH - x
 			: x);
 	}
@@ -808,7 +807,8 @@ void GameUI::RenderGameplay()
 	const auto player = m_gameService->GetPlayerState();
 
 	DrawHUD(m_gameService->GetScore(), kLevelLabels[m_gameService->GetLevel()], player.livesCount);
-	DrawSprite(g_playerSprite, player.position);
+
+	if (m_gameService->GetPlayerState().isVisible) DrawSprite(g_playerSprite, player.position);
 
 	if (const auto& ufo = m_gameService->GetUFOState())
 	{
@@ -820,7 +820,6 @@ void GameUI::RenderGameplay()
 		DrawSprite(g_bossSprite, boss->position);
 	}
 
-	
 	DrawEnemies(m_gameService->GetEnemiesState());
 	DrawWalls(m_gameService->GetWallsState());
 	DrawProjectiles(m_gameService->GetPlayerProjectilesState(), RED);

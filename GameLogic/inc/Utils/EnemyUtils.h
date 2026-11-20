@@ -28,10 +28,10 @@ namespace GameLogic::Utils
 
 	bool CheckEdge(const EnemyState& enemy, float direction);
 
-	void UpdateEnemyHorizontalPosition(EnemyState& enemy, const GameProgress& progress, float dt);
+	void UpdateEnemyHorizontalPosition(EnemyState& enemy, const GameProgress& progress, size_t remainingEnemies, size_t totalEnemies, float dt);
 	void UpdateEnemyVerticalPosition(EnemyState& enemy, const GameProgress& progress, float dt);
 
-	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(size_t enemyCount);
+	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(int max);
 
 	bool AABBCollision(float xStartObj, float xEndObj, float yStartObj, float yEndObj,
 		float xProj, float yProj);

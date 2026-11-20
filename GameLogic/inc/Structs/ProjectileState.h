@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Enums/ProjectileOwner.h"
-
 #include "API/Structs/Vector2.h"
+
+#include <cstdint>
 
 namespace GameLogic
 {
@@ -10,11 +10,10 @@ namespace GameLogic
 	{
 		Vector2 position{};
 		float velocity{};
-		ProjectileOwner owner{};
 		uint8_t damage{};
 
-		ProjectileState(Vector2 pos, float v, ProjectileOwner o, uint8_t d) :
-			position{ pos }, velocity{ v }, owner{ o }, damage{ d } {
+		ProjectileState(Vector2 pos, float v, uint8_t d) :
+			position{ pos }, velocity{ v }, damage{ d } {
 		}
 	};
 }

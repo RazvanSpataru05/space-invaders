@@ -9,9 +9,10 @@ namespace GameLogic::Utils
 				(direction > 0.0f && (enemy.position.x + Constants::SHIP_WIDTH) > (Constants::SCREEN_WIDTH - Constants::WIDTH_OFFSET));
 	}
 
-	void UpdateEnemyHorizontalPosition(EnemyState& enemy, const GameProgress& progress, float dt)
+	void UpdateEnemyHorizontalPosition(EnemyState& enemy, const GameProgress& progress, size_t remainingEnemies, size_t totalEnemies, float dt)
 	{
-		enemy.position.x += (progress.baseEnemySpeed * dt) * progress.enemyDirection;
+		const float speed = progress.baseEnemySpeed * (static_cast<float>(totalEnemies) / static_cast<float>(remainingEnemies));
+		enemy.position.x += (speed * dt) * progress.enemyDirection;
 	}
 
 	void UpdateEnemyVerticalPosition(EnemyState& enemy, const GameProgress& progress, float dt)
@@ -19,11 +20,11 @@ namespace GameLogic::Utils
 		enemy.position.y += (progress.dropDistance * dt);
 	}
 
-	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(size_t enemyCount)
+	std::optional<std::uniform_int_distribution<size_t>> GetUniformEnemyDistribution(int max)
 	{
-		if (enemyCount == 0) return std::nullopt;
+		if (max == 0) return std::nullopt;
 
-		return std::uniform_int_distribution<size_t>(0, enemyCount - 1);
+		return std::uniform_int_distribution<size_t>(std::max(0, max - Constants::TWO_ROWS_COUNT), max - 1);
 	}
 
 	bool AABBCollision(float xStartObj, float xEndObj, float yStartObj,

@@ -8,7 +8,6 @@
 
 #include "API/Structs/GameProgress.h"
 
-#include "Structs/GameEvent.h"
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 
@@ -38,7 +37,7 @@ public:
 
     void Initialize();
     void Run();
-    void OnGameEvent(const GameLogic::GameEvent& event) override;
+    void OnGameEvent(GameLogic::EventType event) override;
 
 private:
     void HandleInput();

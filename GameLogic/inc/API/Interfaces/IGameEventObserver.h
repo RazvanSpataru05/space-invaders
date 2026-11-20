@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Structs/GameEvent.h"
+#include "Enums/EventType.h"
 
 namespace GameLogic
 {
@@ -9,7 +9,7 @@ namespace GameLogic
     public:
         virtual ~IGameEventObserver() = default;
 
-        virtual void OnGameEvent(const GameEvent& event) = 0;
+        virtual void OnGameEvent(EventType event) = 0;
     };
 }
     

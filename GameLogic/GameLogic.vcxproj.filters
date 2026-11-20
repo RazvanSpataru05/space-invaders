@@ -31,9 +31,12 @@
     <Filter Include="inc\API\Interfaces">
       <UniqueIdentifier>{3c730cb9-7076-478d-ba0d-17c70d3edf1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="inc\API\Utils">
+      <UniqueIdentifier>{df8d53b4-c833-43d6-8d08-9c33950e529e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\GameSession.h">
+    <ClInclude Include="inc\GameService.h">
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\Utils\Constants.h">
@@ -117,12 +120,15 @@
     <ClInclude Include="inc\Structs\WallState.h">
       <Filter>inc\Structs</Filter>
     </ClInclude>
+    <ClInclude Include="inc\API\Utils\GameConstants.h">
+      <Filter>inc\API\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameSession.cpp">
+    <ClCompile Include="src\GameService.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp">

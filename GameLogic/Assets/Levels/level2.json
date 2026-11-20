@@ -48,7 +48,7 @@
                 "x": 560,
                 "y": 120
             },
-            "type": "NORMAL"
+            "type": "ARMORED"
         },
         {
             "position": {
@@ -398,7 +398,7 @@
                 "x": 560,
                 "y": 445
             },
-            "type": "NORMAL"
+            "type": "ARMORED"
         },
         {
             "position": {

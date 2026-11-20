@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "GameSession.h"
+#include "GameService.h"
 
-GameSession::GameSession() :
+GameService::GameService() :
 	m_config{ GameLogic::CreateDefaultConfig() },
 	m_generator{ std::random_device{}() },
 	m_progress{ GameLogic::GameProgress(m_config) },
@@ -9,7 +9,7 @@ GameSession::GameSession() :
 {
 }
 
-void GameSession::Subscribe(GameLogic::IGameEventObserver* observer)
+void GameService::Subscribe(GameLogic::IGameEventObserver* observer)
 {
 	if (observer && std::find(m_observers.begin(), m_observers.end(), observer) == m_observers.end())
 	{
@@ -17,12 +17,12 @@ void GameSession::Subscribe(GameLogic::IGameEventObserver* observer)
 	}
 }
 
-void GameSession::Unsubscribe(GameLogic::IGameEventObserver* observer)
+void GameService::Unsubscribe(GameLogic::IGameEventObserver* observer)
 {
 	std::erase(m_observers, observer);
 }
 
-void GameSession::StartLevel() noexcept
+void GameService::StartLevel() noexcept
 {
 	Reset();
 
@@ -30,7 +30,7 @@ void GameSession::StartLevel() noexcept
 	m_gameState = GameLogic::GameState::PLAYING;
 }
 
-void GameSession::Update(float deltaTime) noexcept
+void GameService::Update(float deltaTime) noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
@@ -42,6 +42,16 @@ void GameSession::Update(float deltaTime) noexcept
 			m_progress.isPlayerRespawning = false;
 			m_entities.player.isVisible = true;
 			m_entities.player.position = GameLogic::Utils::Constants::PLAYER_SPAWN_POSITION;
+		}
+		return;
+	}
+
+	if (m_entities.boss && m_entities.boss->position.y < GameLogic::Utils::Constants::BOSS_DESIRED_LOCATION.y)
+	{
+		m_entities.boss->position.y += (m_config.bossDropDistance * deltaTime);
+		if (m_entities.boss->position.y >= GameLogic::Utils::Constants::BOSS_DESIRED_LOCATION.y)
+		{
+			m_entities.boss->isVisible = true;
 		}
 		return;
 	}
@@ -65,14 +75,14 @@ void GameSession::Update(float deltaTime) noexcept
 	m_progress.playerShootCooldown += deltaTime;
 	m_progress.enemyShootCooldown += deltaTime;
 	m_progress.ufoSpawnTimer += deltaTime;
-	m_progress.playerHitCooldown += deltaTime;
 }
 
-void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
+void GameService::MovePlayer(GameLogic::Direction direction) noexcept
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING
-		|| m_progress.isPlayerRespawning) return;
+		|| m_progress.isPlayerRespawning
+		|| (m_entities.boss && !m_entities.boss->isVisible)) return;
 
 	if (direction == GameLogic::Direction::LEFT)
 	{
@@ -87,64 +97,65 @@ void GameSession::MovePlayer(GameLogic::Direction direction) noexcept
 	}
 }
 
-GameLogic::PlayerState GameSession::GetPlayerState() const noexcept
+GameLogic::PlayerState GameService::GetPlayerState() const noexcept
 {
 	return m_entities.player;
 }
 
-const std::optional<GameLogic::UFOState>& GameSession::GetUFOState() const noexcept
+const std::optional<GameLogic::UFOState>& GameService::GetUFOState() const noexcept
 {
 	return m_entities.ufo;
 }
 
-const std::optional<GameLogic::BossState>& GameSession::GetBossState() const noexcept
+const std::optional<GameLogic::BossState>& GameService::GetBossState() const noexcept
 {
 	return m_entities.boss;
 }
 
-std::span<const GameLogic::EnemyState> GameSession::GetEnemiesState() const noexcept
+std::span<const GameLogic::EnemyState> GameService::GetEnemiesState() const noexcept
 {
 	return m_entities.enemies;
 }
 
-std::span<const GameLogic::ProjectileState> GameSession::GetPlayerProjectilesState() const noexcept
+std::span<const GameLogic::ProjectileState> GameService::GetPlayerProjectilesState() const noexcept
 {
 	return m_entities.playerProjectiles;
 }
 
-std::span<const GameLogic::ProjectileState> GameSession::GetEnemyProjectilesState() const noexcept
+std::span<const GameLogic::ProjectileState> GameService::GetEnemyProjectilesState() const noexcept
 {
 	return m_entities.enemyProjectiles;
 }
 
-std::span<const GameLogic::PowerUpPickup> GameSession::GetPowerUpPickups() const noexcept
+std::span<const GameLogic::PowerUpPickup> GameService::GetPowerUpPickups() const noexcept
 {
 	return m_entities.powerUpPickups;
 }
 
-std::span<const GameLogic::WallState> GameSession::GetWallsState() const noexcept
+std::span<const GameLogic::WallState> GameService::GetWallsState() const noexcept
 {
 	return m_entities.wallsState;
 }
 
-size_t& GameSession::GetLevel() noexcept
+size_t& GameService::GetLevel() noexcept
 {
 	return m_currentLevel;
 }
 
-uint32_t GameSession::GetScore() const noexcept
+uint32_t GameService::GetScore() const noexcept
 {
 	return m_progress.score;
 }
 
-void GameSession::Shoot() noexcept
+void GameService::Shoot() noexcept
 {
 	using namespace GameLogic;
 
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_progress.playerShootCooldown < m_config.playerShootCooldown / m_progress.fireRateMultiplier
 		|| m_gameState != GameState::PLAYING
-		|| m_progress.isPlayerRespawning) return;
+		|| m_progress.isPlayerRespawning
+		|| (m_entities.boss && !m_entities.boss->isVisible)) return;
 
 	const float x = m_entities.player.position.x;
 	const float y = m_entities.player.position.y;
@@ -176,7 +187,7 @@ void GameSession::Shoot() noexcept
 	NotifyObservers(EventType::PLAYER_SHOT);
 }
 
-void GameSession::Reset() noexcept
+void GameService::Reset() noexcept
 {
 	m_progress.Reset(m_config);
 	m_entities.Reset(m_config.playerLivesCount);
@@ -185,7 +196,7 @@ void GameSession::Reset() noexcept
 	m_ufoScorePtr = 0;
 }
 
-void GameSession::SpawnEnemies() noexcept
+void GameService::SpawnEnemies() noexcept
 {
 	for (const auto& enemyConfig : m_config.levels[m_currentLevel].enemies)
 	{
@@ -193,7 +204,7 @@ void GameSession::SpawnEnemies() noexcept
 	}
 }
 
-void GameSession::SpawnUFO() noexcept
+void GameService::SpawnUFO() noexcept
 {
 	const bool canSpawn = m_entities.enemies.size() >= m_config.countUFOSpawn && !m_entities.ufo;
 
@@ -218,7 +229,10 @@ void GameSession::SpawnUFO() noexcept
 	if (m_progress.ufoSpawnTimer < m_config.ufoSpawnCooldown) return;
 
 	const float direction = (m_progress.projectileCount % 2) ? 1.0f : -1.0f;
-	m_entities.ufo.emplace(GameLogic::UFOState(direction));
+	const GameLogic::Vector2 position = direction > 0
+		? GameLogic::Utils::Constants::UFO_LEFT_SPAWN_POSITION
+		: GameLogic::Utils::Constants::UFO_RIGHT_SPAWN_POSITION;
+	m_entities.ufo.emplace(GameLogic::UFOState(direction, position));
 	m_progress.ufoSpawnTimer = 0.0f;
 	m_progress.ufoApproaching = false;
 	m_progress.ufoLeaving = false;
@@ -226,7 +240,7 @@ void GameSession::SpawnUFO() noexcept
 	NotifyObservers(GameLogic::EventType::UFO_SPAWNED);
 }
 
-void GameSession::InitializeWalls()
+void GameService::InitializeWalls()
 {
 	using namespace GameLogic;
 
@@ -246,7 +260,7 @@ void GameSession::InitializeWalls()
 	}
 }
 
-void GameSession::DestroyCells(GameLogic::WallState& wall, size_t row, size_t col)
+void GameService::DestroyCells(GameLogic::WallState& wall, size_t row, size_t col)
 {
 	using namespace GameLogic;
 	using namespace Utils::Constants;
@@ -259,7 +273,7 @@ void GameSession::DestroyCells(GameLogic::WallState& wall, size_t row, size_t co
 	if (Utils::IsValidIndex(row, col + 1, WALL_ROWS, WALL_COLS)) wall.cells[row * WALL_COLS + (col + 1)] = false;
 }
 
-void GameSession::UpdateEnemies(float deltaTime)
+void GameService::UpdateEnemies(float deltaTime)
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
@@ -269,7 +283,7 @@ void GameSession::UpdateEnemies(float deltaTime)
 	UpdateOffscreenEnemies();
 }
 
-void GameSession::UpdateProjectiles(float deltaTime)
+void GameService::UpdateProjectiles(float deltaTime)
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
@@ -293,7 +307,7 @@ void GameSession::UpdateProjectiles(float deltaTime)
 		});
 }
 
-void GameSession::UpdateActivePowerUpsDuration(float deltaTime)
+void GameService::UpdateActivePowerUpsDuration(float deltaTime)
 {
 	m_progress.fireRateMultiplier = 1.0f;
 	m_progress.multiShot = false;
@@ -317,7 +331,7 @@ void GameSession::UpdateActivePowerUpsDuration(float deltaTime)
 		});
 }
 
-void GameSession::UpdateBoss(float deltaTime)
+void GameService::UpdateBoss(float deltaTime)
 {
 	if (!m_entities.boss) return;
 
@@ -333,7 +347,7 @@ void GameSession::UpdateBoss(float deltaTime)
 	}
 }
 
-void GameSession::UpdateBossPosition(float deltaTime)
+void GameService::UpdateBossPosition(float deltaTime)
 {
 	if (m_entities.boss->position.x < 0
 		|| m_entities.boss->position.x > GameLogic::Utils::Constants::SCREEN_WIDTH - GameLogic::Utils::Constants::BOSS_WIDTH)
@@ -346,7 +360,7 @@ void GameSession::UpdateBossPosition(float deltaTime)
 	m_entities.boss->position.x += (speed * m_entities.boss->direction * deltaTime);
 }
 
-void GameSession::UpdateScore(GameLogic::EnemyType type)
+void GameService::UpdateScore(GameLogic::EnemyType type)
 {
 	switch (type)
 	{
@@ -356,7 +370,7 @@ void GameSession::UpdateScore(GameLogic::EnemyType type)
 	}
 }
 
-void GameSession::CheckCollisions()
+void GameService::CheckCollisions()
 {
 	if (m_progress.elapsedTime < m_config.startCooldown
 		|| m_gameState != GameLogic::GameState::PLAYING) return;
@@ -368,7 +382,7 @@ void GameSession::CheckCollisions()
 	CheckPlayerPowerUpCollisions();
 }
 
-void GameSession::CheckLevelCompletion() noexcept
+void GameService::CheckLevelCompletion() noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
@@ -386,7 +400,7 @@ void GameSession::CheckLevelCompletion() noexcept
 	}
 }
 
-void GameSession::CheckPlayerDefeat() noexcept
+void GameService::CheckPlayerDefeat() noexcept
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
@@ -397,12 +411,14 @@ void GameSession::CheckPlayerDefeat() noexcept
 	}
 }
 
-void GameSession::SpawnBoss() noexcept
+void GameService::SpawnBoss() noexcept
 {
-	m_entities.boss.emplace(GameLogic::BossState(m_config.bossEnemyHealth));
+	m_entities.boss.emplace(GameLogic::BossState(GameLogic::Utils::Constants::BOSS_SPAWN_POSITION, m_config.bossEnemyHealth));
+	m_entities.enemyProjectiles.clear();
+	m_entities.playerProjectiles.clear();
 }
 
-void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position) noexcept
+void GameService::SpawnPowerUpPickup(GameLogic::Vector2 position) noexcept
 {
 	using namespace GameLogic;
 	std::uniform_real_distribution<float> realDist(0, 1.0f);
@@ -416,18 +432,18 @@ void GameSession::SpawnPowerUpPickup(GameLogic::Vector2 position) noexcept
 	m_entities.powerUpPickups.emplace_back(position, type);
 }
 
-void GameSession::ActivatePowerUp(const GameLogic::PowerUpType type)
+void GameService::ActivatePowerUp(const GameLogic::PowerUpType type)
 {
 	switch (type)
 	{
 	case GameLogic::PowerUpType::BONUS_SCORE: m_progress.score += m_config.powerUpBonusScore; break;
-	case GameLogic::PowerUpType::EXTRA_LIFE:  m_entities.player.livesCount = std::min(3, m_entities.player.livesCount + 1); break;
+	case GameLogic::PowerUpType::EXTRA_LIFE:  m_entities.player.livesCount = std::min(static_cast<int>(m_config.playerLivesCount), m_entities.player.livesCount + 1); break;
 	case GameLogic::PowerUpType::MULTI_SHOT:
 	case GameLogic::PowerUpType::RAPID_FIRE: m_entities.activePowerUps.emplace_back(m_config.powerUpDuration, type); break;
 	}
 }
 
-void GameSession::NotifyObservers(GameLogic::EventType event)
+void GameService::NotifyObservers(GameLogic::EventType event)
 {
 	for (const auto& observer : m_observers)
 	{
@@ -435,7 +451,7 @@ void GameSession::NotifyObservers(GameLogic::EventType event)
 	}
 }
 
-void GameSession::UpdateEnemiesHealth()
+void GameService::UpdateEnemiesHealth()
 {
 	auto it = m_entities.enemies.begin();
 	while (it != m_entities.enemies.end())
@@ -452,7 +468,7 @@ void GameSession::UpdateEnemiesHealth()
 	}
 }
 
-void GameSession::UpdateEnemiesPosition(float deltaTime)
+void GameService::UpdateEnemiesPosition(float deltaTime)
 {
 	bool hitEdge = false;
 
@@ -477,7 +493,7 @@ void GameSession::UpdateEnemiesPosition(float deltaTime)
 	}
 }
 
-void GameSession::UpdateOffscreenEnemies()
+void GameService::UpdateOffscreenEnemies()
 {
 	if (m_gameState != GameLogic::GameState::PLAYING) return;
 
@@ -487,7 +503,7 @@ void GameSession::UpdateOffscreenEnemies()
 		});
 }
 
-void GameSession::OnPlayerHit()
+void GameService::OnPlayerHit()
 {
 	m_entities.player.livesCount = std::max(0, m_entities.player.livesCount - m_config.enemyProjectileDamage);
 	NotifyObservers(GameLogic::EventType::PLAYER_HIT);
@@ -500,7 +516,7 @@ void GameSession::OnPlayerHit()
 	}
 }
 
-void GameSession::UpdateUFOPosition(float dt)
+void GameService::UpdateUFOPosition(float dt)
 {
 	if (!m_entities.ufo) return;
 
@@ -526,7 +542,7 @@ void GameSession::UpdateUFOPosition(float dt)
 	}
 }
 
-void GameSession::UpdatePowerUpPosition(float deltaTime)
+void GameService::UpdatePowerUpPosition(float deltaTime)
 {
 	for (auto& powerUp : m_entities.powerUpPickups)
 	{
@@ -534,7 +550,7 @@ void GameSession::UpdatePowerUpPosition(float deltaTime)
 	}
 }
 
-void GameSession::CheckPlayerProjectilesCollisions()
+void GameService::CheckPlayerProjectilesCollisions()
 {
 	using namespace GameLogic::Utils;
 
@@ -577,7 +593,7 @@ void GameSession::CheckPlayerProjectilesCollisions()
 		});
 }
 
-void GameSession::CheckEnemyProjectilesCollisions()
+void GameService::CheckEnemyProjectilesCollisions()
 {
 	using namespace GameLogic::Utils;
 
@@ -616,13 +632,13 @@ void GameSession::CheckEnemyProjectilesCollisions()
 		});
 }
 
-void GameSession::CheckPlayerPowerUpCollisions()
+void GameService::CheckPlayerPowerUpCollisions()
 {
-	const auto playerBounds = GetBounds(m_entities.player.position, GameLogic::Utils::Constants::SHIP_WIDTH);
+	const Bounds playerBounds = GetBounds(m_entities.player.position, GameLogic::Utils::Constants::SHIP_WIDTH);
 
 	std::erase_if(m_entities.powerUpPickups, [&](const GameLogic::PowerUpPickup& powerUp)
 		{
-			const auto powerUpBounds = GetBounds(powerUp.position, GameLogic::Utils::Constants::POWER_UP_WIDTH);
+			const Bounds powerUpBounds = GetBounds(powerUp.position, GameLogic::Utils::Constants::POWER_UP_WIDTH);
 			if (!playerBounds.Overlaps(powerUpBounds)) return false;
 
 			ActivatePowerUp(powerUp.type);
@@ -630,7 +646,7 @@ void GameSession::CheckPlayerPowerUpCollisions()
 		});
 }
 
-void GameSession::CheckWallEnemyCollisions()
+void GameService::CheckWallEnemyCollisions()
 {
 	using namespace GameLogic;
 
@@ -660,7 +676,7 @@ void GameSession::CheckWallEnemyCollisions()
 	}
 }
 
-void GameSession::CheckPlayerEnemyCollisions()
+void GameService::CheckPlayerEnemyCollisions()
 {
 	using namespace GameLogic;
 
@@ -677,7 +693,7 @@ void GameSession::CheckPlayerEnemyCollisions()
 	}
 }
 
-void GameSession::SpawnEnemyProjectile() noexcept
+void GameService::SpawnEnemyProjectile() noexcept
 {
 	using namespace GameLogic;
 
@@ -718,7 +734,7 @@ void GameSession::SpawnEnemyProjectile() noexcept
 	m_progress.enemyShootCooldown = 0.0f;
 }
 
-void GameSession::SpawnBossProjectile() noexcept
+void GameService::SpawnBossProjectile() noexcept
 {
 	using namespace GameLogic;
 

@@ -2,9 +2,7 @@
 
 namespace
 {
-	// Window
-	constexpr uint16_t kScreenWidth = 960;
-	constexpr uint16_t kScreenHeight = 720;
+	namespace Constants = GameLogic::Utils::Constants;
 
 	constexpr uint8_t kTargetFps = 60;
 	constexpr const char* kWindowTitle = "Space Invaders";
@@ -241,19 +239,6 @@ namespace
 		DrawPixelSprite(kHeartSprite, x, y, kHeartPixelSize, color);
 	}
 
-	// Textures can only be created after the window exists, so they are loaded in GameUI::Initialize.
-	constexpr float kCellHitboxSize = 5.0f;
-	constexpr float kPowerUpHitboxSize = 30.0f;
-	constexpr float kHitboxSize = 40.0f;
-	constexpr float kUfoHitboxSize = 50.0f;
-	constexpr float kBossHitboxSize = 150.0f; 
-
-	constexpr int kProjectileWidth = 2;
-	constexpr int kProjectileHeight = 10;
-
-	constexpr int kWallRows = 16;
-	constexpr int kWallCols = 22;
-
 	struct Sprite
 	{
 		const char* path{ nullptr };   
@@ -263,23 +248,23 @@ namespace
 		bool sitOnBottom{ false };
 	};
 
-	Sprite g_playerSprite{ "Assets/Sprites/player_ship.png", kHitboxSize, kPrimaryGreen, {}, true };
-	Sprite g_ufoSprite{ "Assets/Sprites/ufo.png", kUfoHitboxSize, MAGENTA };
-	Sprite g_bossSprite{ "Assets/Sprites/boss.png", kBossHitboxSize, RED };
+	Sprite g_playerSprite{ "Assets/Sprites/player_ship.png", Constants::SHIP_WIDTH, kPrimaryGreen, {}, true };
+	Sprite g_ufoSprite{ "Assets/Sprites/ufo.png", Constants::UFO_WIDTH, MAGENTA };
+	Sprite g_bossSprite{ "Assets/Sprites/boss.png", Constants::BOSS_WIDTH, RED };
 
 	std::array<Sprite, 3> g_enemySprites{ {
 
-	{ "Assets/Sprites/enemy_normal.png",  kHitboxSize,  GREEN,  {} },
-	{ "Assets/Sprites/enemy_armored.png", kHitboxSize,  BLUE,   {} },
-	{ "Assets/Sprites/enemy_shooter.png", kHitboxSize,  ORANGE, {} },
+	{ "Assets/Sprites/enemy_normal.png",  Constants::SHIP_WIDTH,  GREEN,  {} },
+	{ "Assets/Sprites/enemy_armored.png", Constants::SHIP_WIDTH,  BLUE,   {} },
+	{ "Assets/Sprites/enemy_shooter.png", Constants::SHIP_WIDTH,  ORANGE, {} },
 	} };
 
 	std::array<Sprite, 4> g_powerUpsSprites{ {
 
-	{ "Assets/PowerUps/extra_life.png",		kPowerUpHitboxSize,  WHITE, {} },
-	{ "Assets/PowerUps/bonus_score.png",	kPowerUpHitboxSize,  WHITE, {} },
-	{ "Assets/PowerUps/rapid_fire.png",		kPowerUpHitboxSize,  WHITE, {} },
-	{ "Assets/PowerUps/multi_shot.png",		kPowerUpHitboxSize,  WHITE, {} },
+	{ "Assets/PowerUps/extra_life.png",		Constants::POWER_UP_WIDTH,  WHITE, {} },
+	{ "Assets/PowerUps/bonus_score.png",	Constants::POWER_UP_WIDTH,  WHITE, {} },
+	{ "Assets/PowerUps/rapid_fire.png",		Constants::POWER_UP_WIDTH,  WHITE, {} },
+	{ "Assets/PowerUps/multi_shot.png",		Constants::POWER_UP_WIDTH,  WHITE, {} },
 	} };
 
 
@@ -369,7 +354,7 @@ namespace
 		for (const auto& projectile : projectiles)
 		{
 			DrawRectangle(static_cast<int>(projectile.position.x), static_cast<int>(projectile.position.y),
-				kProjectileWidth, kProjectileHeight, color);
+				static_cast<int>(Constants::PROJECTILE_WIDTH), static_cast<int>(Constants::PROJECTILE_HEIGHT), color);
 		}
 	}
 
@@ -385,15 +370,15 @@ namespace
 	{
 		for (const auto& wall : wallsState)
 		{
-			for (size_t row = 0; row < kWallRows; ++row)
+			for (size_t row = 0; row < Constants::WALL_ROWS; ++row)
 			{
-				for (size_t col = 0; col < kWallCols; ++col)
+				for (size_t col = 0; col < Constants::WALL_COLS; ++col)
 				{
-					if (wall.cells[row * kWallCols + col])
+					if (wall.cells[row * Constants::WALL_COLS + col])
 					{
-						const float x = wall.position.x + col * kCellHitboxSize;
-						const float y = wall.position.y + row * kCellHitboxSize;
-						DrawRectangle(static_cast<int>(x), static_cast<int>(y), kCellHitboxSize, kCellHitboxSize, GREEN);
+						const float x = wall.position.x + col * Constants::CELL_SIZE;
+						const float y = wall.position.y + row * Constants::CELL_SIZE;
+						DrawRectangle(static_cast<int>(x), static_cast<int>(y), static_cast<int>(Constants::CELL_SIZE), static_cast<int>(Constants::CELL_SIZE), GREEN);
 					}
 				}
 			}
@@ -405,7 +390,7 @@ namespace
 		const Sprite& sprite = g_enemySprites[g_enemySprites.size() - 1];
 		if (sprite.texture.id == 0)
 		{
-			DrawFallbackSquare(position.x, position.y, kBossHitboxSize, RED);
+			DrawFallbackSquare(position.x, position.y, Constants::BOSS_WIDTH, RED);
 			return;
 		}
 		DrawTextureInBox(sprite.texture, position.x, position.y, sprite.boxSize, false);
@@ -471,7 +456,7 @@ void GameUI::Initialize()
 {
 	if (m_isInitialized) return;
 
-	InitWindow(kScreenWidth, kScreenHeight, kWindowTitle);
+	InitWindow(static_cast<int>(Constants::SCREEN_WIDTH), static_cast<int>(Constants::SCREEN_HEIGHT), kWindowTitle);
 	SetExitKey(KEY_NULL);
 	SetTargetFPS(kTargetFps);
 
@@ -479,7 +464,7 @@ void GameUI::Initialize()
 
 	ForEachSprite(LoadSprite);
 
-	m_starField.Initialize(kScreenWidth, kScreenHeight, kStarCount);
+	m_starField.Initialize(static_cast<int>(Constants::SCREEN_WIDTH), static_cast<int>(Constants::SCREEN_HEIGHT), kStarCount);
 	m_currentScreen = ScreenType::MAIN_MENU;
 	m_selectedMenuItem = 0;
 	m_shouldExit = false;

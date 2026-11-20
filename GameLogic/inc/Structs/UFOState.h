@@ -2,8 +2,6 @@
 
 #include "API/Structs/Vector2.h"
 
-#include "Utils/Constants.h"
-
 #include <array>
 #include <cstdint>
 
@@ -21,11 +19,7 @@ namespace GameLogic
 		Vector2 position{};
 		float direction{};
 
-		UFOState(float d)
-		{
-			direction = d;
-			if (direction > 0) position = Utils::Constants::UFO_LEFT_SPAWN_POSITION;
-			else               position = Utils::Constants::UFO_RIGHT_SPAWN_POSITION;
-		}
+		UFOState(float d, Vector2 p) :
+			direction{ d }, position{ p } {}
 	};
 }

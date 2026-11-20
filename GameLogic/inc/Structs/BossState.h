@@ -2,8 +2,6 @@
 
 #include "API/Structs/Vector2.h"
 
-#include "Utils/Constants.h"
-
 #include <cstdint>
 
 namespace GameLogic
@@ -13,12 +11,10 @@ namespace GameLogic
 		Vector2 position{};
 		float direction{};
 		int16_t health{};
+		bool isVisible{};
 
-		BossState(int16_t h) :
-			health{ h }, direction{ 1.0f }
-		{
-			position = Utils::Constants::BOSS_SPAWN_POSITION;
-		}
+		BossState(Vector2 p, int16_t h) :
+			health{ h }, position{ p }, direction{ 1.0f } {}
 
 		void ChangeDirection()
 		{

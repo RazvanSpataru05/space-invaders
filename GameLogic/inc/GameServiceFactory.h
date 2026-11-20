@@ -2,7 +2,7 @@
 
 #include "API/Interfaces/IGameService.h"
 
-#include "GameSession.h"
+#include "GameService.h"
 
 #include <memory>
 

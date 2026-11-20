@@ -163,12 +163,13 @@
     <ClInclude Include="inc\API\Structs\GameEntities.h" />
     <ClInclude Include="inc\API\Structs\GameProgress.h" />
     <ClInclude Include="inc\API\Structs\Vector2.h" />
+    <ClInclude Include="inc\API\Utils\GameConstants.h" />
     <ClInclude Include="inc\Enums\EnemyType.h" />
     <ClInclude Include="inc\Enums\EventType.h" />
     <ClInclude Include="inc\Enums\PowerUpType.h" />
     <ClInclude Include="inc\GameConfigFactory.h" />
     <ClInclude Include="inc\GameServiceFactory.h" />
-    <ClInclude Include="inc\GameSession.h" />
+    <ClInclude Include="inc\GameService.h" />
     <ClInclude Include="inc\Structs\ActivePowerUp.h" />
     <ClInclude Include="inc\Structs\BossState.h" />
     <ClInclude Include="inc\Structs\EnemyConfig.h" />
@@ -187,7 +188,7 @@
   <ItemGroup>
     <ClCompile Include="inc\GameConfigFactory.cpp" />
     <ClCompile Include="src\GameServiceFactory.cpp" />
-    <ClCompile Include="src\GameSession.cpp" />
+    <ClCompile Include="src\GameService.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

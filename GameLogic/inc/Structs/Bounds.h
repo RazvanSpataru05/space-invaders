@@ -2,7 +2,7 @@
 
 #include "API/Structs/Vector2.h"
 
-#include "Utils/Constants.h"
+#include "API/Utils/GameConstants.h"
 
 struct Bounds
 {

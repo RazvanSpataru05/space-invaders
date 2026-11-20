@@ -5,7 +5,6 @@
 
 #include "API/Interfaces/IGameEventSource.h"
 
-#include "API/Structs/GameProgress.h"
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 #include "Structs/ProjectileState.h"

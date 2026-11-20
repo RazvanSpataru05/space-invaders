@@ -16,10 +16,10 @@
 #include <iostream>
 #include <random>
 
-class GameSession final : public GameLogic::IGameService
+class GameService final : public GameLogic::IGameService
 {
 public:
-	explicit GameSession();
+	explicit GameService();
 
 	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
 	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
@@ -88,11 +88,11 @@ private:
 	void SpawnBossProjectile() noexcept;
 
 private:
-	GameSession(const GameSession&) = delete;
-	GameSession& operator=(const GameSession&) = delete;
+	GameService(const GameService&) = delete;
+	GameService& operator=(const GameService&) = delete;
 
-	GameSession(GameSession&&) = delete;
-	GameSession& operator=(GameSession&) = delete;
+	GameService(GameService&&) = delete;
+	GameService& operator=(GameService&) = delete;
 
 private:
 	GameLogic::GameEntities m_entities;

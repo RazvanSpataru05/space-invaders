@@ -1,30 +1,22 @@
 #pragma once
 
+#include "API/Utils/GameConstants.h"
 #include "API/Structs/Vector2.h"
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <string_view>
 
 namespace GameLogic::Utils::Constants
 {
-	constexpr float INITIAL_ENEMY_DIRECTION{ 1.0f }; // 1: enemies move to right, -1: enemies move to the left
+	inline constexpr float INITIAL_ENEMY_DIRECTION{ 1.0f }; // 1: enemies move to right, -1: enemies move to the left
 
-	constexpr int TWO_ROWS_COUNT{ 12 };
+	inline constexpr int TWO_ROWS_COUNT{ 12 };
 
-	constexpr float PROJECTILE_WIDTH{ 2.0f };
-	constexpr float PROJECTILE_HEIGHT{ 10.0f };
+	inline constexpr float WIDTH_OFFSET{ 40.0f };
 
-	constexpr float SHIP_WIDTH{ 40.0f };
-	constexpr float POWER_UP_WIDTH{ 30.0f };
-	constexpr float UFO_WIDTH{ 50.0f };
-	constexpr float BOSS_WIDTH{ 150.0f };
-	constexpr float CELL_SIZE{ 5.0f };
-
-	constexpr float SCREEN_HEIGHT{ 720.0f };
-	constexpr float SCREEN_WIDTH{ 960.0f };
-	constexpr float WIDTH_OFFSET{ 40.0f };
-
-	inline constexpr std::array<const std::string_view, 16> WALL_TEMPLATE{
+	inline constexpr std::array<std::string_view, 16> WALL_TEMPLATE{
 	"....##############....",
 	"...################...",
 	"..##################..",
@@ -43,21 +35,17 @@ namespace GameLogic::Utils::Constants
 	"#####............#####",
 	};
 
-	inline constexpr size_t WALL_ROWS = WALL_TEMPLATE.size();
-	inline constexpr size_t WALL_COLS = WALL_TEMPLATE[0].size();
-	inline constexpr float WALL_CELL_SIZE{ 5.0f };
-	constexpr size_t WALL_COUNT{ 4 };
-	constexpr float WALLS_GAP{ 120.0f };
+	inline constexpr size_t WALL_COUNT{ 4 };
+	inline constexpr float WALLS_GAP{ 120.0f };
 
-	const Vector2 PLAYER_SPAWN_POSITION{ Vector2(480.0f, 660.0f) };
-	const Vector2 UFO_LEFT_SPAWN_POSITION{ Vector2(0.0f, 75.0f) };
-	const Vector2 UFO_RIGHT_SPAWN_POSITION{ Vector2(960.0f, 75.0f) };
-	const Vector2 FIRST_WALL_POSITION{ Vector2(80.0f, 560.0f) };
+	inline const Vector2 PLAYER_SPAWN_POSITION{ 480.0f, 660.0f };
+	inline const Vector2 UFO_LEFT_SPAWN_POSITION{ 0.0f, 75.0f };
+	inline const Vector2 UFO_RIGHT_SPAWN_POSITION{ 960.0f, 75.0f };
+	inline const Vector2 FIRST_WALL_POSITION{ 80.0f, 560.0f };
 
-	constexpr float UFO_WARNING_TIME{ 3.0f };
-	constexpr float UFO_LEAVING_DISTANCE{ 150.0f };
+	inline const float UFO_WARNING_TIME{ 3.0f };
+	inline const float UFO_LEAVING_DISTANCE{ 150.0f };
 
-	const Vector2 BOSS_SPAWN_POSITION{ Vector2(320.0f, 80.0f) };
-
-	constexpr uint8_t POWER_UP_TYPES{ 4u };
+	inline const Vector2 BOSS_SPAWN_POSITION{ 405.0f, -125.0f };
+	inline const Vector2 BOSS_DESIRED_LOCATION{ 405.0f, 80.0f };
 }

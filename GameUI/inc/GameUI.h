@@ -6,8 +6,6 @@
 #include "API/Interfaces/IGameEventObserver.h"
 #include "API/Interfaces/IGameService.h"
 
-#include "API/Structs/GameProgress.h"
-
 #include "Structs/PlayerState.h"
 #include "Structs/EnemyState.h"
 
@@ -26,7 +24,7 @@
 #include <span>
 #include <string>
 #include <cstdint>
-#include <iostream>
+#include <memory>
 
 class GameUI final : public GameLogic::IGameEventObserver
 {

@@ -9,6 +9,8 @@
 #include "Structs/BossState.h"
 #include "Structs/WallState.h"
 
+#include "Utils/Constants.h"
+
 #include <array>
 #include <vector>
 #include <optional>
@@ -29,7 +31,7 @@ namespace GameLogic
 
         void Reset(uint8_t lives)
         {
-            player.Reset(lives);
+            player.Reset(Utils::Constants::PLAYER_SPAWN_POSITION, lives);
             enemies.clear();
             enemyProjectiles.clear();
             playerProjectiles.clear();

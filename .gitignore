@@ -5,6 +5,8 @@
 # Visual Studio local state
 .vs/
 
+packages/
+
 # Build output, for every project, platform and configuration
 x64/
 x86/

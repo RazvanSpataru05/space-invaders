@@ -15,11 +15,14 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <cstdint>
+
 
 class GameService final : public GameLogic::IGameService
 {
 public:
 	explicit GameService();
+	GameService(GameLogic::GameConfig config, uint32_t seed);
 
 	void Subscribe(GameLogic::IGameEventObserver* observer)		override;
 	void Unsubscribe(GameLogic::IGameEventObserver* observer)	override;
@@ -95,10 +98,11 @@ private:
 	GameService& operator=(GameService&) = delete;
 
 private:
+	GameLogic::GameConfig m_config;
+
 	GameLogic::GameEntities m_entities;
 	GameLogic::GameProgress m_progress;
 
-	GameLogic::GameConfig m_config;
 	GameLogic::GameState m_gameState;
 
 	std::vector<GameLogic::IGameEventObserver*> m_observers;

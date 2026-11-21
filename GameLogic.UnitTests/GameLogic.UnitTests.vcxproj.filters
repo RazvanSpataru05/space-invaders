@@ -41,6 +41,21 @@
     <ClCompile Include="ActivePowerUpTests.cpp">
       <Filter>StructTests</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyHealthTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyCheckEdgeTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="GetUniformEnemyDistributionTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="IsValidIndex.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -48,6 +63,15 @@
   <ItemGroup>
     <Filter Include="StructTests">
       <UniqueIdentifier>{719f67b7-913e-4247-897b-e5f9c2252bc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests">
+      <UniqueIdentifier>{16f6db13-4c76-40e0-a76b-623e927350df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests\Enemy">
+      <UniqueIdentifier>{cd530256-e4c1-44ab-a8fc-a17cf41b7348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests\Player">
+      <UniqueIdentifier>{7e3ea5ab-69a2-4ebb-96a2-9c87e00cb928}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

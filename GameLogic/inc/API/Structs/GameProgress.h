@@ -22,7 +22,7 @@ namespace GameLogic
         float baseEnemySpeed{};
         float dropDistance{};
 
-        float fireRateMultiplier{};
+        float fireRateMultiplier{ 1.0f};
 
         bool bossDefeated{};
         bool ufoApproaching{};

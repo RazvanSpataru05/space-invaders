@@ -2,7 +2,7 @@
 #include "API/Structs/GameEntities.h"
 #include "Utils/Constants.h"
 
-namespace C = GameLogic::Utils::Constants;
+namespace Constants = GameLogic::Utils::Constants;
 
 class GameEntitiesTests : public ::testing::Test
 {
@@ -19,8 +19,8 @@ protected:
 		entities.enemyProjectiles.emplace_back(GameLogic::Vector2{ 7.0f, 8.0f }, 400.0f, 1u);
 		entities.powerUpPickups.emplace_back(GameLogic::Vector2{ 9.0f, 11.0f }, GameLogic::PowerUpType::EXTRA_LIFE);
 		entities.activePowerUps.emplace_back(10.0f, GameLogic::PowerUpType::RAPID_FIRE);
-		entities.ufo.emplace(1.0f, C::UFO_LEFT_SPAWN_POSITION);
-		entities.boss.emplace(C::BOSS_SPAWN_POSITION, 1000);
+		entities.ufo.emplace(1.0f, Constants::UFO_LEFT_SPAWN_POSITION);
+		entities.boss.emplace(Constants::BOSS_SPAWN_POSITION, 1000);
 	}
 };
 
@@ -47,7 +47,7 @@ TEST(GameEntitiesDefaultTests, HasOneStateForEachWall)
 {
 	const GameLogic::GameEntities entities;
 
-	EXPECT_EQ(entities.wallsState.size(), C::WALL_COUNT);
+	EXPECT_EQ(entities.wallsState.size(), Constants::WALL_COUNT);
 }
 
 TEST_F(GameEntitiesTests, ResetRemovesAllEnemies)
@@ -85,8 +85,8 @@ TEST_F(GameEntitiesTests, ResetPlacesPlayerAtSpawnPositionAndGivesItLives)
 {
 	entities.Reset(4u);
 
-	EXPECT_FLOAT_EQ(entities.player.position.x, C::PLAYER_SPAWN_POSITION.x);
-	EXPECT_FLOAT_EQ(entities.player.position.y, C::PLAYER_SPAWN_POSITION.y);
+	EXPECT_FLOAT_EQ(entities.player.position.x, Constants::PLAYER_SPAWN_POSITION.x);
+	EXPECT_FLOAT_EQ(entities.player.position.y, Constants::PLAYER_SPAWN_POSITION.y);
 	EXPECT_EQ(entities.player.livesCount, 4u);
 }
 

@@ -23,6 +23,24 @@
     <ClCompile Include="GameEntitiesTests.cpp">
       <Filter>StructTests</Filter>
     </ClCompile>
+    <ClCompile Include="BoundsTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundsProjectileTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpPickupTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ActivePowerUpTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

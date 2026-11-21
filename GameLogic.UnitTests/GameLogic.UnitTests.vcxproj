@@ -109,7 +109,11 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActivePowerUpTests.cpp" />
     <ClCompile Include="BossStateTests.cpp" />
+    <ClCompile Include="BoundsProjectileTests.cpp" />
+    <ClCompile Include="BoundsTests.cpp" />
+    <ClCompile Include="EnemyStateTests.cpp" />
     <ClCompile Include="GameEntitiesTests.cpp" />
     <ClCompile Include="GameProgressTests.cpp" />
     <ClCompile Include="pch.cpp">
@@ -119,6 +123,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PlayerStateTests.cpp" />
+    <ClCompile Include="PowerUpPickupTests.cpp" />
+    <ClCompile Include="ProjectileStateTests.cpp" />
     <ClCompile Include="UFOStateTests.cpp" />
     <ClCompile Include="Vector2Tests.cpp" />
     <ClCompile Include="WallStateTests.cpp" />

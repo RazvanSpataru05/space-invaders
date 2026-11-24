@@ -36,6 +36,9 @@
     <ClInclude Include="inc\UfoSirenPhase.h">
       <Filter>inc</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Star.h">
+      <Filter>inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">

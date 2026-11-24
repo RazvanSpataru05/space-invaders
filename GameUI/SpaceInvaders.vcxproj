@@ -163,6 +163,7 @@
     <ClInclude Include="inc\PauseMenuItem.h" />
     <ClInclude Include="inc\ScreenType.h" />
     <ClInclude Include="inc\SoundCue.h" />
+    <ClInclude Include="inc\Star.h" />
     <ClInclude Include="inc\StarField.h" />
     <ClInclude Include="inc\UfoSirenPhase.h" />
     <ClInclude Include="inc\VerdictMenuItem.h" />

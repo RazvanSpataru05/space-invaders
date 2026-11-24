@@ -47,13 +47,13 @@ namespace
     }
 }
 
-void StarField::Initialize(int width, int height, int starCount)
+void StarField::Initialize(int width, int height, size_t starCount)
 {
     m_width = width;
     m_height = height;
     m_time = 0.0f;
 
-    m_stars.assign(static_cast<std::size_t>(starCount), Star{});
+    m_stars.assign(starCount, Star{});
     for (Star& star : m_stars)
     {
         ResetStar(star, true);

@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Vector2Tests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="BossStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="UFOStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="WallStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameProgressTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEntitiesTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundsTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundsProjectileTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileStateTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpPickupTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ActivePowerUpTests.cpp">
+      <Filter>StructTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyHealthTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyCheckEdgeTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyMovementTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="GetUniformEnemyDistributionTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="IsValidIndex.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="AABBCollisionTests.cpp">
+      <Filter>UtilsTests\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerUtilsTests.cpp">
+      <Filter>UtilsTests\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GameServicePowerUpTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceBossTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceUfoTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceObserverTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceShootTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceWallTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceLevelTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceMovementTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServiceEnemyTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServicePlayerHitTests.cpp">
+      <Filter>GameServiceTests</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="GameServiceFixture.h">
+      <Filter>GameServiceTests</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="StructTests">
+      <UniqueIdentifier>{719f67b7-913e-4247-897b-e5f9c2252bc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests">
+      <UniqueIdentifier>{16f6db13-4c76-40e0-a76b-623e927350df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests\Enemy">
+      <UniqueIdentifier>{cd530256-e4c1-44ab-a8fc-a17cf41b7348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UtilsTests\Player">
+      <UniqueIdentifier>{7e3ea5ab-69a2-4ebb-96a2-9c87e00cb928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameServiceTests">
+      <UniqueIdentifier>{ac434e7a-d9f0-46bb-b004-84378a0389f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

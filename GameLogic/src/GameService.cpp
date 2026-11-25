@@ -9,6 +9,14 @@ GameService::GameService() :
 {
 }
 
+GameService::GameService(GameLogic::GameConfig config, uint32_t seed) :
+	m_config{ std::move(config) },
+	m_progress{ m_config },
+	m_gameState{ GameLogic::GameState::PLAYING },
+	m_generator{ seed }
+{
+}
+
 void GameService::Subscribe(GameLogic::IGameEventObserver* observer)
 {
 	if (observer && std::find(m_observers.begin(), m_observers.end(), observer) == m_observers.end())
@@ -332,7 +340,7 @@ void GameService::UpdateActivePowerUpsDuration(float deltaTime)
 
 void GameService::UpdateBoss(float deltaTime)
 {
-	if (!m_entities.boss) return;
+	if (!m_entities.boss || !m_entities.boss->isVisible) return;
 
 	UpdateBossPosition(deltaTime);
 	SpawnBossProjectile();
